@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="custom-local.css" />
+  </head>
+  <body>
+    <div class="container" id="gamepads">
+      <div
+        class="controller active half custom"
+        id="gamepad-0"
+        style="transform-origin: 0 0 0"
+      >
+        <div class="triggers">
+          <span
+            class="trigger left"
+            data-name="button-left-shoulder-bottom"
+          ></span>
+          <span
+            class="trigger right"
+            data-name="button-right-shoulder-bottom"
+          ></span>
+          <span
+            class="trigger-button left"
+            data-name="button-left-shoulder-bottom-digital"
+          ></span>
+          <span
+            class="trigger-button right"
+            data-name="button-right-shoulder-bottom-digital"
+          ></span>
+          <span class="clear"></span>
+        </div>
+        <div class="bumpers">
+          <span class="bumper left" data-name="button-left-shoulder-top"></span>
+          <span
+            class="bumper right"
+            data-name="button-right-shoulder-top"
+          ></span>
+          <span class="clear"></span>
+        </div>
+        <div class="touchpad" data-name="touch-pad"></div>
+        <div class="quadrant"></div>
+        <div class="meta" data-name="button-meta"></div>
+        <div class="arrows">
+          <span class="back" data-name="button-select"></span>
+          <span class="start" data-name="button-start"></span>
+          <span class="clear"></span>
+        </div>
+        <div class="abxy">
+          <span class="button a" data-name="button-1"></span>
+          <span class="button b" data-name="button-2"></span>
+          <span class="button x" data-name="button-3"></span>
+          <span class="button y" data-name="button-4"></span>
+        </div>
+        <div class="sticks">
+          <span class="stick left" data-name="stick-1"></span>
+          <span class="stick right" data-name="stick-2"></span>
+        </div>
+        <div class="wheels">
+          <span class="wheel left" data-name="stick-1-wheel"></span>
+          <span class="wheel right" data-name="stick-2-wheel"></span>
+        </div>
+        <div class="dpad">
+          <span class="face up" data-name="button-dpad-top"></span>
+          <span class="face down" data-name="button-dpad-bottom"></span>
+          <span class="face left" data-name="button-dpad-left"></span>
+          <span class="face right" data-name="button-dpad-right"></span>
+        </div>
+        <div class="fstick" data-name="arcade-stick"></div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
