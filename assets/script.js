@@ -20,10 +20,40 @@ const BUTTONS = {
   Start: ".start",
 };
 
+let leftX = 0;
+let leftY = 0;
+let rightX = 0;
+let rightY = 0;
+const pressedButtons = new Set();
+
 function updateStick(stick, posX, posY) {
   stick.style.transform = `translate(${posX * STICK_OFFSET}px, ${
     -posY * STICK_OFFSET
   }px) rotateX(${posY * STICK_OFFSET}deg) rotateY(${posX * STICK_OFFSET}deg)`;
+}
+
+function applyButtonState(button, isPressed) {
+  const buttonElem = document.querySelector(BUTTONS[button]);
+  if (buttonElem) {
+    if (isPressed) {
+      buttonElem.classList.add("pressed");
+    } else {
+      buttonElem.classList.remove("pressed");
+    }
+  }
+}
+
+function applyAxisState(axis, value) {
+  if (axis === "left_x") leftX = value;
+  if (axis === "left_y") leftY = value;
+  if (axis === "right_x") rightX = value;
+  if (axis === "right_y") rightY = value;
+
+  const leftStick = document.querySelector(".stick.left");
+  if (leftStick) updateStick(leftStick, leftX, leftY);
+
+  const rightStick = document.querySelector(".stick.right");
+  if (rightStick) updateStick(rightStick, rightX, rightY);
 }
 
 function ready() {
@@ -34,26 +64,30 @@ function ready() {
 
   ws.onmessage = function (event) {
     const data = JSON.parse(event.data);
-    console.log('Received:', data);
+    console.log("Received:", data);
 
-    if (!data || data.left_x === undefined) return;
-
-    const leftStick = document.querySelector(".stick.left");
-    if (leftStick) updateStick(leftStick, data.left_x, data.left_y);
-
-    const rightStick = document.querySelector(".stick.right");
-    if (rightStick) updateStick(rightStick, data.right_x, data.right_y);
-
-    const allButtons = Object.values(BUTTONS);
-    for (const button of allButtons) {
-      const buttonElem = document.querySelector(button);
-      if (buttonElem) buttonElem.classList.remove("pressed");
+    // Handle initial full state (object with buttons array)
+    if (data.buttons && Array.isArray(data.buttons)) {
+      for (const button of data.buttons) {
+        pressedButtons.add(button);
+        applyButtonState(button, true);
+      }
+      return;
     }
 
-    const pressedButtons = data.buttons;
-    for (const button of pressedButtons) {
-      const buttonElem = document.querySelector(BUTTONS[button]);
-      if (buttonElem) buttonElem.classList.add("pressed");
+    // Handle events array
+    if (Array.isArray(data)) {
+      for (const event of data) {
+        if (event.type === "ButtonPressed") {
+          pressedButtons.add(event.data);
+          applyButtonState(event.data, true);
+        } else if (event.type === "ButtonReleased") {
+          pressedButtons.delete(event.data);
+          applyButtonState(event.data, false);
+        } else if (event.type === "AxisChanged") {
+          applyAxisState(event.data.axis, event.data.value);
+        }
+      }
     }
   };
 

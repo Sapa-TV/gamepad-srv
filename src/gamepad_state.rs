@@ -1,8 +1,15 @@
-use gilrs::{Axis, Button, Event, EventType};
-use serde::Serialize;
-use std::collections::HashSet;
+use gilrs::{Axis, Button};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type", content = "data")]
+pub enum GamepadEvent {
+    ButtonPressed(String),
+    ButtonReleased(String),
+    AxisChanged { axis: String, value: f32 },
+}
+
+#[derive(Debug, Serialize, Clone)]
 pub struct GamepadOutput {
     pub left_x: f32,
     pub left_y: f32,
@@ -11,12 +18,13 @@ pub struct GamepadOutput {
     pub buttons: Vec<String>,
 }
 
+#[derive(Clone)]
 pub struct GamepadState {
     pub left_x: f32,
     pub left_y: f32,
     pub right_x: f32,
     pub right_y: f32,
-    pub pressed_buttons: HashSet<String>,
+    pub buttons: Vec<String>,
 }
 
 impl GamepadState {
@@ -26,24 +34,32 @@ impl GamepadState {
             left_y: 0.0,
             right_x: 0.0,
             right_y: 0.0,
-            pressed_buttons: HashSet::new(),
+            buttons: Vec::new(),
         }
     }
 
     pub fn to_output(&self) -> GamepadOutput {
-        let mut buttons: Vec<String> = self.pressed_buttons.iter().cloned().collect();
-        buttons.sort();
         GamepadOutput {
             left_x: self.left_x,
             left_y: self.left_y,
             right_x: self.right_x,
             right_y: self.right_y,
-            buttons,
+            buttons: self.buttons.clone(),
         }
     }
 }
 
-fn button_name(button: Button) -> &'static str {
+pub fn axis_name(axis: Axis) -> &'static str {
+    match axis {
+        Axis::LeftStickX => "left_x",
+        Axis::LeftStickY => "left_y",
+        Axis::RightStickX => "right_x",
+        Axis::RightStickY => "right_y",
+        _ => "unknown",
+    }
+}
+
+pub fn button_name(button: Button) -> &'static str {
     match button {
         Button::South => "South",
         Button::East => "East",
@@ -63,28 +79,5 @@ fn button_name(button: Button) -> &'static str {
         Button::LeftTrigger2 => "LeftShoulder",
         Button::RightTrigger2 => "RightShoulder",
         _ => "Unknown",
-    }
-}
-
-pub fn process_event(state: &mut GamepadState, event: Event) {
-    match event.event {
-        EventType::ButtonPressed(btn, _) => {
-            let name = button_name(btn).to_string();
-            state.pressed_buttons.insert(name);
-        }
-        EventType::ButtonReleased(btn, _) => {
-            let name = button_name(btn).to_string();
-            state.pressed_buttons.remove(&name);
-        }
-        EventType::AxisChanged(axis, value, _) => {
-            match axis {
-                Axis::LeftStickX => state.left_x = value,
-                Axis::LeftStickY => state.left_y = value,
-                Axis::RightStickX => state.right_x = value,
-                Axis::RightStickY => state.right_y = value,
-                _ => {}
-            }
-        }
-        _ => {}
     }
 }

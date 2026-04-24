@@ -1,20 +1,30 @@
-use std::{net::SocketAddr, time::Duration};
+use std::{net::SocketAddr, time::Duration, sync::Arc};
 use std::net::ToSocketAddrs;
+use std::sync::Mutex;
 
-use crate::gamepad_state::{process_event, GamepadState};
+use crate::gamepad_state::{GamepadEvent, GamepadState};
+use crate::event_processor::process_event;
 use axum::{
     Router,
-    extract::{WebSocketUpgrade, ws::WebSocket},
+    extract::{State as AxumState, WebSocketUpgrade, ws::WebSocket},
     response::{Html, Response},
     routing::get,
 };
 use gilrs::Gilrs;
 use serde_json::to_string;
 use tokio::{fs, signal};
+use tokio::sync::broadcast;
 use tower_http::services::ServeDir;
 use tracing::{info, debug, error};
 
 mod gamepad_state;
+mod event_processor;
+
+#[derive(Clone)]
+struct AppState {
+    gamepad_state: Arc<Mutex<GamepadState>>,
+    tx: Arc<broadcast::Sender<GamepadEvent>>,
+}
 
 #[tokio::main]
 async fn main() {
@@ -30,9 +40,45 @@ async fn main() {
 
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
     
+    let gamepad_state: Arc<Mutex<GamepadState>> = Arc::new(Mutex::new(GamepadState::new()));
+    let gamepad_state_clone = gamepad_state.clone();
+
+    let (tx, _rx) = broadcast::channel(100);
+    let tx = Arc::new(tx);
+    let tx_clone = tx.clone();
+
+    tokio::spawn(async move {
+        let mut gilrs = match Gilrs::new() {
+            Ok(g) => g,
+            Err(e) => {
+                error!("Failed to initialize gilrs: {}", e);
+                return;
+            }
+        };
+
+        info!("Gamepad polling started");
+
+        loop {
+            while let Some(event) = gilrs.next_event() {
+                let mut state = gamepad_state_clone.lock().unwrap();
+                if let Some(gamepad_event) = process_event(&mut state, event) {
+                    debug!("Gamepad event: {:?}", gamepad_event);
+                    let _ = tx_clone.send(gamepad_event);
+                }
+            }
+            tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
+        }
+    });
+
+    let app_state = AppState {
+        gamepad_state,
+        tx,
+    };
+
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/ws", get(ws_handler))
+        .with_state(app_state)
         .fallback_service(ServeDir::new("assets"));
 
     info!("Server starting on:");
@@ -58,46 +104,44 @@ async fn index_handler() -> Html<String> {
     }
 }
 
-async fn ws_handler(ws: WebSocketUpgrade) -> Response {
-    ws.on_upgrade(handle_socket)
+async fn ws_handler(
+    ws: WebSocketUpgrade, 
+    AxumState(state): AxumState<AppState>
+) -> Response {
+    let rx = state.tx.subscribe();
+    let gamepad_state = state.gamepad_state.clone();
+    ws.on_upgrade(move |socket| handle_socket(socket, gamepad_state, rx))
 }
 
-async fn handle_socket(mut socket: WebSocket) {
+async fn handle_socket(
+    mut socket: WebSocket, 
+    state: Arc<Mutex<GamepadState>>,
+    mut rx: broadcast::Receiver<GamepadEvent>
+) {
     info!("WebSocket client connected");
 
-    let mut gilrs = match Gilrs::new() {
-        Ok(g) => g,
-        Err(e) => {
-            error!("Failed to initialize gilrs: {}", e);
-            return;
-        }
+    // Send initial full state
+    let output = {
+        let s = state.lock().unwrap();
+        s.to_output()
     };
+    let _ = socket.send(to_string(&output).unwrap().into()).await;
 
-    let mut state = GamepadState::new();
-    let mut gamepad_id: Option<gilrs::GamepadId> = None;
-
+    // Stream events to client
     loop {
         tokio::select! {
             _ = signal::ctrl_c() => {
                 info!("Ctrl+C received, closing websocket");
                 break;
             }
-            _ = async {
-                while let Some(event) = gilrs.next_event() {
-                    if gamepad_id.is_none() {
-                        gamepad_id = Some(event.id);
-                        info!("Gamepad connected: {:?}", event.id);
+            event = rx.recv() => {
+                match event {
+                    Ok(e) => {
+                        let _ = socket.send(to_string(&vec![e]).unwrap().into()).await;
                     }
-
-                    process_event(&mut state, event);
-                    let output = state.to_output();
-                    debug!("State: left=({}, {}) right=({}, {}) buttons={:?}", 
-                        output.left_x, output.left_y, output.right_x, output.right_y, output.buttons);
-                    let _ = socket.send(to_string(&output).unwrap().into()).await;
+                    Err(_) => break,
                 }
-
-                tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
-            } => {}
+            }
         }
     }
 
