@@ -34,18 +34,15 @@ function ready() {
 
   ws.onmessage = function (event) {
     const data = JSON.parse(event.data);
+    console.log('Received:', data);
 
-    // console.log(event.data);
+    if (!data || data.left_x === undefined) return;
 
     const leftStick = document.querySelector(".stick.left");
-    const leftX = data.left[0];
-    const leftY = data.left[1];
-    updateStick(leftStick, leftX, leftY);
+    if (leftStick) updateStick(leftStick, data.left_x, data.left_y);
 
     const rightStick = document.querySelector(".stick.right");
-    const rightX = data.right[0];
-    const rightY = data.right[1];
-    updateStick(rightStick, rightX, rightY);
+    if (rightStick) updateStick(rightStick, data.right_x, data.right_y);
 
     const allButtons = Object.values(BUTTONS);
     for (const button of allButtons) {

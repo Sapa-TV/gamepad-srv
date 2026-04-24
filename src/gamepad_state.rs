@@ -1,52 +1,90 @@
-use gamepad::{Button, GamepadState};
+use gilrs::{Axis, Button, Event, EventType};
 use serde::Serialize;
+use std::collections::HashSet;
 
 #[derive(Debug, Serialize, Clone, PartialEq)]
-pub struct SingleGamepadeState {
-    pub left: (f32, f32),
-    pub right: (f32, f32),
+pub struct GamepadOutput {
+    pub left_x: f32,
+    pub left_y: f32,
+    pub right_x: f32,
+    pub right_y: f32,
     pub buttons: Vec<String>,
 }
 
-fn button_name(button: &Button) -> String {
-    let result = match button {
-        Button::DPadEast => "DPadEast",
-        Button::DPadWest => "DPadWest",
-        Button::DPadNorth => "DPadNorth",
-        Button::DPadSouth => "DPadSouth",
-        Button::East => "East",
-        Button::West => "West",
-        Button::North => "North",
+pub struct GamepadState {
+    pub left_x: f32,
+    pub left_y: f32,
+    pub right_x: f32,
+    pub right_y: f32,
+    pub pressed_buttons: HashSet<String>,
+}
+
+impl GamepadState {
+    pub fn new() -> Self {
+        Self {
+            left_x: 0.0,
+            left_y: 0.0,
+            right_x: 0.0,
+            right_y: 0.0,
+            pressed_buttons: HashSet::new(),
+        }
+    }
+
+    pub fn to_output(&self) -> GamepadOutput {
+        let mut buttons: Vec<String> = self.pressed_buttons.iter().cloned().collect();
+        buttons.sort();
+        GamepadOutput {
+            left_x: self.left_x,
+            left_y: self.left_y,
+            right_x: self.right_x,
+            right_y: self.right_y,
+            buttons,
+        }
+    }
+}
+
+fn button_name(button: Button) -> &'static str {
+    match button {
         Button::South => "South",
-        Button::LeftShoulder => "LeftShoulder",
-        Button::RightShoulder => "RightShoulder",
+        Button::East => "East",
+        Button::North => "North",
+        Button::West => "West",
         Button::LeftTrigger => "LeftTrigger",
         Button::RightTrigger => "RightTrigger",
-        Button::LeftStick => "LeftStick",
-        Button::RightStick => "RightStick",
-        Button::Menu => "Menu",
         Button::Select => "Select",
         Button::Start => "Start",
-    };
-    String::from(result)
+        Button::LeftThumb => "LeftStick",
+        Button::RightThumb => "RightStick",
+        Button::DPadUp => "DPadNorth",
+        Button::DPadDown => "DPadSouth",
+        Button::DPadLeft => "DPadWest",
+        Button::DPadRight => "DPadEast",
+        Button::Mode => "Menu",
+        Button::LeftTrigger2 => "LeftShoulder",
+        Button::RightTrigger2 => "RightShoulder",
+        _ => "Unknown",
+    }
 }
 
-pub fn get_pressed_buttons(state: &GamepadState) -> Vec<String> {
-    let mut buttons: Vec<String> = state
-        .buttons()
-        .iter()
-        .filter(|(_, value)| value.is_pressed())
-        .map(|(button, _)| button_name(button))
-        .collect();
-    buttons.sort();
-    buttons
-}
-
-pub fn convert_state(state: &GamepadState) -> SingleGamepadeState {
-    let buttons = get_pressed_buttons(state);
-    SingleGamepadeState {
-        left: state.joystick(gamepad::Joystick::Left),
-        right: state.joystick(gamepad::Joystick::Right),
-        buttons,
+pub fn process_event(state: &mut GamepadState, event: Event) {
+    match event.event {
+        EventType::ButtonPressed(btn, _) => {
+            let name = button_name(btn).to_string();
+            state.pressed_buttons.insert(name);
+        }
+        EventType::ButtonReleased(btn, _) => {
+            let name = button_name(btn).to_string();
+            state.pressed_buttons.remove(&name);
+        }
+        EventType::AxisChanged(axis, value, _) => {
+            match axis {
+                Axis::LeftStickX => state.left_x = value,
+                Axis::LeftStickY => state.left_y = value,
+                Axis::RightStickX => state.right_x = value,
+                Axis::RightStickY => state.right_y = value,
+                _ => {}
+            }
+        }
+        _ => {}
     }
 }

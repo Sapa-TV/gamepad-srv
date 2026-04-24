@@ -1,17 +1,18 @@
 use std::{net::SocketAddr, time::Duration};
+use std::net::ToSocketAddrs;
 
-use crate::gamepad_state::convert_state;
+use crate::gamepad_state::{process_event, GamepadState};
 use axum::{
     Router,
     extract::{WebSocketUpgrade, ws::WebSocket},
     response::{Html, Response},
     routing::get,
 };
-use gamepad::GamepadEngine;
+use gilrs::Gilrs;
 use serde_json::to_string;
 use tokio::{fs, signal};
 use tower_http::services::ServeDir;
-use tracing::{info, debug};
+use tracing::{info, debug, error};
 
 mod gamepad_state;
 
@@ -24,15 +25,19 @@ async fn main() {
         )
         .init();
 
+    let addr: SocketAddr = "0.0.0.0:3000".to_socket_addrs().unwrap().next().unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+
+    let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
+    
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/ws", get(ws_handler))
         .fallback_service(ServeDir::new("assets"));
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-
-    info!("Server starting on {}", addr);
+    info!("Server starting on:");
+    info!("  http://localhost:{}", addr.port());
+    info!("  http://{}:{}", local_ip, addr.port());
 
     axum::serve(listener, app)
         .with_graceful_shutdown(graceful_shutdown())
@@ -60,8 +65,16 @@ async fn ws_handler(ws: WebSocketUpgrade) -> Response {
 async fn handle_socket(mut socket: WebSocket) {
     info!("WebSocket client connected");
 
-    let mut gamepad_engine = GamepadEngine::new();
-    let mut prev_buttons: Vec<String> = Vec::new();
+    let mut gilrs = match Gilrs::new() {
+        Ok(g) => g,
+        Err(e) => {
+            error!("Failed to initialize gilrs: {}", e);
+            return;
+        }
+    };
+
+    let mut state = GamepadState::new();
+    let mut gamepad_id: Option<gilrs::GamepadId> = None;
 
     loop {
         tokio::select! {
@@ -70,22 +83,17 @@ async fn handle_socket(mut socket: WebSocket) {
                 break;
             }
             _ = async {
-                gamepad_engine.update().unwrap();
-
-                let gamepad = gamepad_engine.gamepads().get(0);
-
-                match gamepad {
-                    Some(gamepad) => {
-                       let state = convert_state(gamepad);
-                       
-                       if state.buttons != prev_buttons {
-                           debug!("Buttons changed: {:?}", state.buttons);
-                           prev_buttons = state.buttons.clone();
-                       }
-                       
-                       let _ = socket.send(to_string(&state).unwrap().into()).await;
+                while let Some(event) = gilrs.next_event() {
+                    if gamepad_id.is_none() {
+                        gamepad_id = Some(event.id);
+                        info!("Gamepad connected: {:?}", event.id);
                     }
-                    None => {}
+
+                    process_event(&mut state, event);
+                    let output = state.to_output();
+                    debug!("State: left=({}, {}) right=({}, {}) buttons={:?}", 
+                        output.left_x, output.left_y, output.right_x, output.right_y, output.buttons);
+                    let _ = socket.send(to_string(&output).unwrap().into()).await;
                 }
 
                 tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
