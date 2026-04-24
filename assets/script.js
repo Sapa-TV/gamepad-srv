@@ -1,4 +1,4 @@
-const STICK_OFFSET = 22;
+const STICK_OFFSET = 30;
 
 const isDebug = new URLSearchParams(window.location.search).get('debug') === 'true';
 
@@ -56,7 +56,7 @@ function applyButtonState(button, isPressed) {
   if (elem) {
     elem.classList.toggle('visible', isPressed);
   }
-  
+
   if (button === 'LS' && STICKS.left.base) {
     STICKS.left.base.classList.toggle('hidden', isPressed);
     STICKS.left.active.classList.toggle('visible', isPressed);
@@ -80,16 +80,16 @@ function applyAxisState(axis, value) {
   } else if (axis === 'rx' || axis === 'ry') {
     stick = STICKS.right;
   }
-  
+
   if (stick) {
     let offsetX = 0;
     let offsetY = 0;
-    
+
     if (axis === 'lx') offsetX = (value / 127) * STICK_OFFSET;
     if (axis === 'ly') offsetY = -(value / 127) * STICK_OFFSET;
     if (axis === 'rx') offsetX = (value / 127) * STICK_OFFSET;
     if (axis === 'ry') offsetY = -(value / 127) * STICK_OFFSET;
-    
+
     stick.base.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
     stick.active.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
   }
@@ -100,7 +100,7 @@ function applySticks(sticks) {
   const offsetY = -(sticks.ly / 127) * STICK_OFFSET;
   STICKS.left.base.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
   STICKS.left.active.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-  
+
   const offsetX2 = (sticks.rx / 127) * STICK_OFFSET;
   const offsetY2 = -(sticks.ry / 127) * STICK_OFFSET;
   STICKS.right.base.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
@@ -154,7 +154,7 @@ function connect() {
 
     const delay = RECONNECT_DELAYS[Math.min(reconnectAttempt, RECONNECT_DELAYS.length - 1)];
     log(`Reconnecting in ${delay}ms... (attempt ${reconnectAttempt + 1})`);
-    
+
     reconnectAttempt++;
     setTimeout(connect, delay);
   };
