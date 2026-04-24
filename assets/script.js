@@ -1,5 +1,11 @@
 const STICK_OFFSET = 22;
 
+const isDebug = new URLSearchParams(window.location.search).get('debug') === 'true';
+
+const log = (...args) => { if (isDebug) console.log(...args); };
+
+const RECONNECT_DELAYS = [0, 1000, 2000, 4000, 8000, 16000, 30000];
+
 const BUTTONS = {
   DPadEast: ".dpad .right",
   DPadWest: ".dpad .left",
@@ -25,6 +31,19 @@ let leftY = 0;
 let rightX = 0;
 let rightY = 0;
 const pressedButtons = new Set();
+
+let reconnectAttempt = 0;
+const statusElem = document.getElementById("status");
+
+function updateStatus(connected) {
+  if (statusElem) {
+    if (connected) {
+      statusElem.classList.remove("disconnected");
+    } else {
+      statusElem.classList.add("disconnected");
+    }
+  }
+}
 
 function updateStick(stick, posX, posY) {
   stick.style.transform = `translate(${posX * STICK_OFFSET}px, ${
@@ -56,18 +75,22 @@ function applyAxisState(axis, value) {
   if (rightStick) updateStick(rightStick, rightX, rightY);
 }
 
-function ready() {
-  const status = document.getElementById("status");
-
+function connect() {
   const host = window.location.host;
   const ws = new WebSocket(`ws://${host}/ws`);
 
+  ws.onopen = () => {
+    log("Connected");
+    reconnectAttempt = 0;
+    updateStatus(true);
+  };
+
   ws.onmessage = function (event) {
     const data = JSON.parse(event.data);
-    console.log("Received:", data);
+    log("Received:", data);
 
-    // Handle initial full state (object with buttons array)
     if (data.buttons && Array.isArray(data.buttons)) {
+      pressedButtons.clear();
       for (const button of data.buttons) {
         pressedButtons.add(button);
         applyButtonState(button, true);
@@ -75,7 +98,6 @@ function ready() {
       return;
     }
 
-    // Handle events array
     if (Array.isArray(data)) {
       for (const event of data) {
         if (event.type === "ButtonPressed") {
@@ -91,9 +113,20 @@ function ready() {
     }
   };
 
-  ws.onclose = function () {
-    //TODO: reconnect
+  ws.onclose = () => {
+    log("Disconnected");
+    updateStatus(false);
+
+    const delay = RECONNECT_DELAYS[Math.min(reconnectAttempt, RECONNECT_DELAYS.length - 1)];
+    log(`Reconnecting in ${delay}ms... (attempt ${reconnectAttempt + 1})`);
+    
+    reconnectAttempt++;
+    setTimeout(connect, delay);
   };
+}
+
+function ready() {
+  connect();
 }
 
 document.addEventListener("DOMContentLoaded", ready);
