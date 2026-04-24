@@ -22,31 +22,6 @@ body {
 
 .gamepad .stick {
   z-index: 1;
-  transition: transform 0.05s, opacity 0.1s;
-}
-
-.gamepad .stick.hidden {
-  opacity: 0;
-  transition: opacity 0.1s 0.1s;
-}
-
-.gamepad .stick-active {
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 0.1s 0.1s;
-}
-
-.gamepad .stick-active.visible {
-  opacity: 1;
-  transition: opacity 0.1s;
-}
-
-.gamepad .bg {
-  position: relative;
-}
-
-.gamepad .stick {
-  z-index: 1;
   transition:
     transform 0.05s,
     opacity 0.1s;
@@ -100,6 +75,37 @@ body {
   top: 284px;
   left: 426px;
   z-index: 1;
+  opacity: 1;
+}
+
+.gamepad .indicator.disconnected {
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 0; }
+  8.33% { opacity: 1; }
+  25% { opacity: 1; }
+  33.33% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.gamepad .indicator {
+  top: 284px;
+  left: 426px;
+  z-index: 1;
+}
+
+.gamepad .indicator.disconnected {
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 0; }
+  8.33% { opacity: 1; }
+  25% { opacity: 1; }
+  33.33% { opacity: 0; }
+  100% { opacity: 0; }
 }
 
 /* D-Pad */

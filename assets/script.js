@@ -39,14 +39,14 @@ const STICKS = {
 const pressedButtons = new Set();
 
 let reconnectAttempt = 0;
-const statusElem = document.getElementById("status");
+const indicatorElem = document.querySelector('.indicator');
 
 function updateStatus(connected) {
-  if (statusElem) {
+  if (indicatorElem) {
     if (connected) {
-      statusElem.classList.remove("disconnected");
+      indicatorElem.classList.remove("disconnected");
     } else {
-      statusElem.classList.add("disconnected");
+      indicatorElem.classList.add("disconnected");
     }
   }
 }
