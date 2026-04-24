@@ -12,7 +12,7 @@ use axum::{
 };
 use gilrs::Gilrs;
 use serde_json::to_string;
-use tokio::{fs, signal};
+use tokio::{fs, signal, time};
 use tokio::sync::broadcast;
 use tower_http::services::ServeDir;
 use tracing::{info, debug, error};
@@ -46,6 +46,25 @@ async fn main() {
     let (tx, _rx) = broadcast::channel(100);
     let tx = Arc::new(tx);
     let tx_clone = tx.clone();
+    
+    let tick_tx = tx.clone();
+    let tick_state = gamepad_state.clone();
+
+    tokio::spawn(async move {
+        loop {
+            time::sleep(Duration::from_millis(50)).await;
+            let sticks = {
+                let s = tick_state.lock().unwrap();
+                GamepadEvent::Sticks {
+                    lx: s.left_x,
+                    ly: s.left_y,
+                    rx: s.right_x,
+                    ry: s.right_y,
+                }
+            };
+            let _ = tick_tx.send(sticks);
+        }
+    });
 
     tokio::spawn(async move {
         let mut gilrs = match Gilrs::new() {

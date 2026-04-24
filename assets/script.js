@@ -95,6 +95,18 @@ function applyAxisState(axis, value) {
   }
 }
 
+function applySticks(sticks) {
+  const offsetX = (sticks.lx / 127) * STICK_OFFSET;
+  const offsetY = -(sticks.ly / 127) * STICK_OFFSET;
+  STICKS.left.base.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  STICKS.left.active.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  
+  const offsetX2 = (sticks.rx / 127) * STICK_OFFSET;
+  const offsetY2 = -(sticks.ry / 127) * STICK_OFFSET;
+  STICKS.right.base.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
+  STICKS.right.active.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
+}
+
 function connect() {
   const host = window.location.host;
   const ws = new WebSocket(`ws://${host}/ws`);
@@ -115,6 +127,9 @@ function connect() {
         pressedButtons.add(button);
         applyButtonState(button, true);
       }
+      if (data.lx !== undefined) {
+        applySticks(data);
+      }
       return;
     }
 
@@ -126,8 +141,8 @@ function connect() {
         } else if (ev.t === 'r') {
           pressedButtons.delete(ev.d);
           applyButtonState(ev.d, false);
-        } else if (ev.t === 'a') {
-          applyAxisState(ev.d.axis, ev.d.value);
+        } else if (ev.t === 's') {
+          applySticks(ev.d);
         }
       }
     }

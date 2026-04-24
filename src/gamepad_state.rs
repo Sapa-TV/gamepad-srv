@@ -1,4 +1,4 @@
-use gilrs::{Axis, Button};
+use gilrs::Button;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -8,8 +8,8 @@ pub enum GamepadEvent {
     ButtonPressed(String),
     #[serde(rename = "r")]
     ButtonReleased(String),
-    #[serde(rename = "a")]
-    AxisChanged { axis: String, value: i8 },
+    #[serde(rename = "s")]
+    Sticks { lx: i8, ly: i8, rx: i8, ry: i8 },
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -53,16 +53,6 @@ impl GamepadState {
             right_y: self.right_y,
             buttons: self.buttons.clone(),
         }
-    }
-}
-
-pub fn axis_name(axis: Axis) -> &'static str {
-    match axis {
-        Axis::LeftStickX => "lx",
-        Axis::LeftStickY => "ly",
-        Axis::RightStickX => "rx",
-        Axis::RightStickY => "ry",
-        _ => "u",
     }
 }
 
