@@ -7,29 +7,35 @@ const log = (...args) => { if (isDebug) console.log(...args); };
 const RECONNECT_DELAYS = [0, 1000, 2000, 4000, 8000, 16000, 30000];
 
 const BUTTONS = {
-  DPadEast: ".dpad .right",
-  DPadWest: ".dpad .left",
-  DPadNorth: ".dpad .up",
-  DPadSouth: ".dpad .down",
-  East: ".button.b",
-  West: ".button.x",
-  North: ".button.y",
-  South: ".button.a",
-  LeftShoulder: ".trigger.left",
-  RightShoulder: ".trigger.right",
-  LeftTrigger: ".bumper.left",
-  RightTrigger: ".bumper.right",
-  LeftStick: ".stick.left",
-  RightStick: ".stick.right",
-  Menu: ".menu",
-  Select: ".back",
-  Start: ".start",
+  DU: 'img[data-name="DPadUp"]',
+  DD: 'img[data-name="DPadDown"]',
+  DL: 'img[data-name="DPadLeft"]',
+  DR: 'img[data-name="DPadRight"]',
+  A: 'img[data-name="South"]',
+  B: 'img[data-name="East"]',
+  X: 'img[data-name="West"]',
+  Y: 'img[data-name="North"]',
+  LB: 'img[data-name="LeftShoulder"]',
+  RB: 'img[data-name="RightShoulder"]',
+  LT: 'img[data-name="LeftTrigger"]',
+  RT: 'img[data-name="RightTrigger"]',
+  LS: 'img[data-name="LeftStick"]',
+  RS: 'img[data-name="RightStick"]',
+  SE: 'img[data-name="Select"]',
+  ST: 'img[data-name="Start"]',
 };
 
-let leftX = 0;
-let leftY = 0;
-let rightX = 0;
-let rightY = 0;
+const STICKS = {
+  left: {
+    base: document.querySelector('img.stick[data-name="LeftStick"]'),
+    active: document.querySelector('img.stick-active[data-name="LeftStick"]'),
+  },
+  right: {
+    base: document.querySelector('img.stick[data-name="RightStick"]'),
+    active: document.querySelector('img.stick-active[data-name="RightStick"]'),
+  },
+};
+
 const pressedButtons = new Set();
 
 let reconnectAttempt = 0;
@@ -45,34 +51,48 @@ function updateStatus(connected) {
   }
 }
 
-function updateStick(stick, posX, posY) {
-  stick.style.transform = `translate(${posX * STICK_OFFSET}px, ${
-    -posY * STICK_OFFSET
-  }px) rotateX(${posY * STICK_OFFSET}deg) rotateY(${posX * STICK_OFFSET}deg)`;
+function applyButtonState(button, isPressed) {
+  const elem = document.querySelector(BUTTONS[button]);
+  if (elem) {
+    elem.classList.toggle('visible', isPressed);
+  }
+  
+  if (button === 'LS' && STICKS.left.base) {
+    STICKS.left.base.classList.toggle('hidden', isPressed);
+    STICKS.left.active.classList.toggle('visible', isPressed);
+  }
+  if (button === 'RS' && STICKS.right.base) {
+    STICKS.right.base.classList.toggle('hidden', isPressed);
+    STICKS.right.active.classList.toggle('visible', isPressed);
+  }
 }
 
-function applyButtonState(button, isPressed) {
-  const buttonElem = document.querySelector(BUTTONS[button]);
-  if (buttonElem) {
-    if (isPressed) {
-      buttonElem.classList.add("pressed");
-    } else {
-      buttonElem.classList.remove("pressed");
-    }
+function applyInitialButtons(buttons) {
+  for (const button of buttons) {
+    applyButtonState(button, true);
   }
 }
 
 function applyAxisState(axis, value) {
-  if (axis === "left_x") leftX = value;
-  if (axis === "left_y") leftY = value;
-  if (axis === "right_x") rightX = value;
-  if (axis === "right_y") rightY = value;
-
-  const leftStick = document.querySelector(".stick.left");
-  if (leftStick) updateStick(leftStick, leftX, leftY);
-
-  const rightStick = document.querySelector(".stick.right");
-  if (rightStick) updateStick(rightStick, rightX, rightY);
+  let stick;
+  if (axis === 'lx' || axis === 'ly') {
+    stick = STICKS.left;
+  } else if (axis === 'rx' || axis === 'ry') {
+    stick = STICKS.right;
+  }
+  
+  if (stick) {
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    if (axis === 'lx') offsetX = (value / 127) * STICK_OFFSET;
+    if (axis === 'ly') offsetY = -(value / 127) * STICK_OFFSET;
+    if (axis === 'rx') offsetX = (value / 127) * STICK_OFFSET;
+    if (axis === 'ry') offsetY = -(value / 127) * STICK_OFFSET;
+    
+    stick.base.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    stick.active.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  }
 }
 
 function connect() {
@@ -99,15 +119,15 @@ function connect() {
     }
 
     if (Array.isArray(data)) {
-      for (const event of data) {
-        if (event.type === "ButtonPressed") {
-          pressedButtons.add(event.data);
-          applyButtonState(event.data, true);
-        } else if (event.type === "ButtonReleased") {
-          pressedButtons.delete(event.data);
-          applyButtonState(event.data, false);
-        } else if (event.type === "AxisChanged") {
-          applyAxisState(event.data.axis, event.data.value);
+      for (const ev of data) {
+        if (ev.t === 'p') {
+          pressedButtons.add(ev.d);
+          applyButtonState(ev.d, true);
+        } else if (ev.t === 'r') {
+          pressedButtons.delete(ev.d);
+          applyButtonState(ev.d, false);
+        } else if (ev.t === 'a') {
+          applyAxisState(ev.d.axis, ev.d.value);
         }
       }
     }

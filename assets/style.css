@@ -1,0 +1,187 @@
+body {
+  background: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.gamepad {
+  position: relative;
+}
+
+.gamepad img {
+  position: absolute;
+  image-rendering: pixelated;
+}
+
+.gamepad .bg {
+  position: relative;
+}
+
+.gamepad .stick {
+  z-index: 1;
+  transition: transform 0.05s, opacity 0.1s;
+}
+
+.gamepad .stick.hidden {
+  opacity: 0;
+  transition: opacity 0.1s 0.1s;
+}
+
+.gamepad .stick-active {
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.1s 0.1s;
+}
+
+.gamepad .stick-active.visible {
+  opacity: 1;
+  transition: opacity 0.1s;
+}
+
+.gamepad .bg {
+  position: relative;
+}
+
+.gamepad .stick {
+  z-index: 1;
+  transition:
+    transform 0.05s,
+    opacity 0.1s;
+}
+
+.gamepad .stick.hidden {
+  opacity: 0;
+}
+
+.gamepad .stick-active {
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.gamepad .stick-active.visible {
+  opacity: 1;
+}
+
+.status {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
+  z-index: 1000;
+}
+
+.status.disconnected {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+.gamepad .btn {
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 1;
+}
+
+.gamepad .btn.visible {
+  opacity: 1;
+}
+
+.gamepad .indicator {
+  top: 284px;
+  left: 426px;
+  z-index: 1;
+}
+
+/* D-Pad */
+img[data-name="DPadUp"] {
+  top: 322px;
+  left: 269px;
+}
+img[data-name="DPadDown"] {
+  top: 380px;
+  left: 277px;
+}
+img[data-name="DPadLeft"] {
+  top: 348px;
+  left: 251px;
+}
+img[data-name="DPadRight"] {
+  top: 353px;
+  left: 308px;
+}
+
+/* Face buttons */
+img[data-name="South"] {
+  top: 253px;
+  left: 662px;
+}
+img[data-name="East"] {
+  top: 197px;
+  left: 710px;
+}
+img[data-name="West"] {
+  top: 201px;
+  left: 593px;
+}
+img[data-name="North"] {
+  top: 137px;
+  left: 667px;
+}
+
+/* Shoulders */
+img[data-name="LeftShoulder"] {
+  top: 55px;
+  left: 114px;
+}
+img[data-name="RightShoulder"] {
+  top: 57px;
+  left: 605px;
+}
+
+/* Triggers */
+img[data-name="LeftTrigger"] {
+  top: 0px;
+  left: 49px;
+}
+img[data-name="RightTrigger"] {
+  top: 0px;
+  left: 790px;
+}
+
+/* Sticks */
+.gamepad .stick[data-name="LeftStick"] {
+  top: 182px;
+  left: 112px;
+}
+.gamepad .stick[data-name="RightStick"] {
+  top: 327px;
+  left: 491px;
+}
+.gamepad .stick-active[data-name="LeftStick"] {
+  top: 177px;
+  left: 119px;
+}
+.gamepad .stick-active[data-name="RightStick"] {
+  top: 322px;
+  left: 498px;
+}
+
+/* Menu */
+img[data-name="Select"] {
+  top: 223px;
+  left: 356px;
+}
+img[data-name="Start"] {
+  top: 225px;
+  left: 502px;
+}

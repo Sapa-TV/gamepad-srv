@@ -20,9 +20,10 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
         }
         EventType::AxisChanged(axis, value, _) => {
             let axis_name = axis_name(axis);
+            let value = (value * 127.0) as i8;
             let changed = match axis {
                 Axis::LeftStickX => {
-                    if (state.left_x - value).abs() > 0.01 {
+                    if state.left_x != value {
                         state.left_x = value;
                         true
                     } else {
@@ -30,7 +31,7 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
                     }
                 }
                 Axis::LeftStickY => {
-                    if (state.left_y - value).abs() > 0.01 {
+                    if state.left_y != value {
                         state.left_y = value;
                         true
                     } else {
@@ -38,7 +39,7 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
                     }
                 }
                 Axis::RightStickX => {
-                    if (state.right_x - value).abs() > 0.01 {
+                    if state.right_x != value {
                         state.right_x = value;
                         true
                     } else {
@@ -46,7 +47,7 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
                     }
                 }
                 Axis::RightStickY => {
-                    if (state.right_y - value).abs() > 0.01 {
+                    if state.right_y != value {
                         state.right_y = value;
                         true
                     } else {
@@ -58,7 +59,7 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
             if changed {
                 return Some(GamepadEvent::AxisChanged {
                     axis: axis_name.to_string(),
-                    value,
+                    value: value,
                 });
             }
         }
