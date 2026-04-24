@@ -1,0 +1,41 @@
+name: Build release
+
+on:
+  workflow_call:
+    outputs:
+      artifact-name:
+        description: "Gamepad server package"
+        value: gamepad-srv
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: swatinem/rust-cache@v2
+
+      - name: Build Release
+        run: cargo build --release
+
+      - name: Prepare and zip artifacts
+        shell: pwsh
+        run: |
+          mkdir dist
+          cp target/release/gamepad_srv.exe dist/
+          cp -r assets dist/
+          Compress-Archive -Path "dist/*" -DestinationPath "gamepad-srv.zip"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-zip
+          path: gamepad-srv.zip
+          retention-days: 1

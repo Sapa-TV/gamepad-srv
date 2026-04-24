@@ -1,0 +1,88 @@
+name: Bump version
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    outputs:
+      bumped: ${{ steps.check-bump.outputs.bumped }}
+      new_version: ${{ steps.get-tag.outputs.version }}
+      changelog: ${{ steps.get-changelog.outputs.content }}
+
+    steps:
+      - name: Generate Token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Setup Cocogitto and cargo-edit
+        uses: ./.github/actions/setup-cog
+
+      - name: Check if bump is needed
+        id: check-bump
+        run: |
+          BUMP_OUTPUT=$(cog bump --auto --dry-run 2>&1)
+
+          if [[ "$BUMP_OUTPUT" == *"No conventional commits"* ]]; then
+            echo "No bump needed."
+            echo "bumped=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected, proceeding..."
+            echo "bumped=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Actual Bump and Push
+        if: steps.check-bump.outputs.bumped == 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          cog bump --auto --skip-ci
+          git push origin main --tags
+
+      - name: Get New Version
+        id: get-tag
+        if: steps.check-bump.outputs.bumped == 'true'
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "Detected version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get Changelog
+        id: get-changelog
+        if: steps.check-bump.outputs.bumped == 'true'
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64)
+          echo "content<<$EOF" >> $GITHUB_OUTPUT
+          cog changelog --at ${{ steps.get-tag.outputs.version }} >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+  build:
+    needs: bump
+    uses: ./.github/workflows/build.yml
+    if: needs.bump.outputs.bumped == 'true'
+
+  github-release:
+    needs: [bump, build]
+    if: needs.bump.outputs.bumped == 'true'
+    uses: ./.github/workflows/release.yml
+    with:
+      version: ${{ needs.bump.outputs.new_version }}
+      changelog: ${{ needs.bump.outputs.changelog }}
+    secrets: inherit
