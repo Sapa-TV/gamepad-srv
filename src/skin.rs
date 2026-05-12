@@ -64,7 +64,13 @@ struct JsonButton {
     image: String,
 }
 
-fn button_name_valid(name: &str) -> bool {
+pub fn all_button_names() -> Vec<&'static str> {
+    vec![
+        "DU", "DD", "DL", "DR", "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "LS", "RS", "SE", "ST",
+    ]
+}
+
+pub fn button_name_valid(name: &str) -> bool {
     VALID_BUTTONS.contains(&name)
 }
 
@@ -81,8 +87,7 @@ pub fn validate_skin(skin_name: &str) -> Result<(), String> {
     }
 
     let bg_path = format!("{}/{}/{}", SKIN_DIR, skin_name, json.background.image);
-    fs::metadata(&bg_path)
-        .map_err(|e| format!("Background image not found {}: {}", bg_path, e))?;
+    fs::metadata(&bg_path).map_err(|e| format!("Background image not found {}: {}", bg_path, e))?;
 
     if let Some(ind) = &json.indicator {
         let ind_path = format!("{}/{}/{}", SKIN_DIR, skin_name, ind.image);
@@ -106,7 +111,6 @@ pub fn load_skin_info(skin_name: &str) -> Result<SkinInfo, String> {
     validate_skin(skin_name)?;
 
     let skin_path = format!("{}/{}/skin.json", SKIN_DIR, skin_name);
-    eprintln!("load_skin_info: reading {}", skin_path);
     let contents = fs::read_to_string(&skin_path)
         .map_err(|e| format!("Failed to read {}: {}", skin_path, e))?;
 
@@ -137,19 +141,13 @@ pub fn discover_skins() -> Vec<SkinEntry> {
         let path = entry.path();
         if path.is_dir() {
             if let Some(dir_name) = path.file_name().and_then(|n| n.to_str()) {
-                eprintln!("discover_skins: checking dir {}", dir_name);
                 let skin_json_path = format!("{}/{}/skin.json", SKIN_DIR, dir_name);
                 if fs::metadata(&skin_json_path).is_ok() {
-                    eprintln!("discover_skins: found skin.json, validating {}", dir_name);
-                    let result = load_skin_info(dir_name);
-                    if let Ok(info) = result {
-                        eprintln!("discover_skins: {} is valid, path={}", info.name, info.path);
+                    if let Ok(info) = load_skin_info(dir_name) {
                         skins.push(SkinEntry {
                             name: info.name,
                             path: info.path,
                         });
-                    } else {
-                        eprintln!("Skin validation failed for {}: {:?}", dir_name, result.err());
                     }
                 }
             }

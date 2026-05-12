@@ -10,6 +10,12 @@ pub enum GamepadEvent {
     ButtonReleased(String),
     #[serde(rename = "s")]
     Sticks { lx: i8, ly: i8, rx: i8, ry: i8 },
+    #[serde(rename = "sc")]
+    SkinChanged {
+        name: String,
+        path: String,
+        index: usize,
+    },
 }
 
 #[derive(Debug, Serialize, Clone)]

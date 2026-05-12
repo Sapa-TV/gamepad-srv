@@ -3,9 +3,10 @@ use std::sync::Mutex;
 use std::sync::atomic::AtomicBool;
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 
+use crate::button_actions::run_button_actions;
 use crate::event_processor::process_event;
 use crate::gamepad_state::{GamepadEvent, GamepadState};
-use crate::skin::{discover_skins, SkinEntry, SkinInfo, load_skin_info};
+use crate::skin::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
 use axum::{
     Router,
     extract::{State as AxumState, WebSocketUpgrade, ws::WebSocket},
@@ -19,6 +20,7 @@ use tokio::{fs, signal, time};
 use tower_http::services::ServeDir;
 use tracing::{debug, error, info};
 
+mod button_actions;
 mod event_processor;
 mod gamepad_state;
 mod skin;
@@ -83,6 +85,8 @@ async fn main() {
 
     let app_state = AppState::new();
 
+    let (event_tx, event_rx) = broadcast::channel(100);
+
     let tick_state = app_state.gamepad_state.clone();
     let tick_tx = app_state.tx.clone();
     tokio::spawn(async move {
@@ -103,6 +107,7 @@ async fn main() {
 
     let gilrs_state = app_state.gamepad_state.clone();
     let gilrs_tx = app_state.tx.clone();
+    let event_sender = event_tx.clone();
     tokio::spawn(async move {
         let mut gilrs = match Gilrs::new() {
             Ok(g) => g,
@@ -121,9 +126,15 @@ async fn main() {
                     debug!("Gamepad event: {:?}", gamepad_event);
                     let _ = gilrs_tx.send(gamepad_event);
                 }
+                let _ = event_sender.send(event);
             }
             tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
         }
+    });
+
+    let event_rx = event_rx;
+    tokio::spawn(async move {
+        run_button_actions(event_rx, Vec::new()).await;
     });
 
     let shutting_down = app_state.shutting_down.clone();
