@@ -5,7 +5,7 @@ use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use crate::event_processor::process_event;
 use crate::gamepad_state::{GamepadEvent, GamepadState};
-use crate::skin::{DEFAULT_SKIN, SkinInfo, load_skin_info};
+use crate::skin::{discover_skins, SkinEntry, SkinInfo, load_skin_info};
 use axum::{
     Router,
     extract::{State as AxumState, WebSocketUpgrade, ws::WebSocket},
@@ -29,26 +29,40 @@ struct AppState {
     tx: Arc<broadcast::Sender<GamepadEvent>>,
     shutting_down: Arc<AtomicBool>,
     current_skin: Option<SkinInfo>,
+    skins: Vec<SkinEntry>,
 }
 
 impl AppState {
     fn new() -> Self {
         let (tx, _rx) = broadcast::channel(100);
-        let skin_info = match load_skin_info(DEFAULT_SKIN) {
-            Ok(info) => {
-                info!("Loaded skin: {}", info.name);
-                Some(info)
-            }
-            Err(e) => {
-                error!("Failed to load skin: {}", e);
+
+        let skins = discover_skins();
+        info!("Found {} valid skins", skins.len());
+
+        let current_skin = skins.first().and_then(|s| {
+            let parts: Vec<&str> = s.path.split('/').filter(|p| !p.is_empty()).collect();
+            if let Some(skin_name) = parts.last() {
+                match load_skin_info(skin_name) {
+                    Ok(info) => {
+                        info!("Current skin: {}", info.name);
+                        Some(info)
+                    }
+                    Err(e) => {
+                        error!("Failed to load skin: {}", e);
+                        None
+                    }
+                }
+            } else {
                 None
             }
-        };
+        });
+
         Self {
             gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
             tx: Arc::new(tx),
             shutting_down: Arc::new(AtomicBool::new(false)),
-            current_skin: skin_info,
+            current_skin,
+            skins,
         }
     }
 }
@@ -118,6 +132,7 @@ async fn main() {
         .route("/", get(index_handler))
         .route("/ws", get(ws_handler))
         .route("/skin", get(skin_handler))
+        .route("/list_skins", get(list_skins_handler))
         .with_state(app_state)
         .fallback_service(ServeDir::new("assets"));
 
@@ -154,6 +169,10 @@ async fn skin_handler(AxumState(state): AxumState<AppState>) -> Response {
         )
             .into_response(),
     }
+}
+
+async fn list_skins_handler(AxumState(state): AxumState<AppState>) -> axum::Json<Vec<SkinEntry>> {
+    axum::Json(state.skins.clone())
 }
 
 async fn ws_handler(ws: WebSocketUpgrade, AxumState(state): AxumState<AppState>) -> Response {
