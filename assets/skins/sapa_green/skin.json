@@ -1,0 +1,24 @@
+{
+  "name": "Sapa Green",
+  "buttons": [
+    { "name": "DPadUp", "top": 322, "left": 269 },
+    { "name": "DPadDown", "top": 380, "left": 277 },
+    { "name": "DPadLeft", "top": 348, "left": 251 },
+    { "name": "DPadRight", "top": 353, "left": 308 },
+    { "name": "South", "top": 253, "left": 662 },
+    { "name": "East", "top": 197, "left": 710 },
+    { "name": "West", "top": 201, "left": 593 },
+    { "name": "North", "top": 137, "left": 667 },
+    { "name": "LeftShoulder", "top": 55, "left": 114 },
+    { "name": "RightShoulder", "top": 57, "left": 605 },
+    { "name": "LeftTrigger", "top": 0, "left": 49 },
+    { "name": "RightTrigger", "top": 0, "left": 790 },
+    { "name": "LeftStick", "top": 182, "left": 112 },
+    { "name": "RightStick", "top": 327, "left": 491 },
+    { "name": "LeftStickPressed", "top": 177, "left": 119 },
+    { "name": "RightStickPressed", "top": 322, "left": 498 },
+    { "name": "Select", "top": 223, "left": 356 },
+    { "name": "Start", "top": 225, "left": 502 },
+    { "name": "Menu", "top": 284, "left": 426 }
+  ]
+}
