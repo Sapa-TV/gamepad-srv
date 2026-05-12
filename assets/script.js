@@ -42,6 +42,7 @@ let reconnectAttempt = 0;
 const indicatorElem = document.querySelector('.indicator');
 const errorElem = document.querySelector('.error');
 const gamepadElem = document.querySelector('.gamepad');
+let skinSwitchTimeout;
 
 function showError() {
   errorElem.classList.remove('hidden');
@@ -186,9 +187,13 @@ function connect() {
         } else if (ev.t === 's') {
           applySticks(ev.d);
         } else if (ev.t === 'sch') {
+          clearTimeout(skinSwitchTimeout);
           gamepadElem.classList.toggle('skin_changing', ev.d);
         } else if (ev.t === 'sc') {
           loadSkin(ev.d.path);
+        } else if (ev.t === 'ssr') {
+          gamepadElem.classList.add('skin_changing');
+          skinSwitchTimeout = setTimeout(() => gamepadElem.classList.remove('skin_changing'), 1000);
         }
       }
     }

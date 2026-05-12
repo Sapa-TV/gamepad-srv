@@ -109,14 +109,12 @@ pub fn spawn_skin_change_tracker(
                                 state.start_pressed = true;
                                 if state.state == AppSkinState::SkinSwitch {
                                     state.state = AppSkinState::Normal;
-                                    debug!("SkinSwitch -> Normal (Start pressed)");
                                     let _ = ws_tx.send(GamepadEvent::SkinChanging(false));
                                     info!("AppSkinState: SkinSwitch -> Normal");
                                 }
                                 if state.state == AppSkinState::Normal && state.select_pressed {
                                     state.state = AppSkinState::SkinSwitchPending;
                                     state.pending_since = Some(Instant::now());
-                                    debug!("Normal -> SkinSwitchPending (Start+Select pressed)");
                                     info!("AppSkinState: Normal -> SkinSwitchPending");
                                 }
                             }
@@ -124,14 +122,12 @@ pub fn spawn_skin_change_tracker(
                                 state.select_pressed = true;
                                 if state.state == AppSkinState::SkinSwitch {
                                     state.state = AppSkinState::Normal;
-                                    debug!("SkinSwitch -> Normal (Select pressed)");
                                     let _ = ws_tx.send(GamepadEvent::SkinChanging(false));
                                     info!("AppSkinState: SkinSwitch -> Normal");
                                 }
                                 if state.state == AppSkinState::Normal && state.start_pressed {
                                     state.state = AppSkinState::SkinSwitchPending;
                                     state.pending_since = Some(Instant::now());
-                                    debug!("Normal -> SkinSwitchPending (Start+Select pressed)");
                                     info!("AppSkinState: Normal -> SkinSwitchPending");
                                 }
                             }
@@ -144,7 +140,6 @@ pub fn spawn_skin_change_tracker(
                                     && !state.select_pressed
                                 {
                                     state.state = AppSkinState::SkinSwitch;
-                                    debug!("SkinSwitchReady -> SkinSwitch (Start released, Select still pressed)");
                                     let _ = ws_tx.send(GamepadEvent::SkinChanging(true));
                                     info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
                                 }
@@ -155,7 +150,6 @@ pub fn spawn_skin_change_tracker(
                                     && !state.start_pressed
                                 {
                                     state.state = AppSkinState::SkinSwitch;
-                                    debug!("SkinSwitchReady -> SkinSwitch (Select released, Start still pressed)");
                                     let _ = ws_tx.send(GamepadEvent::SkinChanging(true));
                                     info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
                                 }
@@ -166,13 +160,16 @@ pub fn spawn_skin_change_tracker(
                     }
                 }
                 _ = time::sleep(Duration::from_millis(100)) => {
-                    let mut state = button_state.lock().unwrap();
-                    if state.state == AppSkinState::SkinSwitchPending {
-                        if let Some(pending_since) = state.pending_since {
+                    let state_guard = button_state.lock().unwrap();
+                    if state_guard.state == AppSkinState::SkinSwitchPending {
+                        if let Some(pending_since) = state_guard.pending_since {
                             if pending_since.elapsed() >= Duration::from_secs(2) {
+                                drop(state_guard);
+                                let mut state = button_state.lock().unwrap();
                                 state.state = AppSkinState::SkinSwitchReady;
                                 state.pending_since = None;
                                 info!("AppSkinState: SkinSwitchPending -> SkinSwitchReady (timeout)");
+                                let _ = ws_tx.send(GamepadEvent::SkinSwitchReady);
                             }
                         }
                     }

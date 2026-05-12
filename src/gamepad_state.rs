@@ -18,6 +18,8 @@ pub enum GamepadEvent {
     },
     #[serde(rename = "sch")]
     SkinChanging(bool),
+    #[serde(rename = "ssr")]
+    SkinSwitchReady,
 }
 
 #[derive(Debug, Serialize, Clone)]
