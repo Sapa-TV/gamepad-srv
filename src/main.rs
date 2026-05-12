@@ -12,6 +12,7 @@ use axum::{
     routing::get,
 };
 use gilrs::Gilrs;
+use serde::{Deserialize, Serialize};
 use serde_json::to_string;
 use tokio::sync::broadcast;
 use tokio::{fs, signal, time};
@@ -21,11 +22,58 @@ use tracing::{debug, error, info};
 mod event_processor;
 mod gamepad_state;
 
+const DEFAULT_SKIN: &str = "sapa_green";
+
+#[derive(Clone, Serialize, Deserialize)]
+struct SkinInfo {
+    name: String,
+    path: String,
+}
+
+fn load_skin_info(skin_name: &str) -> Result<SkinInfo, String> {
+    let path = format!("assets/skins/{}/skin.json", skin_name);
+    let contents =
+        std::fs::read_to_string(&path).map_err(|e| format!("Failed to read {}: {}", path, e))?;
+    let json: serde_json::Value =
+        serde_json::from_str(&contents).map_err(|e| format!("Failed to parse {}: {}", path, e))?;
+    let name = json
+        .get("name")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| format!("{} missing 'name' field", path))?;
+    Ok(SkinInfo {
+        name: name.to_string(),
+        path: format!("/skins/{}/", skin_name),
+    })
+}
+
 #[derive(Clone)]
 struct AppState {
     gamepad_state: Arc<Mutex<GamepadState>>,
     tx: Arc<broadcast::Sender<GamepadEvent>>,
     shutting_down: Arc<AtomicBool>,
+    current_skin: Option<SkinInfo>,
+}
+
+impl AppState {
+    fn new() -> Self {
+        let (tx, _rx) = broadcast::channel(100);
+        let skin_info = match load_skin_info(DEFAULT_SKIN) {
+            Ok(info) => {
+                info!("Loaded skin: {}", info.name);
+                Some(info)
+            }
+            Err(e) => {
+                error!("Failed to load skin: {}", e);
+                None
+            }
+        };
+        Self {
+            gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
+            tx: Arc::new(tx),
+            shutting_down: Arc::new(AtomicBool::new(false)),
+            current_skin: skin_info,
+        }
+    }
 }
 
 #[tokio::main]
@@ -42,16 +90,10 @@ async fn main() {
 
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
 
-    let gamepad_state: Arc<Mutex<GamepadState>> = Arc::new(Mutex::new(GamepadState::new()));
-    let gamepad_state_clone = gamepad_state.clone();
+    let app_state = AppState::new();
 
-    let (tx, _rx) = broadcast::channel(100);
-    let tx = Arc::new(tx);
-    let tx_clone = tx.clone();
-
-    let tick_tx = tx.clone();
-    let tick_state = gamepad_state.clone();
-
+    let tick_state = app_state.gamepad_state.clone();
+    let tick_tx = app_state.tx.clone();
     tokio::spawn(async move {
         loop {
             time::sleep(Duration::from_millis(50)).await;
@@ -68,6 +110,8 @@ async fn main() {
         }
     });
 
+    let gilrs_state = app_state.gamepad_state.clone();
+    let gilrs_tx = app_state.tx.clone();
     tokio::spawn(async move {
         let mut gilrs = match Gilrs::new() {
             Ok(g) => g,
@@ -81,28 +125,22 @@ async fn main() {
 
         loop {
             while let Some(event) = gilrs.next_event() {
-                let mut state = gamepad_state_clone.lock().unwrap();
+                let mut state = gilrs_state.lock().unwrap();
                 if let Some(gamepad_event) = process_event(&mut state, event) {
                     debug!("Gamepad event: {:?}", gamepad_event);
-                    let _ = tx_clone.send(gamepad_event);
+                    let _ = gilrs_tx.send(gamepad_event);
                 }
             }
             tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
         }
     });
 
-    let shutting_down = Arc::new(AtomicBool::new(false));
-    let shutting_down_clone = shutting_down.clone();
-
-    let app_state = AppState {
-        gamepad_state,
-        tx,
-        shutting_down,
-    };
+    let shutting_down = app_state.shutting_down.clone();
 
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/ws", get(ws_handler))
+        .route("/skin", get(skin_handler))
         .with_state(app_state)
         .fallback_service(ServeDir::new("assets"));
 
@@ -111,7 +149,7 @@ async fn main() {
     info!("  http://{}:{}", local_ip, addr.port());
 
     axum::serve(listener, app)
-        .with_graceful_shutdown(graceful_shutdown(shutting_down_clone))
+        .with_graceful_shutdown(graceful_shutdown(shutting_down))
         .await
         .unwrap();
 }
@@ -127,6 +165,17 @@ async fn index_handler() -> Html<String> {
     match fs::read_to_string("assets/index.html").await {
         Ok(contents) => Html(contents),
         Err(_) => Html("Cant find file error".into()),
+    }
+}
+
+async fn skin_handler(AxumState(state): AxumState<AppState>) -> Response {
+    match &state.current_skin {
+        Some(skin) => axum::Json((*skin).clone()).into_response(),
+        None => (
+            axum::http::StatusCode::SERVICE_UNAVAILABLE,
+            "Skin not loaded",
+        )
+            .into_response(),
     }
 }
 

@@ -40,6 +40,18 @@ const pressedButtons = new Set();
 
 let reconnectAttempt = 0;
 const indicatorElem = document.querySelector('.indicator');
+const errorElem = document.querySelector('.error');
+const gamepadElem = document.querySelector('.gamepad');
+
+function showError() {
+  errorElem.classList.remove('hidden');
+  gamepadElem.classList.add('hidden');
+}
+
+function showGamepad() {
+  errorElem.classList.add('hidden');
+  gamepadElem.classList.remove('hidden');
+}
 
 function updateStatus(connected) {
   if (indicatorElem) {
@@ -108,36 +120,33 @@ function applySticks(sticks) {
 }
 
 async function loadSkin(skinPath) {
-  try {
-    const response = await fetch(`${skinPath}/skin.json`);
-    const skin = await response.json();
+  const response = await fetch(`${skinPath}/skin.json`);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const skin = await response.json();
 
-    if (skin.background) {
-      const bg = document.querySelector('img[data-name="background"]');
-      bg.src = `${skinPath}/${skin.background.image}`;
-      bg.style.top = `${skin.background.top}px`;
-      bg.style.left = `${skin.background.left}px`;
-    }
-
-    if (skin.indicator) {
-      indicatorElem.src = `${skinPath}/${skin.indicator.image}`;
-      indicatorElem.style.top = `${skin.indicator.top}px`;
-      indicatorElem.style.left = `${skin.indicator.left}px`;
-    }
-
-    for (const btn of skin.buttons) {
-      const elem = document.querySelector(`img[data-name="${btn.name}"]`);
-      if (elem) {
-        elem.src = `${skinPath}/${btn.image}`;
-        elem.style.top = `${btn.top}px`;
-        elem.style.left = `${btn.left}px`;
-      }
-    }
-
-    log('Skin loaded:', skin.name);
-  } catch (err) {
-    log('Failed to load skin:', err);
+  if (skin.background) {
+    const bg = document.querySelector('img[data-name="background"]');
+    bg.src = `${skinPath}/${skin.background.image}`;
+    bg.style.top = `${skin.background.top}px`;
+    bg.style.left = `${skin.background.left}px`;
   }
+
+  if (skin.indicator) {
+    indicatorElem.src = `${skinPath}/${skin.indicator.image}`;
+    indicatorElem.style.top = `${skin.indicator.top}px`;
+    indicatorElem.style.left = `${skin.indicator.left}px`;
+  }
+
+  for (const btn of skin.buttons) {
+    const elem = document.querySelector(`img[data-name="${btn.name}"]`);
+    if (elem) {
+      elem.src = `${skinPath}/${btn.image}`;
+      elem.style.top = `${btn.top}px`;
+      elem.style.left = `${btn.left}px`;
+    }
+  }
+
+  log('Skin loaded:', skin.name);
 }
 
 function connect() {
@@ -194,7 +203,17 @@ function connect() {
 }
 
 async function ready() {
-  await loadSkin('skins/sapa_green');
+  try {
+    const response = await fetch('/skin');
+    const skinInfo = await response.json();
+    log('Current skin:', skinInfo.name);
+    await loadSkin(skinInfo.path);
+    showGamepad();
+  } catch (err) {
+    log('Failed to load skin:', err);
+    showError();
+    return;
+  }
   connect();
 }
 

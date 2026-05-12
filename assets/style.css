@@ -1,5 +1,7 @@
 body {
   background: #1a1a2e;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -61,6 +63,23 @@ body {
 .gamepad .indicator.connected {
   animation: none;
   opacity: 1;
+}
+
+.error {
+  color: red;
+  font-size: 72px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #1a1a2e;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.error.hidden,
+.gamepad.hidden {
+  display: none;
 }
 
 @keyframes blink {
