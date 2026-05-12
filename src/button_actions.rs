@@ -1,7 +1,9 @@
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
-use gilrs::{Button, Event};
+use gilrs::Button;
+
+use crate::events::AppEvent;
 
 pub trait ButtonHandler: Send + Sync {
     fn on_pressed(&self, button: Button);
@@ -14,12 +16,12 @@ pub struct ButtonAction {
 }
 
 pub async fn run_button_actions(
-    mut rx: broadcast::Receiver<Event>,
+    mut rx: broadcast::Receiver<AppEvent>,
     actions: Vec<ButtonAction>,
 ) {
     loop {
         match rx.recv().await {
-            Ok(event) => {
+            Ok(AppEvent::Gilrs(event)) => {
                 use gilrs::EventType;
                 match event.event {
                     EventType::ButtonPressed(btn, _) => {

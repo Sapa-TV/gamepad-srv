@@ -5,6 +5,7 @@ use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use crate::button_actions::run_button_actions;
 use crate::event_processor::process_event;
+use crate::events::AppEvent;
 use crate::gamepad_state::{GamepadEvent, GamepadState};
 use crate::skin::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
 use axum::{
@@ -21,6 +22,7 @@ use tower_http::services::ServeDir;
 use tracing::{debug, error, info};
 
 mod button_actions;
+mod events;
 mod event_processor;
 mod gamepad_state;
 mod skin;
@@ -28,7 +30,7 @@ mod skin;
 #[derive(Clone)]
 struct AppState {
     gamepad_state: Arc<Mutex<GamepadState>>,
-    tx: Arc<broadcast::Sender<GamepadEvent>>,
+    ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     shutting_down: Arc<AtomicBool>,
     current_skin: Option<SkinInfo>,
     skins: Vec<SkinEntry>,
@@ -36,7 +38,7 @@ struct AppState {
 
 impl AppState {
     fn new() -> Self {
-        let (tx, _rx) = broadcast::channel(100);
+        let (ws_tx, _rx) = broadcast::channel(100);
 
         let skins = discover_skins();
         info!("Found {} valid skins", skins.len());
@@ -61,7 +63,7 @@ impl AppState {
 
         Self {
             gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
-            tx: Arc::new(tx),
+            ws_tx: Arc::new(ws_tx),
             shutting_down: Arc::new(AtomicBool::new(false)),
             current_skin,
             skins,
@@ -85,10 +87,10 @@ async fn main() {
 
     let app_state = AppState::new();
 
-    let (event_tx, event_rx) = broadcast::channel(100);
+    let (events_tx, events_rx) = broadcast::channel(100);
 
     let tick_state = app_state.gamepad_state.clone();
-    let tick_tx = app_state.tx.clone();
+    let tick_ws_tx = app_state.ws_tx.clone();
     tokio::spawn(async move {
         loop {
             time::sleep(Duration::from_millis(50)).await;
@@ -101,13 +103,13 @@ async fn main() {
                     ry: s.right_y,
                 }
             };
-            let _ = tick_tx.send(sticks);
+            let _ = tick_ws_tx.send(sticks);
         }
     });
 
     let gilrs_state = app_state.gamepad_state.clone();
-    let gilrs_tx = app_state.tx.clone();
-    let event_sender = event_tx.clone();
+    let gilrs_ws_tx = app_state.ws_tx.clone();
+    let events_sender = events_tx.clone();
     tokio::spawn(async move {
         let mut gilrs = match Gilrs::new() {
             Ok(g) => g,
@@ -124,17 +126,16 @@ async fn main() {
                 let mut state = gilrs_state.lock().unwrap();
                 if let Some(gamepad_event) = process_event(&mut state, event) {
                     debug!("Gamepad event: {:?}", gamepad_event);
-                    let _ = gilrs_tx.send(gamepad_event);
+                    let _ = gilrs_ws_tx.send(gamepad_event);
                 }
-                let _ = event_sender.send(event);
+                let _ = events_sender.send(AppEvent::Gilrs(event));
             }
             tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
         }
     });
 
-    let event_rx = event_rx;
     tokio::spawn(async move {
-        run_button_actions(event_rx, Vec::new()).await;
+        run_button_actions(events_rx, Vec::new()).await;
     });
 
     let shutting_down = app_state.shutting_down.clone();
@@ -199,7 +200,7 @@ async fn ws_handler(ws: WebSocketUpgrade, AxumState(state): AxumState<AppState>)
             .into_response();
     }
 
-    let rx = state.tx.subscribe();
+    let rx = state.ws_tx.subscribe();
     let gamepad_state = state.gamepad_state.clone();
     ws.on_upgrade(move |socket| handle_socket(socket, gamepad_state, rx))
 }
