@@ -28,11 +28,11 @@ const BUTTONS = {
 const STICKS = {
   left: {
     base: document.querySelector('img.stick[data-name="LeftStick"]'),
-    active: document.querySelector('img.stick-active[data-name="LeftStick"]'),
+    active: document.querySelector('img.stick-active[data-name="LeftStickPressed"]'),
   },
   right: {
     base: document.querySelector('img.stick[data-name="RightStick"]'),
-    active: document.querySelector('img.stick-active[data-name="RightStick"]'),
+    active: document.querySelector('img.stick-active[data-name="RightStickPressed"]'),
   },
 };
 
@@ -44,9 +44,9 @@ const indicatorElem = document.querySelector('.indicator');
 function updateStatus(connected) {
   if (indicatorElem) {
     if (connected) {
-      indicatorElem.classList.remove("disconnected");
+      indicatorElem.classList.add("connected");
     } else {
-      indicatorElem.classList.add("disconnected");
+      indicatorElem.classList.remove("connected");
     }
   }
 }
@@ -107,6 +107,39 @@ function applySticks(sticks) {
   STICKS.right.active.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
 }
 
+async function loadSkin(skinPath) {
+  try {
+    const response = await fetch(`${skinPath}/skin.json`);
+    const skin = await response.json();
+
+    if (skin.background) {
+      const bg = document.querySelector('img[data-name="background"]');
+      bg.src = `${skinPath}/${skin.background.image}`;
+      bg.style.top = `${skin.background.top}px`;
+      bg.style.left = `${skin.background.left}px`;
+    }
+
+    if (skin.indicator) {
+      indicatorElem.src = `${skinPath}/${skin.indicator.image}`;
+      indicatorElem.style.top = `${skin.indicator.top}px`;
+      indicatorElem.style.left = `${skin.indicator.left}px`;
+    }
+
+    for (const btn of skin.buttons) {
+      const elem = document.querySelector(`img[data-name="${btn.name}"]`);
+      if (elem) {
+        elem.src = `${skinPath}/${btn.image}`;
+        elem.style.top = `${btn.top}px`;
+        elem.style.left = `${btn.left}px`;
+      }
+    }
+
+    log('Skin loaded:', skin.name);
+  } catch (err) {
+    log('Failed to load skin:', err);
+  }
+}
+
 function connect() {
   const host = window.location.host;
   const ws = new WebSocket(`ws://${host}/ws`);
@@ -160,7 +193,8 @@ function connect() {
   };
 }
 
-function ready() {
+async function ready() {
+  await loadSkin('skins/sapa_green');
   connect();
 }
 

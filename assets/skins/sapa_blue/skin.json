@@ -1,24 +1,44 @@
 {
   "name": "Sapa Blue",
+  "background": {
+    "image": "backend.png",
+    "top": 0,
+    "left": 0
+  },
+  "indicator": {
+    "image": "menu.png",
+    "top": 284,
+    "left": 426
+  },
   "buttons": [
-    { "name": "DPadUp", "top": 322, "left": 269 },
-    { "name": "DPadDown", "top": 380, "left": 277 },
-    { "name": "DPadLeft", "top": 348, "left": 251 },
-    { "name": "DPadRight", "top": 353, "left": 308 },
-    { "name": "South", "top": 253, "left": 662 },
-    { "name": "East", "top": 197, "left": 710 },
-    { "name": "West", "top": 201, "left": 593 },
-    { "name": "North", "top": 137, "left": 667 },
-    { "name": "LeftShoulder", "top": 55, "left": 114 },
-    { "name": "RightShoulder", "top": 57, "left": 605 },
-    { "name": "LeftTrigger", "top": 0, "left": 49 },
-    { "name": "RightTrigger", "top": 0, "left": 790 },
-    { "name": "LeftStick", "top": 182, "left": 112 },
-    { "name": "RightStick", "top": 327, "left": 491 },
-    { "name": "LeftStickPressed", "top": 177, "left": 119 },
-    { "name": "RightStickPressed", "top": 322, "left": 498 },
-    { "name": "Select", "top": 223, "left": 356 },
-    { "name": "Start", "top": 225, "left": 502 },
-    { "name": "Menu", "top": 284, "left": 426 }
+    { "name": "DPadUp", "top": 322, "left": 269, "image": "dpad-up.png" },
+    { "name": "DPadDown", "top": 380, "left": 277, "image": "dpad-down.png" },
+    { "name": "DPadLeft", "top": 348, "left": 251, "image": "dpad-left.png" },
+    { "name": "DPadRight", "top": 353, "left": 308, "image": "dpad-right.png" },
+    { "name": "South", "top": 253, "left": 662, "image": "a.png" },
+    { "name": "East", "top": 197, "left": 710, "image": "b.png" },
+    { "name": "West", "top": 201, "left": 593, "image": "x.png" },
+    { "name": "North", "top": 137, "left": 667, "image": "y.png" },
+    { "name": "LeftShoulder", "top": 55, "left": 114, "image": "lb.png" },
+    { "name": "RightShoulder", "top": 57, "left": 605, "image": "rb.png" },
+    { "name": "LeftTrigger", "top": 0, "left": 49, "image": "lt.png" },
+    { "name": "RightTrigger", "top": 0, "left": 790, "image": "rt.png" },
+    { "name": "LeftStick", "top": 182, "left": 112, "image": "left.png" },
+    { "name": "RightStick", "top": 327, "left": 491, "image": "right.png" },
+    {
+      "name": "LeftStickPressed",
+      "top": 177,
+      "left": 119,
+      "image": "left-active.png"
+    },
+    {
+      "name": "RightStickPressed",
+      "top": 322,
+      "left": 498,
+      "image": "right-active.png"
+    },
+    { "name": "Select", "top": 223, "left": 356, "image": "select.png" },
+    { "name": "Start", "top": 225, "left": 502, "image": "start.png" },
+    { "name": "Menu", "top": 284, "left": 426, "image": "menu.png" }
   ]
 }
