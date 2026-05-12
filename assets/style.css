@@ -99,3 +99,58 @@ body {
     opacity: 0;
   }
 }
+
+.gamepad.skin_changing .btn,
+.gamepad.skin_changing .stick {
+  animation: skin_change_blink 1s ease-in-out infinite;
+}
+
+.gamepad.skin_changing .stick {
+  animation: skin_change_stick 1s ease-in-out infinite;
+}
+
+@keyframes skin_change_blink {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  50%,
+  90% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes skin_change_stick {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  50%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.gamepad.skin_changing .stick-active {
+  animation: skin_change_stick_active 1s ease-in-out infinite;
+}
+
+@keyframes skin_change_stick_active {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  50%,
+  90% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

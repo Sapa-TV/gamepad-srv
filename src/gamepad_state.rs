@@ -16,6 +16,8 @@ pub enum GamepadEvent {
         path: String,
         index: usize,
     },
+    #[serde(rename = "sch")]
+    SkinChanging(bool),
 }
 
 #[derive(Debug, Serialize, Clone)]
