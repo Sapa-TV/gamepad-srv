@@ -27,6 +27,7 @@ const VALID_BUTTONS: &[&str] = &[
 
 #[derive(Clone, Serialize)]
 pub struct SkinEntry {
+    pub dir_name: String,
     pub name: String,
     pub path: String,
 }
@@ -139,6 +140,7 @@ pub fn discover_skins() -> Vec<SkinEntry> {
                 if fs::metadata(&skin_json_path).is_ok() {
                     if let Ok(info) = load_skin_info(dir_name) {
                         skins.push(SkinEntry {
+                            dir_name: dir_name.to_string(),
                             name: info.name,
                             path: info.path,
                         });

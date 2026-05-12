@@ -8,6 +8,12 @@ pub enum AppSkinState {
     SkinSwitch,
 }
 
+#[derive(Clone, Copy, Debug)]
+pub enum Direction {
+    Left,
+    Right,
+}
+
 #[derive(Clone)]
 pub struct SkinChangeState {
     pub state: AppSkinState,

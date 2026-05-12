@@ -11,6 +11,7 @@ use crate::button_actions::{ButtonAction, run_button_actions};
 use crate::event_processor::process_event;
 use crate::events::AppEvent;
 use crate::gamepad_state::GamepadEvent;
+use crate::skin::SkinEntry;
 use crate::skin_change_state::{AppSkinState, SkinChangeState};
 use gilrs::{Button, Gilrs};
 use tracing::{debug, error, info};
@@ -66,15 +67,23 @@ pub fn spawn_gilrs_task(
     });
 }
 
-pub fn spawn_button_actions(events_rx: broadcast::Receiver<AppEvent>, actions: Vec<ButtonAction>) {
+pub fn spawn_button_actions(
+    events_rx: broadcast::Receiver<AppEvent>,
+    actions: Vec<ButtonAction>,
+    skins: Vec<SkinEntry>,
+    current_skin_index: Arc<Mutex<usize>>,
+    ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
+) {
     tokio::spawn(async move {
-        run_button_actions(events_rx, actions).await;
+        run_button_actions(events_rx, actions, skins, current_skin_index, ws_tx).await;
     });
 }
 
 pub fn spawn_skin_change_tracker(
     button_state: Arc<Mutex<SkinChangeState>>,
     mut events_rx: broadcast::Receiver<AppEvent>,
+    events_tx: Arc<broadcast::Sender<AppEvent>>,
+    ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
 ) {
     tokio::spawn(async move {
         use gilrs::EventType;
@@ -84,15 +93,30 @@ pub fn spawn_skin_change_tracker(
                     let mut state = button_state.lock().unwrap();
                     match event.event {
                         EventType::ButtonPressed(btn, _) => match btn {
+                            Button::DPadRight => {
+                                if state.state == AppSkinState::SkinSwitch {
+                                    debug!("Skin switch: DPadRight pressed, sending direction Right");
+                                    let _ = events_tx.send(AppEvent::SkinChange(crate::skin_change_state::Direction::Right));
+                                }
+                            }
+                            Button::DPadLeft => {
+                                if state.state == AppSkinState::SkinSwitch {
+                                    debug!("Skin switch: DPadLeft pressed, sending direction Left");
+                                    let _ = events_tx.send(AppEvent::SkinChange(crate::skin_change_state::Direction::Left));
+                                }
+                            }
                             Button::Start => {
                                 state.start_pressed = true;
                                 if state.state == AppSkinState::SkinSwitch {
                                     state.state = AppSkinState::Normal;
+                                    debug!("SkinSwitch -> Normal (Start pressed)");
+                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(false));
                                     info!("AppSkinState: SkinSwitch -> Normal");
                                 }
                                 if state.state == AppSkinState::Normal && state.select_pressed {
                                     state.state = AppSkinState::SkinSwitchPending;
                                     state.pending_since = Some(Instant::now());
+                                    debug!("Normal -> SkinSwitchPending (Start+Select pressed)");
                                     info!("AppSkinState: Normal -> SkinSwitchPending");
                                 }
                             }
@@ -100,11 +124,14 @@ pub fn spawn_skin_change_tracker(
                                 state.select_pressed = true;
                                 if state.state == AppSkinState::SkinSwitch {
                                     state.state = AppSkinState::Normal;
+                                    debug!("SkinSwitch -> Normal (Select pressed)");
+                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(false));
                                     info!("AppSkinState: SkinSwitch -> Normal");
                                 }
                                 if state.state == AppSkinState::Normal && state.start_pressed {
                                     state.state = AppSkinState::SkinSwitchPending;
                                     state.pending_since = Some(Instant::now());
+                                    debug!("Normal -> SkinSwitchPending (Start+Select pressed)");
                                     info!("AppSkinState: Normal -> SkinSwitchPending");
                                 }
                             }
@@ -117,6 +144,8 @@ pub fn spawn_skin_change_tracker(
                                     && !state.select_pressed
                                 {
                                     state.state = AppSkinState::SkinSwitch;
+                                    debug!("SkinSwitchReady -> SkinSwitch (Start released, Select still pressed)");
+                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(true));
                                     info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
                                 }
                             }
@@ -126,6 +155,8 @@ pub fn spawn_skin_change_tracker(
                                     && !state.start_pressed
                                 {
                                     state.state = AppSkinState::SkinSwitch;
+                                    debug!("SkinSwitchReady -> SkinSwitch (Select released, Start still pressed)");
+                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(true));
                                     info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
                                 }
                             }
@@ -156,16 +187,24 @@ impl Channels {
         &self,
         gilrs_state: Arc<Mutex<crate::gamepad_state::GamepadState>>,
         button_state: Arc<Mutex<SkinChangeState>>,
+        skins: Vec<SkinEntry>,
+        current_skin_index: Arc<Mutex<usize>>,
     ) {
         let ws_tx = self.ws_tx.clone();
         let events_tx = self.events_tx.clone();
 
-        spawn_gilrs_task(gilrs_state, ws_tx, events_tx);
+        spawn_gilrs_task(gilrs_state, ws_tx.clone(), events_tx.clone());
 
         let button_events_rx = self.create_events_receiver();
-        spawn_button_actions(button_events_rx, Vec::new());
+        spawn_button_actions(
+            button_events_rx,
+            Vec::new(),
+            skins,
+            current_skin_index,
+            ws_tx.clone(),
+        );
 
         let button_state_events_rx = self.create_events_receiver();
-        spawn_skin_change_tracker(button_state, button_state_events_rx);
+        spawn_skin_change_tracker(button_state, button_state_events_rx, events_tx, ws_tx);
     }
 }

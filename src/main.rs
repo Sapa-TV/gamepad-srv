@@ -21,7 +21,6 @@ mod handlers;
 mod skin;
 mod skin_change_state;
 mod tasks;
-mod timer;
 mod ws;
 
 #[tokio::main]
@@ -47,7 +46,9 @@ async fn main() {
 
     let gilrs_state = app_state.gamepad_state.clone();
     let button_state = app_state.button_state.clone();
-    channels.spawn_all_tasks(gilrs_state, button_state);
+    let skins = app_state.skins.clone();
+    let current_skin_index = app_state.current_skin_index.clone();
+    channels.spawn_all_tasks(gilrs_state, button_state, skins, current_skin_index);
 
     let shutting_down = app_state.shutting_down.clone();
 

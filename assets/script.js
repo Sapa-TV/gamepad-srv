@@ -187,6 +187,8 @@ function connect() {
           applySticks(ev.d);
         } else if (ev.t === 'sch') {
           gamepadElem.classList.toggle('skin_changing', ev.d);
+        } else if (ev.t === 'sc') {
+          loadSkin(ev.d.path);
         }
       }
     }

@@ -6,9 +6,9 @@ use tokio::sync::broadcast;
 
 use crate::events::AppEvent;
 use crate::gamepad_state::{GamepadEvent, GamepadState};
-use crate::skin::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
+use crate::skin::{SkinEntry, discover_skins, load_skin_info};
 use crate::skin_change_state::SkinChangeState;
-use tracing::{error, info};
+use tracing::{debug, info};
 
 pub struct Channels {
     pub ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
@@ -41,7 +41,7 @@ pub struct AppState {
     pub button_state: Arc<Mutex<SkinChangeState>>,
     pub ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     pub shutting_down: Arc<AtomicBool>,
-    pub current_skin: Option<SkinInfo>,
+    pub current_skin_index: Arc<Mutex<usize>>,
     pub skins: Vec<SkinEntry>,
 }
 
@@ -50,30 +50,25 @@ impl AppState {
         let skins = discover_skins();
         info!("Found {} valid skins", skins.len());
 
-        let current_skin = skins.first().and_then(|s| {
-            let parts: Vec<&str> = s.path.split('/').filter(|p| !p.is_empty()).collect();
-            if let Some(skin_name) = parts.last() {
-                match load_skin_info(skin_name) {
-                    Ok(info) => {
-                        info!("Current skin: {}", info.name);
-                        Some(info)
-                    }
-                    Err(e) => {
-                        error!("Failed to load skin: {}", e);
-                        None
-                    }
-                }
-            } else {
-                None
+        if !skins.is_empty() {
+            match load_skin_info(&skins[0].dir_name) {
+                Ok(info) => info!("Default skin: {} (index: 0)", info.name),
+                Err(e) => debug!("Failed to load default skin: {}", e),
             }
-        });
+        } else {
+            debug!("No skins found in assets/skins/");
+        }
 
         Self {
             gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
             button_state: Arc::new(Mutex::new(SkinChangeState::default())),
             ws_tx,
             shutting_down: Arc::new(AtomicBool::new(false)),
-            current_skin,
+            current_skin_index: Arc::new(Mutex::new(if !skins.is_empty() {
+                0
+            } else {
+                usize::MAX
+            })),
             skins,
         }
     }

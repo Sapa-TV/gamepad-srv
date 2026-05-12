@@ -18,14 +18,17 @@ pub async fn index_handler() -> Html<String> {
 }
 
 pub async fn skin_handler(State(state): State<AppState>) -> Response {
-    match &state.current_skin {
-        Some(skin) => axum::Json((*skin).clone()).into_response(),
-        None => (
-            axum::http::StatusCode::SERVICE_UNAVAILABLE,
-            "Skin not loaded",
-        )
-            .into_response(),
+    let idx = *state.current_skin_index.lock().unwrap();
+    if idx < state.skins.len() {
+        if let Ok(info) = crate::skin::load_skin_info(&state.skins[idx].dir_name) {
+            return axum::Json(info).into_response();
+        }
     }
+    (
+        axum::http::StatusCode::SERVICE_UNAVAILABLE,
+        "Skin not loaded",
+    )
+        .into_response()
 }
 
 pub async fn list_skins_handler(
