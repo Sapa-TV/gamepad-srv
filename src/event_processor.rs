@@ -1,4 +1,4 @@
-use crate::gamepad_state::{button_name, GamepadEvent, GamepadState};
+use crate::gamepad_state::{GamepadEvent, GamepadState, button_name};
 use gilrs::{Axis, Event, EventType};
 
 pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEvent> {
@@ -21,10 +21,18 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
         EventType::AxisChanged(axis, value, _) => {
             let value = (value * 127.0) as i8;
             match axis {
-                Axis::LeftStickX => { state.left_x = value; }
-                Axis::LeftStickY => { state.left_y = value; }
-                Axis::RightStickX => { state.right_x = value; }
-                Axis::RightStickY => { state.right_y = value; }
+                Axis::LeftStickX => {
+                    state.left_x = value;
+                }
+                Axis::LeftStickY => {
+                    state.left_y = value;
+                }
+                Axis::RightStickX => {
+                    state.right_x = value;
+                }
+                Axis::RightStickY => {
+                    state.right_y = value;
+                }
                 _ => {}
             };
         }

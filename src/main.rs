@@ -1,25 +1,25 @@
-use std::{net::SocketAddr, time::Duration, sync::Arc};
 use std::net::ToSocketAddrs;
 use std::sync::Mutex;
 use std::sync::atomic::AtomicBool;
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
-use crate::gamepad_state::{GamepadEvent, GamepadState};
 use crate::event_processor::process_event;
+use crate::gamepad_state::{GamepadEvent, GamepadState};
 use axum::{
     Router,
     extract::{State as AxumState, WebSocketUpgrade, ws::WebSocket},
-    response::{Html, Response, IntoResponse},
+    response::{Html, IntoResponse, Response},
     routing::get,
 };
 use gilrs::Gilrs;
 use serde_json::to_string;
-use tokio::{fs, signal, time};
 use tokio::sync::broadcast;
+use tokio::{fs, signal, time};
 use tower_http::services::ServeDir;
-use tracing::{info, debug, error};
+use tracing::{debug, error, info};
 
-mod gamepad_state;
 mod event_processor;
+mod gamepad_state;
 
 #[derive(Clone)]
 struct AppState {
@@ -41,14 +41,14 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
-    
+
     let gamepad_state: Arc<Mutex<GamepadState>> = Arc::new(Mutex::new(GamepadState::new()));
     let gamepad_state_clone = gamepad_state.clone();
 
     let (tx, _rx) = broadcast::channel(100);
     let tx = Arc::new(tx);
     let tx_clone = tx.clone();
-    
+
     let tick_tx = tx.clone();
     let tick_state = gamepad_state.clone();
 
@@ -130,24 +130,28 @@ async fn index_handler() -> Html<String> {
     }
 }
 
-async fn ws_handler(
-    ws: WebSocketUpgrade, 
-    AxumState(state): AxumState<AppState>
-) -> Response {
-    if state.shutting_down.load(std::sync::atomic::Ordering::SeqCst) {
+async fn ws_handler(ws: WebSocketUpgrade, AxumState(state): AxumState<AppState>) -> Response {
+    if state
+        .shutting_down
+        .load(std::sync::atomic::Ordering::SeqCst)
+    {
         info!("Rejecting WebSocket connection: server shutting down");
-        return (axum::http::StatusCode::SERVICE_UNAVAILABLE, "Server shutting down").into_response();
+        return (
+            axum::http::StatusCode::SERVICE_UNAVAILABLE,
+            "Server shutting down",
+        )
+            .into_response();
     }
-    
+
     let rx = state.tx.subscribe();
     let gamepad_state = state.gamepad_state.clone();
     ws.on_upgrade(move |socket| handle_socket(socket, gamepad_state, rx))
 }
 
 async fn handle_socket(
-    mut socket: WebSocket, 
+    mut socket: WebSocket,
     state: Arc<Mutex<GamepadState>>,
-    mut rx: broadcast::Receiver<GamepadEvent>
+    mut rx: broadcast::Receiver<GamepadEvent>,
 ) {
     info!("WebSocket client connected");
 
