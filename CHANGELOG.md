@@ -2,6 +2,26 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.2.0](https://github.com/Sapa-TV/gamepad-srv/compare/836a1c4db57370ddaf4d238a984659137bbb78d7..0.2.0) - 2026-05-12
+#### Features
+- add single blink when skin switch ready - ([30f1050](https://github.com/Sapa-TV/gamepad-srv/commit/30f10506779f6b0d1ec53e9c8c5cad17c58f9075)) - Th0rN13
+- skin switch flow fully work - ([6511e9b](https://github.com/Sapa-TV/gamepad-srv/commit/6511e9b759209b9830dd633e375d1a1b2cefa039)) - Th0rN13
+- add skin switch state flow - ([3a1f951](https://github.com/Sapa-TV/gamepad-srv/commit/3a1f95186e854740b66422d7a8106af8782da20f)) - Th0rN13
+- add skin changing blink animation - ([0dbffeb](https://github.com/Sapa-TV/gamepad-srv/commit/0dbffebd989c26fd6093748443d3d8b7f3a1180d)) - Th0rN13
+- add timer module - ([6dc89c9](https://github.com/Sapa-TV/gamepad-srv/commit/6dc89c9f23f19bb6e2978bb492528c6c824f5e5a)) - Th0rN13
+- add common event bus - broadcaster - ([a725782](https://github.com/Sapa-TV/gamepad-srv/commit/a72578230236ca07e32333eda863e05cac354626)) - Th0rN13
+- add button actions - ([d027587](https://github.com/Sapa-TV/gamepad-srv/commit/d02758751234e06f2ccac29f0ee19e15ec0e972a)) - Th0rN13
+- add skins validation and skins list - ([9214cc7](https://github.com/Sapa-TV/gamepad-srv/commit/9214cc7e5203dd976fd2df6411ca43f5c58a8bbc)) - Th0rN13
+- validate skins, move to skin module - ([a42f8f3](https://github.com/Sapa-TV/gamepad-srv/commit/a42f8f3814e4e715010c764481810cf0188b3bfd)) - Th0rN13
+- add backend skin flow - ([dd7ae16](https://github.com/Sapa-TV/gamepad-srv/commit/dd7ae16e42787d8ff6a9e4676633d225464f8375)) - Th0rN13
+- skins loading flow - ([d9e0c7a](https://github.com/Sapa-TV/gamepad-srv/commit/d9e0c7a6270b2340fe83a69a6817fd61f6ab74e5)) - Th0rN13
+- add skins files - ([836a1c4](https://github.com/Sapa-TV/gamepad-srv/commit/836a1c4db57370ddaf4d238a984659137bbb78d7)) - Th0rN13
+#### Refactoring
+- remove old files - ([83eaa11](https://github.com/Sapa-TV/gamepad-srv/commit/83eaa116e96394863bd13fb864c4ac2ae4955776)) - Th0rN13
+- separate to different modules - ([1150015](https://github.com/Sapa-TV/gamepad-srv/commit/1150015388d495429f441fd47157741d1ffbf3df)) - Th0rN13
+
+- - -
+
 ## [0.1.0](https://github.com/Sapa-TV/gamepad-srv/compare/7230cebe1f99a1fcd2fcf4bc632b463b6f872b0d..0.1.0) - 2026-04-24
 #### Features
 - move to new png assets - ([6754c0d](https://github.com/Sapa-TV/gamepad-srv/commit/6754c0d6666d836a930cc6fb692f339a332afa57)) - Th0rN13
