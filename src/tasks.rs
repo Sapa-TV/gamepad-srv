@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
+use std::time::Instant;
 
 use tokio::sync::broadcast;
 use tokio::time;
@@ -10,7 +11,8 @@ use crate::button_actions::{ButtonAction, run_button_actions};
 use crate::event_processor::process_event;
 use crate::events::AppEvent;
 use crate::gamepad_state::GamepadEvent;
-use gilrs::Gilrs;
+use crate::skin_change_state::{AppSkinState, SkinChangeState};
+use gilrs::{Button, Gilrs};
 use tracing::{debug, error, info};
 
 pub fn spawn_stick_tick(
@@ -70,8 +72,91 @@ pub fn spawn_button_actions(events_rx: broadcast::Receiver<AppEvent>, actions: V
     });
 }
 
+pub fn spawn_skin_change_tracker(
+    button_state: Arc<Mutex<SkinChangeState>>,
+    mut events_rx: broadcast::Receiver<AppEvent>,
+) {
+    tokio::spawn(async move {
+        use gilrs::EventType;
+        loop {
+            tokio::select! {
+                Ok(AppEvent::Gilrs(event)) = events_rx.recv() => {
+                    let mut state = button_state.lock().unwrap();
+                    match event.event {
+                        EventType::ButtonPressed(btn, _) => match btn {
+                            Button::Start => {
+                                state.start_pressed = true;
+                                if state.state == AppSkinState::SkinSwitch {
+                                    state.state = AppSkinState::Normal;
+                                    info!("AppSkinState: SkinSwitch -> Normal");
+                                }
+                                if state.state == AppSkinState::Normal && state.select_pressed {
+                                    state.state = AppSkinState::SkinSwitchPending;
+                                    state.pending_since = Some(Instant::now());
+                                    info!("AppSkinState: Normal -> SkinSwitchPending");
+                                }
+                            }
+                            Button::Select => {
+                                state.select_pressed = true;
+                                if state.state == AppSkinState::SkinSwitch {
+                                    state.state = AppSkinState::Normal;
+                                    info!("AppSkinState: SkinSwitch -> Normal");
+                                }
+                                if state.state == AppSkinState::Normal && state.start_pressed {
+                                    state.state = AppSkinState::SkinSwitchPending;
+                                    state.pending_since = Some(Instant::now());
+                                    info!("AppSkinState: Normal -> SkinSwitchPending");
+                                }
+                            }
+                            _ => {}
+                        },
+                        EventType::ButtonReleased(btn, _) => match btn {
+                            Button::Start => {
+                                state.start_pressed = false;
+                                if state.state == AppSkinState::SkinSwitchReady
+                                    && !state.select_pressed
+                                {
+                                    state.state = AppSkinState::SkinSwitch;
+                                    info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
+                                }
+                            }
+                            Button::Select => {
+                                state.select_pressed = false;
+                                if state.state == AppSkinState::SkinSwitchReady
+                                    && !state.start_pressed
+                                {
+                                    state.state = AppSkinState::SkinSwitch;
+                                    info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
+                                }
+                            }
+                            _ => {}
+                        },
+                        _ => {}
+                    }
+                }
+                _ = time::sleep(Duration::from_millis(100)) => {
+                    let mut state = button_state.lock().unwrap();
+                    if state.state == AppSkinState::SkinSwitchPending {
+                        if let Some(pending_since) = state.pending_since {
+                            if pending_since.elapsed() >= Duration::from_secs(2) {
+                                state.state = AppSkinState::SkinSwitchReady;
+                                state.pending_since = None;
+                                info!("AppSkinState: SkinSwitchPending -> SkinSwitchReady (timeout)");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 impl Channels {
-    pub fn spawn_all_tasks(&self, gilrs_state: Arc<Mutex<crate::gamepad_state::GamepadState>>) {
+    pub fn spawn_all_tasks(
+        &self,
+        gilrs_state: Arc<Mutex<crate::gamepad_state::GamepadState>>,
+        button_state: Arc<Mutex<SkinChangeState>>,
+    ) {
         let ws_tx = self.ws_tx.clone();
         let events_tx = self.events_tx.clone();
 
@@ -79,5 +164,8 @@ impl Channels {
 
         let button_events_rx = self.create_events_receiver();
         spawn_button_actions(button_events_rx, Vec::new());
+
+        let button_state_events_rx = self.create_events_receiver();
+        spawn_skin_change_tracker(button_state, button_state_events_rx);
     }
 }

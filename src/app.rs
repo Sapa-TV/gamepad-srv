@@ -7,6 +7,7 @@ use tokio::sync::broadcast;
 use crate::events::AppEvent;
 use crate::gamepad_state::{GamepadEvent, GamepadState};
 use crate::skin::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
+use crate::skin_change_state::SkinChangeState;
 use tracing::{error, info};
 
 pub struct Channels {
@@ -37,6 +38,7 @@ impl Channels {
 #[derive(Clone)]
 pub struct AppState {
     pub gamepad_state: Arc<Mutex<GamepadState>>,
+    pub button_state: Arc<Mutex<SkinChangeState>>,
     pub ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     pub shutting_down: Arc<AtomicBool>,
     pub current_skin: Option<SkinInfo>,
@@ -68,6 +70,7 @@ impl AppState {
 
         Self {
             gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
+            button_state: Arc::new(Mutex::new(SkinChangeState::default())),
             ws_tx,
             shutting_down: Arc::new(AtomicBool::new(false)),
             current_skin,

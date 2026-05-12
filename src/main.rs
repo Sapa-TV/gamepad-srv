@@ -19,6 +19,7 @@ mod events;
 mod gamepad_state;
 mod handlers;
 mod skin;
+mod skin_change_state;
 mod tasks;
 mod timer;
 mod ws;
@@ -45,7 +46,8 @@ async fn main() {
     spawn_stick_tick(tick_state, tick_ws_tx);
 
     let gilrs_state = app_state.gamepad_state.clone();
-    channels.spawn_all_tasks(gilrs_state);
+    let button_state = app_state.button_state.clone();
+    channels.spawn_all_tasks(gilrs_state, button_state);
 
     let shutting_down = app_state.shutting_down.clone();
 

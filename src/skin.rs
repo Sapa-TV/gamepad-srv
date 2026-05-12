@@ -64,12 +64,6 @@ struct JsonButton {
     image: String,
 }
 
-pub fn all_button_names() -> Vec<&'static str> {
-    vec![
-        "DU", "DD", "DL", "DR", "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "LS", "RS", "SE", "ST",
-    ]
-}
-
 pub fn button_name_valid(name: &str) -> bool {
     VALID_BUTTONS.contains(&name)
 }
