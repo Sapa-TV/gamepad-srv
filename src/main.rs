@@ -1,75 +1,26 @@
 use std::net::ToSocketAddrs;
-use std::sync::Mutex;
 use std::sync::atomic::AtomicBool;
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 
-use crate::button_actions::run_button_actions;
-use crate::event_processor::process_event;
-use crate::events::AppEvent;
-use crate::gamepad_state::{GamepadEvent, GamepadState};
-use crate::skin::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
-use axum::{
-    Router,
-    extract::{State as AxumState, WebSocketUpgrade, ws::WebSocket},
-    response::{Html, IntoResponse, Response},
-    routing::get,
-};
-use gilrs::Gilrs;
-use serde_json::to_string;
-use tokio::sync::broadcast;
-use tokio::{fs, signal, time};
+use axum::Router;
+use axum::routing::get;
 use tower_http::services::ServeDir;
-use tracing::{debug, error, info};
+use tracing::info;
 
+use crate::app::{Channels, create_app_state};
+use crate::handlers::{index_handler, list_skins_handler, skin_handler, ws_handler};
+use crate::tasks::spawn_stick_tick;
+use tokio::signal;
+
+mod app;
 mod button_actions;
-mod events;
 mod event_processor;
+mod events;
 mod gamepad_state;
+mod handlers;
 mod skin;
-
-#[derive(Clone)]
-struct AppState {
-    gamepad_state: Arc<Mutex<GamepadState>>,
-    ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
-    shutting_down: Arc<AtomicBool>,
-    current_skin: Option<SkinInfo>,
-    skins: Vec<SkinEntry>,
-}
-
-impl AppState {
-    fn new() -> Self {
-        let (ws_tx, _rx) = broadcast::channel(100);
-
-        let skins = discover_skins();
-        info!("Found {} valid skins", skins.len());
-
-        let current_skin = skins.first().and_then(|s| {
-            let parts: Vec<&str> = s.path.split('/').filter(|p| !p.is_empty()).collect();
-            if let Some(skin_name) = parts.last() {
-                match load_skin_info(skin_name) {
-                    Ok(info) => {
-                        info!("Current skin: {}", info.name);
-                        Some(info)
-                    }
-                    Err(e) => {
-                        error!("Failed to load skin: {}", e);
-                        None
-                    }
-                }
-            } else {
-                None
-            }
-        });
-
-        Self {
-            gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
-            ws_tx: Arc::new(ws_tx),
-            shutting_down: Arc::new(AtomicBool::new(false)),
-            current_skin,
-            skins,
-        }
-    }
-}
+mod tasks;
+mod ws;
 
 #[tokio::main]
 async fn main() {
@@ -85,58 +36,15 @@ async fn main() {
 
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
 
-    let app_state = AppState::new();
-
-    let (events_tx, events_rx) = broadcast::channel(100);
+    let channels = Channels::new();
+    let app_state = create_app_state(channels.ws_sender());
 
     let tick_state = app_state.gamepad_state.clone();
-    let tick_ws_tx = app_state.ws_tx.clone();
-    tokio::spawn(async move {
-        loop {
-            time::sleep(Duration::from_millis(50)).await;
-            let sticks = {
-                let s = tick_state.lock().unwrap();
-                GamepadEvent::Sticks {
-                    lx: s.left_x,
-                    ly: s.left_y,
-                    rx: s.right_x,
-                    ry: s.right_y,
-                }
-            };
-            let _ = tick_ws_tx.send(sticks);
-        }
-    });
+    let tick_ws_tx = channels.ws_sender();
+    spawn_stick_tick(tick_state, tick_ws_tx);
 
     let gilrs_state = app_state.gamepad_state.clone();
-    let gilrs_ws_tx = app_state.ws_tx.clone();
-    let events_sender = events_tx.clone();
-    tokio::spawn(async move {
-        let mut gilrs = match Gilrs::new() {
-            Ok(g) => g,
-            Err(e) => {
-                error!("Failed to initialize gilrs: {}", e);
-                return;
-            }
-        };
-
-        info!("Gamepad polling started");
-
-        loop {
-            while let Some(event) = gilrs.next_event() {
-                let mut state = gilrs_state.lock().unwrap();
-                if let Some(gamepad_event) = process_event(&mut state, event) {
-                    debug!("Gamepad event: {:?}", gamepad_event);
-                    let _ = gilrs_ws_tx.send(gamepad_event);
-                }
-                let _ = events_sender.send(AppEvent::Gilrs(event));
-            }
-            tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
-        }
-    });
-
-    tokio::spawn(async move {
-        run_button_actions(events_rx, Vec::new()).await;
-    });
+    channels.spawn_all_tasks(gilrs_state);
 
     let shutting_down = app_state.shutting_down.clone();
 
@@ -163,80 +71,4 @@ async fn graceful_shutdown(shutting_down: Arc<AtomicBool>) {
     info!("Ctrl+C received, web server exiting...");
     shutting_down.store(true, std::sync::atomic::Ordering::SeqCst);
     tokio::time::sleep(Duration::from_secs(1)).await;
-}
-
-async fn index_handler() -> Html<String> {
-    match fs::read_to_string("assets/index.html").await {
-        Ok(contents) => Html(contents),
-        Err(_) => Html("Cant find file error".into()),
-    }
-}
-
-async fn skin_handler(AxumState(state): AxumState<AppState>) -> Response {
-    match &state.current_skin {
-        Some(skin) => axum::Json((*skin).clone()).into_response(),
-        None => (
-            axum::http::StatusCode::SERVICE_UNAVAILABLE,
-            "Skin not loaded",
-        )
-            .into_response(),
-    }
-}
-
-async fn list_skins_handler(AxumState(state): AxumState<AppState>) -> axum::Json<Vec<SkinEntry>> {
-    axum::Json(state.skins.clone())
-}
-
-async fn ws_handler(ws: WebSocketUpgrade, AxumState(state): AxumState<AppState>) -> Response {
-    if state
-        .shutting_down
-        .load(std::sync::atomic::Ordering::SeqCst)
-    {
-        info!("Rejecting WebSocket connection: server shutting down");
-        return (
-            axum::http::StatusCode::SERVICE_UNAVAILABLE,
-            "Server shutting down",
-        )
-            .into_response();
-    }
-
-    let rx = state.ws_tx.subscribe();
-    let gamepad_state = state.gamepad_state.clone();
-    ws.on_upgrade(move |socket| handle_socket(socket, gamepad_state, rx))
-}
-
-async fn handle_socket(
-    mut socket: WebSocket,
-    state: Arc<Mutex<GamepadState>>,
-    mut rx: broadcast::Receiver<GamepadEvent>,
-) {
-    info!("WebSocket client connected");
-
-    let output = {
-        let s = state.lock().unwrap();
-        s.to_output()
-    };
-    let _ = socket.send(to_string(&output).unwrap().into()).await;
-
-    loop {
-        tokio::select! {
-            _ = signal::ctrl_c() => {
-                info!("Ctrl+C received, closing websocket");
-                break;
-            }
-            event = rx.recv() => {
-                match event {
-                    Ok(e) => {
-                        if socket.send(to_string(&vec![e]).unwrap().into()).await.is_err() {
-                            info!("WebSocket client disconnected");
-                            break;
-                        }
-                    }
-                    Err(_) => break,
-                }
-            }
-        }
-    }
-
-    info!("Websocket closed");
 }

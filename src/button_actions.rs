@@ -15,10 +15,7 @@ pub struct ButtonAction {
     pub handler: Arc<dyn ButtonHandler>,
 }
 
-pub async fn run_button_actions(
-    mut rx: broadcast::Receiver<AppEvent>,
-    actions: Vec<ButtonAction>,
-) {
+pub async fn run_button_actions(mut rx: broadcast::Receiver<AppEvent>, actions: Vec<ButtonAction>) {
     loop {
         match rx.recv().await {
             Ok(AppEvent::Gilrs(event)) => {
