@@ -5,6 +5,7 @@ use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use crate::event_processor::process_event;
 use crate::gamepad_state::{GamepadEvent, GamepadState};
+use crate::skin::{DEFAULT_SKIN, SkinInfo, load_skin_info};
 use axum::{
     Router,
     extract::{State as AxumState, WebSocketUpgrade, ws::WebSocket},
@@ -12,7 +13,6 @@ use axum::{
     routing::get,
 };
 use gilrs::Gilrs;
-use serde::{Deserialize, Serialize};
 use serde_json::to_string;
 use tokio::sync::broadcast;
 use tokio::{fs, signal, time};
@@ -21,30 +21,7 @@ use tracing::{debug, error, info};
 
 mod event_processor;
 mod gamepad_state;
-
-const DEFAULT_SKIN: &str = "sapa_green";
-
-#[derive(Clone, Serialize, Deserialize)]
-struct SkinInfo {
-    name: String,
-    path: String,
-}
-
-fn load_skin_info(skin_name: &str) -> Result<SkinInfo, String> {
-    let path = format!("assets/skins/{}/skin.json", skin_name);
-    let contents =
-        std::fs::read_to_string(&path).map_err(|e| format!("Failed to read {}: {}", path, e))?;
-    let json: serde_json::Value =
-        serde_json::from_str(&contents).map_err(|e| format!("Failed to parse {}: {}", path, e))?;
-    let name = json
-        .get("name")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| format!("{} missing 'name' field", path))?;
-    Ok(SkinInfo {
-        name: name.to_string(),
-        path: format!("/skins/{}/", skin_name),
-    })
-}
+mod skin;
 
 #[derive(Clone)]
 struct AppState {
