@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.3.0](https://github.com/Sapa-TV/gamepad-srv/compare/b1c9eab9c4ee0aefdfc5f252a88a7068a2124d05..0.3.0) - 2026-05-13
+#### Features
+- add config file using - ([fa64599](https://github.com/Sapa-TV/gamepad-srv/commit/fa645999bb8912a9b5fc9ad7de107e32ee86af78)) - Th0rN13
+- add new skin, refactor skins - ([ce2d1d0](https://github.com/Sapa-TV/gamepad-srv/commit/ce2d1d006ef6281690cba4089121ea59ca0678dc)) - Th0rN13
+#### Documentation
+- add refactoring plan - ([f3474c2](https://github.com/Sapa-TV/gamepad-srv/commit/f3474c217506cd252a856b700661ad62b50ccf10)) - Th0rN13
+- add readme.md - ([b1c9eab](https://github.com/Sapa-TV/gamepad-srv/commit/b1c9eab9c4ee0aefdfc5f252a88a7068a2124d05)) - Th0rN13
+
+- - -
+
 ## [0.2.0](https://github.com/Sapa-TV/gamepad-srv/compare/836a1c4db57370ddaf4d238a984659137bbb78d7..0.2.0) - 2026-05-12
 #### Features
 - add single blink when skin switch ready - ([30f1050](https://github.com/Sapa-TV/gamepad-srv/commit/30f10506779f6b0d1ec53e9c8c5cad17c58f9075)) - Th0rN13
