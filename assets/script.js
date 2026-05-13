@@ -125,11 +125,11 @@ async function loadSkin(skinPath) {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const skin = await response.json();
 
-  if (skin.background) {
-    const bg = document.querySelector('img[data-name="background"]');
-    bg.src = `${skinPath}/${skin.background.image}`;
-    bg.style.top = `${skin.background.top}px`;
-    bg.style.left = `${skin.background.left}px`;
+  if (skin.body) {
+    const bg = document.querySelector('img[data-name="body"]');
+    bg.src = `${skinPath}/${skin.body.image}`;
+    bg.style.top = `${skin.body.top}px`;
+    bg.style.left = `${skin.body.left}px`;
   }
 
   if (skin.indicator) {

@@ -56,7 +56,7 @@ assets/skins/sapa_red/
 ```json
 {
   "name": "Red Theme",
-  "background": {
+  "body": {
     "image": "backend.png",
     "top": 0,
     "left": 0

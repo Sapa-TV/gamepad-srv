@@ -41,7 +41,7 @@ pub struct SkinInfo {
 #[derive(Deserialize)]
 struct SkinJson {
     name: String,
-    background: JsonMedia,
+    body: JsonMedia,
     indicator: Option<JsonMedia>,
     buttons: Vec<JsonButton>,
 }
@@ -81,8 +81,8 @@ pub fn validate_skin(skin_name: &str) -> Result<(), String> {
         return Err(format!("{}: 'name' is empty", skin_path));
     }
 
-    let bg_path = format!("{}/{}/{}", SKIN_DIR, skin_name, json.background.image);
-    fs::metadata(&bg_path).map_err(|e| format!("Background image not found {}: {}", bg_path, e))?;
+    let bg_path = format!("{}/{}/{}", SKIN_DIR, skin_name, json.body.image);
+    fs::metadata(&bg_path).map_err(|e| format!("Body image not found {}: {}", bg_path, e))?;
 
     if let Some(ind) = &json.indicator {
         let ind_path = format!("{}/{}/{}", SKIN_DIR, skin_name, ind.image);

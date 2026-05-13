@@ -1,7 +1,7 @@
 {
-  "name": "Sapa Green",
-  "background": {
-    "image": "backend.png",
+  "name": "Sapa Blue",
+  "body": {
+    "image": "body.png",
     "top": 0,
     "left": 0
   },
