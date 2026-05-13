@@ -46,17 +46,34 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(ws_tx: Arc<broadcast::Sender<GamepadEvent>>) -> Self {
+    pub fn new(ws_tx: Arc<broadcast::Sender<GamepadEvent>>, skin_from_config: Option<String>) -> Self {
         let skins = discover_skins();
         info!("Found {} valid skins", skins.len());
 
-        if !skins.is_empty() {
-            match load_skin_info(&skins[0].dir_name) {
-                Ok(info) => info!("Default skin: {} (index: 0)", info.name),
-                Err(e) => debug!("Failed to load default skin: {}", e),
+        let current_skin_index = if !skins.is_empty() {
+            match &skin_from_config {
+                Some(name) if skins.iter().any(|s| &s.dir_name == name) => {
+                    let idx = skins.iter().position(|s| &s.dir_name == name).unwrap();
+                    info!("Using skin from config: {} (index: {})", name, idx);
+                    idx
+                }
+                _ => {
+                    if skin_from_config.is_some() {
+                        info!("Skin '{}' from config not found, using default", skin_from_config.as_ref().unwrap());
+                    }
+                    0
+                }
             }
         } else {
             debug!("No skins found in assets/skins/");
+            usize::MAX
+        };
+
+        if !skins.is_empty() {
+            match load_skin_info(&skins[current_skin_index].dir_name) {
+                Ok(info) => info!("Current skin: {} (index: {})", info.name, current_skin_index),
+                Err(e) => debug!("Failed to load current skin: {}", e),
+            }
         }
 
         Self {
@@ -64,16 +81,12 @@ impl AppState {
             button_state: Arc::new(Mutex::new(SkinChangeState::default())),
             ws_tx,
             shutting_down: Arc::new(AtomicBool::new(false)),
-            current_skin_index: Arc::new(Mutex::new(if !skins.is_empty() {
-                0
-            } else {
-                usize::MAX
-            })),
+            current_skin_index: Arc::new(Mutex::new(current_skin_index)),
             skins,
         }
     }
 }
 
-pub fn create_app_state(ws_tx: Arc<broadcast::Sender<GamepadEvent>>) -> AppState {
-    AppState::new(ws_tx)
+pub fn create_app_state(ws_tx: Arc<broadcast::Sender<GamepadEvent>>, skin_from_config: Option<String>) -> AppState {
+    AppState::new(ws_tx, skin_from_config)
 }

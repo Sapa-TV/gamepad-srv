@@ -4,6 +4,7 @@ use std::time::Duration;
 use std::time::Instant;
 
 use tokio::sync::broadcast;
+use tokio::sync::mpsc;
 use tokio::time;
 
 use crate::app::Channels;
@@ -73,9 +74,10 @@ pub fn spawn_button_actions(
     skins: Vec<SkinEntry>,
     current_skin_index: Arc<Mutex<usize>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
+    save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
 ) {
     tokio::spawn(async move {
-        run_button_actions(events_rx, actions, skins, current_skin_index, ws_tx).await;
+        run_button_actions(events_rx, actions, skins, current_skin_index, ws_tx, save_tx).await;
     });
 }
 
@@ -186,6 +188,7 @@ impl Channels {
         button_state: Arc<Mutex<SkinChangeState>>,
         skins: Vec<SkinEntry>,
         current_skin_index: Arc<Mutex<usize>>,
+        save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
     ) {
         let ws_tx = self.ws_tx.clone();
         let events_tx = self.events_tx.clone();
@@ -199,6 +202,7 @@ impl Channels {
             skins,
             current_skin_index,
             ws_tx.clone(),
+            save_tx,
         );
 
         let button_state_events_rx = self.create_events_receiver();

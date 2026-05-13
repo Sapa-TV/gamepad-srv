@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use tokio::sync::broadcast;
+use tokio::sync::mpsc;
 
 use gilrs::Button;
 use tracing::debug;
@@ -26,6 +27,7 @@ pub async fn run_button_actions(
     skins: Vec<SkinEntry>,
     current_skin_index: Arc<Mutex<usize>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
+    save_tx: Arc<Mutex<Option<mpsc::Sender<String>>>>,
 ) {
     loop {
         match rx.recv().await {
@@ -67,6 +69,11 @@ pub async fn run_button_actions(
                         path: info.path,
                         index: new_idx,
                     });
+
+                    let tx_guard = save_tx.lock().unwrap();
+                    if let Some(ref tx) = *tx_guard {
+                        let _ = tx.try_send(skins[new_idx].dir_name.clone());
+                    }
                 }
             }
             Err(_) => break,
