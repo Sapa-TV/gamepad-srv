@@ -6,7 +6,7 @@ use axum::{
 };
 
 use crate::app::AppState;
-use crate::ws::handle_socket;
+use crate::websocket::handler::handle_socket;
 use tokio::fs;
 use tracing::info;
 

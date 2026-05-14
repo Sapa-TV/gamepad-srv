@@ -215,15 +215,15 @@ impl SkinSwitchMachine {
 
 ### Шаг 10: Обновить `handlers.rs`
 
-- [ ] **Обновить импорты в `handlers.rs`:**
+- [x] **Обновить импорты в `handlers.rs`:**
   - `use crate::ws::handle_socket` → `use crate::websocket::handler::handle_socket`
 
-- [ ] **Убрать:** `ws.rs` ре-экспорт (теперь handlers.rs будет использовать напрямую)
+- [x] **Убрать:** `ws.rs` ре-экспорт (теперь handlers.rs будет использовать напрямую)
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -370,7 +370,7 @@ impl SkinSwitchMachine {
 | 7   | Создать commands.rs                 | [x]    |
 | 8   | Создать machine.rs                  | [x]    |
 | 9   | Перенести event_processor.rs        | [x]    |
-| 10  | Обновить handlers.rs                | [ ]    |
+| 10  | Обновить handlers.rs                | [x]    |
 | 11  | Обновить app.rs                     | [ ]    |
 | 12  | Обновить tasks.rs                   | [ ]    |
 | 13  | Обновить button_actions.rs          | [ ]    |
