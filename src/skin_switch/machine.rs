@@ -61,7 +61,11 @@ impl SkinSwitchMachine {
             ButtonEvent::Released(name) => match name {
                 ButtonName::Start => {
                     self.state.start_pressed = false;
-                    if self.state.state == AppSkinState::SkinSwitchReady
+                    if self.state.state == AppSkinState::SkinSwitchPending {
+                        self.state.state = AppSkinState::Normal;
+                        self.state.pending_since = None;
+                        info!("AppSkinState: SkinSwitchPending -> Normal (Start released)");
+                    } else if self.state.state == AppSkinState::SkinSwitchReady
                         && !self.state.select_pressed
                     {
                         self.state.state = AppSkinState::SkinSwitch;
@@ -71,7 +75,11 @@ impl SkinSwitchMachine {
                 }
                 ButtonName::Select => {
                     self.state.select_pressed = false;
-                    if self.state.state == AppSkinState::SkinSwitchReady
+                    if self.state.state == AppSkinState::SkinSwitchPending {
+                        self.state.state = AppSkinState::Normal;
+                        self.state.pending_since = None;
+                        info!("AppSkinState: SkinSwitchPending -> Normal (Select released)");
+                    } else if self.state.state == AppSkinState::SkinSwitchReady
                         && !self.state.start_pressed
                     {
                         self.state.state = AppSkinState::SkinSwitch;
