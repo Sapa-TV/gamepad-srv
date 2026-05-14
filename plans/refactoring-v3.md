@@ -47,15 +47,15 @@
 
 **Действие:**
 
-- [ ] DPad: использовать `button.into()` для Direction
-- [ ] Start/Select pressed: использовать `press_start()`, `press_select()`, `set_pending()`
-- [ ] Start/Select released: использовать `release_start()`, `release_select()`, `set_normal()`, `set_skin_switch()`
-- [ ] Убрать дублирование
+- [x] DPad: использовать `button.into()` для Direction
+- [x] Start/Select pressed: использовать `press_start()`, `press_select()`, `set_pending()`
+- [x] Start/Select released: использовать `release_start()`, `release_select()`, `set_normal()`, `set_skin_switch()`
+- [x] Убрать дублирование
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -74,7 +74,7 @@
 | --- | ---------------------------------- | -------- |
 | 1   | From<ButtonName> for Direction     | [x]      |
 | 2   | Простые методы в SkinChangeState   | [x]      |
-| 3   | Упростить machine.rs               | [ ]      |
+| 3   | Упростить machine.rs               | [x]      |
 | 4   | Финальная проверка                 | [ ]      |
 
 ---

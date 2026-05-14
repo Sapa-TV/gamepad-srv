@@ -1,8 +1,6 @@
-use std::time::Instant;
-
 use crate::skin_switch::buttons::{ButtonEvent, ButtonName};
 use crate::skin_switch::commands::Command;
-use crate::skin_switch::state::{AppSkinState, Direction, SkinChangeState};
+use crate::skin_switch::state::{AppSkinState, SkinChangeState};
 use tracing::info;
 
 pub struct SkinSwitchMachine {
@@ -18,71 +16,61 @@ impl SkinSwitchMachine {
 
     pub fn handle_button(&mut self, event: ButtonEvent) -> Option<Command> {
         match event {
-            ButtonEvent::Pressed(name) => match name {
-                ButtonName::DPadRight => {
+            ButtonEvent::Pressed(button) => match button {
+                ButtonName::DPadRight | ButtonName::DPadLeft => {
                     if self.state.state == AppSkinState::SkinSwitch {
-                        info!("Skin switch: DPadRight pressed, sending direction Right");
-                        return Some(Command::SkinChange(Direction::Right));
-                    }
-                }
-                ButtonName::DPadLeft => {
-                    if self.state.state == AppSkinState::SkinSwitch {
-                        info!("Skin switch: DPadLeft pressed, sending direction Left");
-                        return Some(Command::SkinChange(Direction::Left));
+                        info!("Skin switch: {:?} pressed, sending direction", button);
+                        return Some(Command::SkinChange(button.into()));
                     }
                 }
                 ButtonName::Start => {
-                    self.state.start_pressed = true;
+                    self.state.press_start();
                     if self.state.state == AppSkinState::SkinSwitch {
-                        self.state.state = AppSkinState::Normal;
+                        self.state.set_normal();
                         info!("AppSkinState: SkinSwitch -> Normal");
                         return Some(Command::NotifySkinChanging(false));
                     }
                     if self.state.state == AppSkinState::Normal && self.state.select_pressed {
-                        self.state.state = AppSkinState::SkinSwitchPending;
-                        self.state.pending_since = Some(Instant::now());
+                        self.state.set_pending();
                         info!("AppSkinState: Normal -> SkinSwitchPending");
                     }
                 }
                 ButtonName::Select => {
-                    self.state.select_pressed = true;
+                    self.state.press_select();
                     if self.state.state == AppSkinState::SkinSwitch {
-                        self.state.state = AppSkinState::Normal;
+                        self.state.set_normal();
                         info!("AppSkinState: SkinSwitch -> Normal");
                         return Some(Command::NotifySkinChanging(false));
                     }
                     if self.state.state == AppSkinState::Normal && self.state.start_pressed {
-                        self.state.state = AppSkinState::SkinSwitchPending;
-                        self.state.pending_since = Some(Instant::now());
+                        self.state.set_pending();
                         info!("AppSkinState: Normal -> SkinSwitchPending");
                     }
                 }
             },
-            ButtonEvent::Released(name) => match name {
+            ButtonEvent::Released(button) => match button {
                 ButtonName::Start => {
-                    self.state.start_pressed = false;
+                    self.state.release_start();
                     if self.state.state == AppSkinState::SkinSwitchPending {
-                        self.state.state = AppSkinState::Normal;
-                        self.state.pending_since = None;
+                        self.state.set_normal();
                         info!("AppSkinState: SkinSwitchPending -> Normal (Start released)");
                     } else if self.state.state == AppSkinState::SkinSwitchReady
                         && !self.state.select_pressed
                     {
-                        self.state.state = AppSkinState::SkinSwitch;
+                        self.state.set_skin_switch();
                         info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
                         return Some(Command::NotifySkinChanging(true));
                     }
                 }
                 ButtonName::Select => {
-                    self.state.select_pressed = false;
+                    self.state.release_select();
                     if self.state.state == AppSkinState::SkinSwitchPending {
-                        self.state.state = AppSkinState::Normal;
-                        self.state.pending_since = None;
+                        self.state.set_normal();
                         info!("AppSkinState: SkinSwitchPending -> Normal (Select released)");
                     } else if self.state.state == AppSkinState::SkinSwitchReady
                         && !self.state.start_pressed
                     {
-                        self.state.state = AppSkinState::SkinSwitch;
+                        self.state.set_skin_switch();
                         info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
                         return Some(Command::NotifySkinChanging(true));
                     }
@@ -97,8 +85,7 @@ impl SkinSwitchMachine {
         if self.state.state == AppSkinState::SkinSwitchPending {
             if let Some(pending_since) = self.state.pending_since {
                 if pending_since.elapsed() >= std::time::Duration::from_secs(2) {
-                    self.state.state = AppSkinState::SkinSwitchReady;
-                    self.state.pending_since = None;
+                    self.state.set_skin_switch_ready();
                     info!("AppSkinState: SkinSwitchPending -> SkinSwitchReady (timeout)");
                     return Some(Command::SkinSwitchReady);
                 }
