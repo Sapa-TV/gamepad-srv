@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.3.1](https://github.com/Sapa-TV/gamepad-srv/compare/8d75db75cc8f3f9cc4031ffdb7dcb7caa7cf2699..0.3.1) - 2026-05-14
+#### Bug Fixes
+- initial skin loading flow save to config, sort by dir name - ([8d75db7](https://github.com/Sapa-TV/gamepad-srv/commit/8d75db75cc8f3f9cc4031ffdb7dcb7caa7cf2699)) - Th0rN13
+
+- - -
+
 ## [0.3.0](https://github.com/Sapa-TV/gamepad-srv/compare/b1c9eab9c4ee0aefdfc5f252a88a7068a2124d05..0.3.0) - 2026-05-13
 #### Features
 - add config file using - ([fa64599](https://github.com/Sapa-TV/gamepad-srv/commit/fa645999bb8912a9b5fc9ad7de107e32ee86af78)) - Th0rN13
