@@ -154,7 +154,7 @@ impl SkinManager {
 
 ### Шаг 7: Создать `commands.rs` в skin_switch
 
-- [ ] **Создать:** `src/skin_switch/commands.rs`
+- [x] **Создать:** `src/skin_switch/commands.rs`
 
 ```rust
 use crate::skin_switch::state::Direction;
@@ -167,18 +167,18 @@ pub enum Command {
 }
 ```
 
-- [ ] **Обновить:** `skin_switch/mod.rs` → `pub mod state; pub mod commands;`
+- [x] **Обновить:** `skin_switch/mod.rs` → `pub mod state; pub mod commands;`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
 ### Шаг 8: Создать `skin_switch/machine.rs` (логика переходов)
 
-- [ ] **Создать:** `src/skin_switch/machine.rs` — пока простой skeleton:
+- [x] **Создать:** `src/skin_switch/machine.rs` — пока простой skeleton:
 
 ```rust
 use crate::events::AppEvent;
@@ -191,12 +191,12 @@ impl SkinSwitchMachine {
 }
 ```
 
-- [ ] **Обновить:** `skin_switch/mod.rs` → `pub mod machine;`
+- [x] **Обновить:** `skin_switch/mod.rs` → `pub mod machine;`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -367,8 +367,8 @@ impl SkinSwitchMachine {
 | 4   | Перенести skin_switch/state.rs      | [x]    |
 | 5   | Перенести websocket/handler.rs      | [x]    |
 | 6   | Перенести config/mod.rs             | [x]    |
-| 7   | Создать commands.rs                 | [ ]    |
-| 8   | Создать machine.rs                  | [ ]    |
+| 7   | Создать commands.rs                 | [x]    |
+| 8   | Создать machine.rs                  | [x]    |
 | 9   | Перенести event_processor.rs        | [ ]    |
 | 10  | Обновить handlers.rs                | [ ]    |
 | 11  | Обновить app.rs                     | [ ]    |
