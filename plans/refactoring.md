@@ -314,14 +314,16 @@ impl SkinSwitchMachine {
 
 ### Шаг 17: Реализовать `SkinSwitchMachine::handle()`
 
-- [ ] Перенести логику из `tasks.rs::spawn_skin_change_tracker` в `skin_switch/machine.rs`:
-  - Метод `handle(&mut self, event: &AppEvent) -> Option<Command>`
-  - Все переходы состояний из текущего loop
+- [x] Перенести логику из `tasks.rs::spawn_skin_change_tracker` в `skin_switch/machine.rs`:
+  - Структура `SkinSwitchMachine` владеет своим состоянием `SkinChangeState`
+  - Метод `handle(&mut self, event: &AppEvent) -> Option<Command>` — обработка событий кнопок и переходы состояний
+  - Метод `check_timeout(&mut self) -> Option<Command>` — проверка таймаута SkinSwitchPending → SkinSwitchReady
+  - Метод `state(&self) -> &SkinChangeState` — доступ к состоянию
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -378,7 +380,7 @@ impl SkinSwitchMachine {
 | 14  | Обновить main.rs                    | [x]    |
 | 15  | Удалить re-export файлы             | [x]    |
 | 16  | Обновить main.rs импорты            | [x]    |
-| 17  | Реализовать machine::handle()       | [ ]    |
+| 17  | Реализовать machine::handle()       | [x]    |
 | 18  | Обновить tasks.rs machine usage     | [ ]    |
 | 19  | Оптимизировать таймер               | [ ]    |
 | 20  | Очистить button_actions.rs          | [ ]    |
