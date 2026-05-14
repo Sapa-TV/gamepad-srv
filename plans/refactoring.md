@@ -329,15 +329,17 @@ impl SkinSwitchMachine {
 
 ### Шаг 18: Обновить `tasks.rs` — использовать новый machine
 
-- [ ] **Обновить `spawn_skin_change_tracker`:**
-  - Создать экземпляр `SkinSwitchMachine`
-  - В цикле вызывать `machine.handle(&event)` вместо direct state manipulation
-  - Убрать прямой доступ к `button_state.lock()`
+- [x] Переписан `spawn_skin_change_tracker`:
+  - Теперь создаёт `SkinSwitchMachine::new()` вместо `Arc<Mutex<SkinChangeState>>`
+  - В цикле вызывает `machine.handle(&event)` вместо direct state manipulation
+  - Обрабатывает возвращённые `Command`ы и отправляет соответствующие события
+- [x] Убран параметр `button_state` из `spawn_all_tasks` — больше не нужен
+- [x] Убрана логика таймера из machine в tasks (пока оставлен sleep(100) polling)
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -381,7 +383,7 @@ impl SkinSwitchMachine {
 | 15  | Удалить re-export файлы             | [x]    |
 | 16  | Обновить main.rs импорты            | [x]    |
 | 17  | Реализовать machine::handle()       | [x]    |
-| 18  | Обновить tasks.rs machine usage     | [ ]    |
+| 18  | Обновить tasks.rs machine usage     | [x]    |
 | 19  | Оптимизировать таймер               | [ ]    |
 | 20  | Очистить button_actions.rs          | [ ]    |
 

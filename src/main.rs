@@ -66,16 +66,9 @@ async fn main() {
     let save_tx = Arc::new(std::sync::Mutex::new(Some(save_tx)));
 
     let gilrs_state = app_state.gamepad_state.clone();
-    let button_state = app_state.button_state.clone();
     let skins = app_state.skins.clone();
     let current_skin_index = app_state.current_skin_index.clone();
-    channels.spawn_all_tasks(
-        gilrs_state,
-        button_state,
-        skins,
-        current_skin_index,
-        save_tx,
-    );
+    channels.spawn_all_tasks(gilrs_state, skins, current_skin_index, save_tx);
 
     let shutting_down = app_state.shutting_down.clone();
 

@@ -13,8 +13,9 @@ use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
 use crate::gamepad::state::GamepadEvent;
 use crate::skin_manager::discovery::SkinEntry;
-use crate::skin_switch::state::{AppSkinState, Direction, SkinChangeState};
-use gilrs::{Button, Gilrs};
+use crate::skin_switch::machine::SkinSwitchMachine;
+use crate::skin_switch::state::SkinChangeState;
+use gilrs::Gilrs;
 use tracing::{debug, error, info};
 
 pub fn spawn_stick_tick(
@@ -90,97 +91,37 @@ pub fn spawn_button_actions(
 }
 
 pub fn spawn_skin_change_tracker(
-    button_state: Arc<Mutex<SkinChangeState>>,
     mut events_rx: broadcast::Receiver<AppEvent>,
     events_tx: Arc<broadcast::Sender<AppEvent>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
 ) {
     tokio::spawn(async move {
-        use gilrs::EventType;
+        let mut machine = SkinSwitchMachine::new();
+
         loop {
             tokio::select! {
-                Ok(AppEvent::Gilrs(event)) = events_rx.recv() => {
-                    let mut state = button_state.lock().unwrap();
-                    match event.event {
-                        EventType::ButtonPressed(btn, _) => match btn {
-                            Button::DPadRight => {
-                                if state.state == AppSkinState::SkinSwitch {
-                                    debug!("Skin switch: DPadRight pressed, sending direction Right");
-                                    let _ = events_tx.send(AppEvent::SkinChange(Direction::Right));
-                                }
+                Ok(event) = events_rx.recv() => {
+                    if let Some(cmd) = machine.handle(&event) {
+                        match cmd {
+                            crate::skin_switch::commands::Command::SkinChange(dir) => {
+                                let _ = events_tx.send(AppEvent::SkinChange(dir));
                             }
-                            Button::DPadLeft => {
-                                if state.state == AppSkinState::SkinSwitch {
-                                    debug!("Skin switch: DPadLeft pressed, sending direction Left");
-                                    let _ = events_tx.send(AppEvent::SkinChange(Direction::Left));
-                                }
+                            crate::skin_switch::commands::Command::NotifySkinChanging(enabled) => {
+                                let _ = ws_tx.send(GamepadEvent::SkinChanging(enabled));
                             }
-                            Button::Start => {
-                                state.start_pressed = true;
-                                if state.state == AppSkinState::SkinSwitch {
-                                    state.state = AppSkinState::Normal;
-                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(false));
-                                    info!("AppSkinState: SkinSwitch -> Normal");
-                                }
-                                if state.state == AppSkinState::Normal && state.select_pressed {
-                                    state.state = AppSkinState::SkinSwitchPending;
-                                    state.pending_since = Some(Instant::now());
-                                    info!("AppSkinState: Normal -> SkinSwitchPending");
-                                }
+                            crate::skin_switch::commands::Command::SkinSwitchReady => {
+                                let _ = ws_tx.send(GamepadEvent::SkinSwitchReady);
                             }
-                            Button::Select => {
-                                state.select_pressed = true;
-                                if state.state == AppSkinState::SkinSwitch {
-                                    state.state = AppSkinState::Normal;
-                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(false));
-                                    info!("AppSkinState: SkinSwitch -> Normal");
-                                }
-                                if state.state == AppSkinState::Normal && state.start_pressed {
-                                    state.state = AppSkinState::SkinSwitchPending;
-                                    state.pending_since = Some(Instant::now());
-                                    info!("AppSkinState: Normal -> SkinSwitchPending");
-                                }
-                            }
-                            _ => {}
-                        },
-                        EventType::ButtonReleased(btn, _) => match btn {
-                            Button::Start => {
-                                state.start_pressed = false;
-                                if state.state == AppSkinState::SkinSwitchReady
-                                    && !state.select_pressed
-                                {
-                                    state.state = AppSkinState::SkinSwitch;
-                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(true));
-                                    info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
-                                }
-                            }
-                            Button::Select => {
-                                state.select_pressed = false;
-                                if state.state == AppSkinState::SkinSwitchReady
-                                    && !state.start_pressed
-                                {
-                                    state.state = AppSkinState::SkinSwitch;
-                                    let _ = ws_tx.send(GamepadEvent::SkinChanging(true));
-                                    info!("AppSkinState: SkinSwitchReady -> SkinSwitch");
-                                }
-                            }
-                            _ => {}
-                        },
-                        _ => {}
+                        }
                     }
                 }
                 _ = time::sleep(Duration::from_millis(100)) => {
-                    let state_guard = button_state.lock().unwrap();
-                    if state_guard.state == AppSkinState::SkinSwitchPending {
-                        if let Some(pending_since) = state_guard.pending_since {
-                            if pending_since.elapsed() >= Duration::from_secs(2) {
-                                drop(state_guard);
-                                let mut state = button_state.lock().unwrap();
-                                state.state = AppSkinState::SkinSwitchReady;
-                                state.pending_since = None;
-                                info!("AppSkinState: SkinSwitchPending -> SkinSwitchReady (timeout)");
+                    if let Some(cmd) = machine.check_timeout() {
+                        match cmd {
+                            crate::skin_switch::commands::Command::SkinSwitchReady => {
                                 let _ = ws_tx.send(GamepadEvent::SkinSwitchReady);
                             }
+                            _ => {}
                         }
                     }
                 }
@@ -193,7 +134,6 @@ impl Channels {
     pub fn spawn_all_tasks(
         &self,
         gilrs_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
-        button_state: Arc<Mutex<SkinChangeState>>,
         skins: Vec<SkinEntry>,
         current_skin_index: Arc<Mutex<usize>>,
         save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
@@ -214,6 +154,6 @@ impl Channels {
         );
 
         let button_state_events_rx = self.create_events_receiver();
-        spawn_skin_change_tracker(button_state, button_state_events_rx, events_tx, ws_tx);
+        spawn_skin_change_tracker(button_state_events_rx, events_tx, ws_tx);
     }
 }
