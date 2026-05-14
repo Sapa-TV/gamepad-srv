@@ -46,20 +46,28 @@ impl Default for SkinChangeState {
 }
 
 impl SkinChangeState {
-    pub fn press_start(&mut self) {
-        self.start_pressed = true;
+    pub fn press_button(&mut self, button: ButtonName) {
+        match button {
+            ButtonName::Start => self.start_pressed = true,
+            ButtonName::Select => self.select_pressed = true,
+            _ => {}
+        }
     }
 
-    pub fn release_start(&mut self) {
-        self.start_pressed = false;
+    pub fn release_button(&mut self, button: ButtonName) {
+        match button {
+            ButtonName::Start => self.start_pressed = false,
+            ButtonName::Select => self.select_pressed = false,
+            _ => {}
+        }
     }
 
-    pub fn press_select(&mut self) {
-        self.select_pressed = true;
-    }
-
-    pub fn release_select(&mut self) {
-        self.select_pressed = false;
+    pub fn is_other_pressed(&self, button: ButtonName) -> bool {
+        match button {
+            ButtonName::Start => self.select_pressed,
+            ButtonName::Select => self.start_pressed,
+            _ => false,
+        }
     }
 
     pub fn set_pending(&mut self) {

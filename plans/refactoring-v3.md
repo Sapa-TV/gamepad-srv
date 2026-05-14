@@ -36,6 +36,10 @@
   - `set_skin_switch_ready()` — `state = SkinSwitchReady; clear_pending()`
   - `set_skin_switch()` — `state = SkinSwitch`
 
+**Фактические изменения:**
+
+- Вместо отдельных методов для каждой кнопки реализованы универсальные: `press_button(ButtonName)`, `release_button(ButtonName)`, `is_other_pressed(ButtonName)`
+
 **Проверка:**
 
 - [x] `cargo check`
@@ -52,6 +56,10 @@
 - [x] Start/Select released: использовать `release_start()`, `release_select()`, `set_normal()`, `set_skin_switch()`
 - [x] Убрать дублирование
 
+**Фактические изменения:**
+
+- Используются `press_button()`, `release_button()`, `is_other_pressed()` вместо отдельных методов
+
 **Проверка:**
 
 - [x] `cargo check`
@@ -59,12 +67,17 @@
 
 ---
 
-### Шаг 4: Объединить обработку Start/Select через trait
+### Шаг 4: Объединить обработку Start/Select
 
 **Действие:**
 
-- [ ] Добавить `From<ButtonName> for AppSkinState` (или другой подходящий подход)
-- [ ] Объединить Start/Select в одном плече match через тернарку или trait
+- [x] Добавить `From<ButtonName> for AppSkinState` (или другой подходящий подход)
+- [x] Объединить Start/Select в одном плече match через тернарку или trait
+
+**Фактические изменения:**
+
+- Реализовано через методы `press_button()`, `release_button()`, `is_other_pressed()` в SkinChangeState (а не через отдельный trait)
+- Объединена обработка Start/Select в одном match плече
 
 ---
 
@@ -75,7 +88,7 @@
 | 1   | From<ButtonName> for Direction     | [x]      |
 | 2   | Простые методы в SkinChangeState   | [x]      |
 | 3   | Упростить machine.rs               | [x]      |
-| 4   | Объединить Start/Select через trait| [ ]      |
+| 4   | Объединить Start/Select            | [x]      |
 
 ---
 
