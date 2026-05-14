@@ -47,6 +47,13 @@ async fn main() {
     let channels = Channels::new();
     let app_state = create_app_state(channels.ws_sender(), config.skin.clone());
 
+    if !app_state.skins.is_empty() {
+        let idx = *app_state.current_skin_index.lock().unwrap();
+        let mut cfg = config::load_or_create_config().unwrap_or_else(|_| config::Config::default());
+        cfg.skin = Some(app_state.skins[idx].dir_name.clone());
+        let _ = config::save_config(&cfg);
+    }
+
     let tick_state = app_state.gamepad_state.clone();
     let tick_ws_tx = channels.ws_sender();
     spawn_stick_tick(tick_state, tick_ws_tx);

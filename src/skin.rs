@@ -150,6 +150,6 @@ pub fn discover_skins() -> Vec<SkinEntry> {
         }
     }
 
-    skins.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    skins.sort_by(|a, b| a.dir_name.to_lowercase().cmp(&b.dir_name.to_lowercase()));
     skins
 }
