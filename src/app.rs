@@ -5,9 +5,9 @@ use std::sync::atomic::AtomicBool;
 use tokio::sync::broadcast;
 
 use crate::events::AppEvent;
-use crate::gamepad_state::{GamepadEvent, GamepadState};
-use crate::skin::{SkinEntry, discover_skins, load_skin_info};
-use crate::skin_change_state::SkinChangeState;
+use crate::gamepad::state::{GamepadEvent, GamepadState};
+use crate::skin_manager::discovery::{SkinEntry, discover_skins, load_skin_info};
+use crate::skin_switch::state::SkinChangeState;
 use tracing::{debug, info};
 
 pub struct Channels {
