@@ -269,14 +269,12 @@ impl SkinSwitchMachine {
 
 ### Шаг 14: Обновить `main.rs`
 
-- [ ] **Обновить импорты:**
-  - `use crate::app::{Channels, create_app_state}` — пока оставить как есть
-  - `use crate::tasks::spawn_stick_tick` — пока оставить
+- [x] **Проверить что импорты работают** — код компилируется, менять пока не нужно
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -374,7 +372,7 @@ impl SkinSwitchMachine {
 | 11  | Обновить app.rs                     | [x]    |
 | 12  | Обновить tasks.rs                   | [x]    |
 | 13  | Обновить button_actions.rs          | [x]    |
-| 14  | Обновить main.rs                    | [ ]    |
+| 14  | Обновить main.rs                    | [x]    |
 | 15  | Удалить re-export файлы             | [ ]    |
 | 16  | Обновить main.rs импорты            | [ ]    |
 | 17  | Реализовать machine::handle()       | [ ]    |
