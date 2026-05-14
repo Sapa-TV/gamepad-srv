@@ -1,17 +1,16 @@
-use std::sync::Arc;
-use std::sync::Mutex;
-
 use axum::extract::ws::WebSocket;
 use serde_json::to_string;
+use std::sync::Arc;
+use std::sync::Mutex;
 use tokio::signal;
 use tokio::sync::broadcast;
 use tracing::info;
 
-use crate::gamepad::state::GamepadEvent;
+use crate::gamepad::state::{GamepadEvent, GamepadState};
 
 pub async fn handle_socket(
     mut socket: WebSocket,
-    state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
+    state: Arc<Mutex<GamepadState>>,
     mut rx: broadcast::Receiver<GamepadEvent>,
 ) {
     info!("WebSocket client connected");

@@ -1,17 +1,16 @@
+use gilrs::Gilrs;
 use std::sync::Arc;
 use std::sync::Mutex;
-
 use tokio::sync::broadcast;
 use tokio::time;
+use tracing::{debug, error, info};
 
 use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
-use crate::gamepad::state::GamepadEvent;
-use gilrs::Gilrs;
-use tracing::{debug, error, info};
+use crate::gamepad::state::{GamepadEvent, GamepadState};
 
 pub fn spawn_gilrs_task(
-    state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
+    state: Arc<Mutex<GamepadState>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     events_tx: Arc<broadcast::Sender<AppEvent>>,
 ) {

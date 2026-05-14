@@ -4,11 +4,11 @@ use axum::{
     extract::ws::WebSocketUpgrade,
     response::{Html, IntoResponse, Response},
 };
-
-use crate::app::AppState;
-use crate::websocket::handler::handle_socket;
 use tokio::fs;
 use tracing::info;
+
+use crate::websocket::handler::handle_socket;
+use crate::{app::AppState, skin_manager::discovery::SkinEntry};
 
 pub async fn index_handler() -> Html<String> {
     match fs::read_to_string("assets/index.html").await {
@@ -28,9 +28,7 @@ pub async fn skin_handler(State(state): State<AppState>) -> Response {
         .into_response()
 }
 
-pub async fn list_skins_handler(
-    State(state): State<AppState>,
-) -> Json<Vec<crate::skin_manager::discovery::SkinEntry>> {
+pub async fn list_skins_handler(State(state): State<AppState>) -> Json<Vec<SkinEntry>> {
     Json(state.skin_manager.lock().unwrap().get_all_skins().to_vec())
 }
 

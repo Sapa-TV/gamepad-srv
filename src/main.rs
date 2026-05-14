@@ -4,13 +4,13 @@ use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use axum::Router;
 use axum::routing::get;
+use tokio::signal;
+use tokio::sync::mpsc;
 use tower_http::services::ServeDir;
 use tracing::info;
 
 use crate::app::{Channels, create_app_state};
 use crate::handlers::{index_handler, list_skins_handler, skin_handler, ws_handler};
-use tokio::signal;
-use tokio::sync::mpsc;
 
 mod app;
 mod button_actions;

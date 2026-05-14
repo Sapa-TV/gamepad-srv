@@ -1,7 +1,6 @@
 use super::discovery::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
 use crate::skin_switch::state::Direction;
 
-#[derive(Clone)]
 pub struct SkinManager {
     skins: Vec<SkinEntry>,
     current_idx: usize,

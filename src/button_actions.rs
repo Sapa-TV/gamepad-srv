@@ -7,10 +7,11 @@ use tracing::debug;
 
 use crate::events::AppEvent;
 use crate::gamepad::state::GamepadEvent;
+use crate::skin_manager::manager::SkinManager;
 
 pub async fn run_button_actions(
     mut rx: broadcast::Receiver<AppEvent>,
-    skin_manager: Arc<Mutex<crate::skin_manager::manager::SkinManager>>,
+    skin_manager: Arc<Mutex<SkinManager>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     save_tx: mpsc::Sender<String>,
 ) {

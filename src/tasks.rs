@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
-
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 use tokio::time;
@@ -9,13 +8,15 @@ use tokio::time;
 use crate::app::Channels;
 use crate::button_actions::run_button_actions;
 use crate::events::AppEvent;
-use crate::gamepad::input::spawn_gilrs_task;
-use crate::gamepad::state::GamepadEvent;
-use crate::skin_switch::buttons::gilrs_event_to_button_event;
-use crate::skin_switch::machine::SkinSwitchMachine;
+use crate::gamepad::{
+    input::spawn_gilrs_task,
+    state::{GamepadEvent, GamepadState},
+};
+use crate::skin_manager::manager::SkinManager;
+use crate::skin_switch::{buttons::gilrs_event_to_button_event, machine::SkinSwitchMachine};
 
 pub fn spawn_stick_tick(
-    state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
+    state: Arc<Mutex<GamepadState>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
 ) {
     tokio::spawn(async move {
@@ -37,7 +38,7 @@ pub fn spawn_stick_tick(
 
 pub fn spawn_button_actions(
     events_rx: broadcast::Receiver<AppEvent>,
-    skin_manager: Arc<Mutex<crate::skin_manager::manager::SkinManager>>,
+    skin_manager: Arc<Mutex<SkinManager>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     save_tx: mpsc::Sender<String>,
 ) {
@@ -52,6 +53,8 @@ pub fn spawn_skin_change_tracker(
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
 ) {
     tokio::spawn(async move {
+        use crate::skin_switch::commands::Command;
+
         let mut machine = SkinSwitchMachine::new();
         let mut next_timeout: Option<tokio::time::Instant> = None;
 
@@ -68,14 +71,15 @@ pub fn spawn_skin_change_tracker(
                         }
                         AppEvent::SkinChange(_) => None,
                     } {
+
                         match cmd {
-                            crate::skin_switch::commands::Command::SkinChange(dir) => {
+                            Command::SkinChange(dir) => {
                                 let _ = events_tx.send(AppEvent::SkinChange(dir));
                             }
-                            crate::skin_switch::commands::Command::NotifySkinChanging(enabled) => {
+                            Command::NotifySkinChanging(enabled) => {
                                 let _ = ws_tx.send(GamepadEvent::SkinChanging(enabled));
                             }
-                            crate::skin_switch::commands::Command::SkinSwitchReady => {
+                            Command::SkinSwitchReady => {
                                 let _ = ws_tx.send(GamepadEvent::SkinSwitchReady);
                             }
                         }
@@ -89,7 +93,7 @@ pub fn spawn_skin_change_tracker(
                 }, if next_timeout.is_some() => {
                     if let Some(cmd) = machine.check_timeout() {
                         match cmd {
-                            crate::skin_switch::commands::Command::SkinSwitchReady => {
+                            Command::SkinSwitchReady => {
                                 let _ = ws_tx.send(GamepadEvent::SkinSwitchReady);
                             }
                             _ => {}
@@ -105,8 +109,8 @@ pub fn spawn_skin_change_tracker(
 impl Channels {
     pub fn spawn_all_tasks(
         &self,
-        gamepad_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
-        skin_manager: Arc<Mutex<crate::skin_manager::manager::SkinManager>>,
+        gamepad_state: Arc<Mutex<GamepadState>>,
+        skin_manager: Arc<Mutex<SkinManager>>,
         save_tx: mpsc::Sender<String>,
     ) {
         let ws_tx = self.ws_tx.clone();
