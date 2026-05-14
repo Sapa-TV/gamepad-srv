@@ -265,7 +265,7 @@ match to_string(&output) {
 
 ### Шаг 8: Выровнять владение в handle()
 
-**Проблема:** machine.rs:20
+**Проблема (из плана):** machine.rs:20
 
 ```rust
 pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
@@ -273,17 +273,21 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 
 Принимает `&AppEvent`, но внутри мутирует `self.state`. Непоследовательно.
 
-**Действие:**
+**Исследование показало:** Проблема некорректно сформулирована.
 
-- Изменить на `pub fn handle(mut self, event: AppEvent) -> Option<Command>`
-- Или: `pub fn handle(&mut self, event: AppEvent)` — event тоже мутируемый (но это хуже)
+**Обоснование:**
+- Machine создаётся ОДИН раз и переиспользуется в loop весь runtime
+- State должен сохраняться между вызовами (`start_pressed`, `select_pressed`, etc.)
+- `&mut self` — правильный паттерн для stateful обработчика
+- `mut self` (move) — сломал бы логику (machine был бы consumed после первого вызова)
 
-- После шага 7: `pub fn handle(mut self, event: ButtonEvent) -> Option<Command>`
+**Выполнено:**
+- [x] Не требует изменений — `handle_button(&mut self, event: ButtonEvent)` уже правильно
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -375,7 +379,7 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 5   | Консолидировать ws_tx               | [x]      |
 | 6   | Улучшить обработку ошибок (unwrap)  | [x]      |
 | 7   | Абстрагировать ButtonEvent от gilrs | [x]      |
-| 8   | Выровнять владение в handle()       | [ ]      |
+| 8   | Выровнять владение в handle()       | [x]      |
 | 9   | Убрать неиспользуемый импорт        | [ ]      |
 | 10  | Восстановить gamepad/input.rs       | [ ]      |
 | 11  | Исследовать Clone на Channels       | [ ]      |
