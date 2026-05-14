@@ -113,11 +113,11 @@ impl SkinManager {
 
 ### Шаг 5: Перенести `websocket/handler.rs`
 
-- [ ] **Создать:** `src/websocket/handler.rs` — скопировать `ws.rs`
+- [x] **Создать:** `src/websocket/handler.rs` — скопировать `ws.rs`
 
-- [ ] **Обновить:** `ws.rs` → `pub use crate::websocket::handler::*;`
+- [x] **Обновить:** `ws.rs` → `pub use crate::websocket::handler::handle_socket;`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:** `cargo check && cargo fmt` ✓
 
 ---
 
@@ -309,7 +309,7 @@ impl SkinSwitchMachine {
 | 2   | Перенести skin_manager/discovery.rs | [x]    |
 | 3   | Перенести skin_manager/manager.rs   | [x]    |
 | 4   | Перенести skin_switch/state.rs      | [x]    |
-| 5   | Перенести websocket/handler.rs      | - [ ]  |
+| 5   | Перенести websocket/handler.rs      | [x]    |
 | 6   | Перенести config/mod.rs             | - [ ]  |
 | 7   | Создать commands.rs                 | - [ ]  |
 | 8   | Создать machine.rs                  | - [ ]  |
