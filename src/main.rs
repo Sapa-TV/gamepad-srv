@@ -22,6 +22,7 @@ mod gamepad_state;
 mod handlers;
 mod skin;
 mod skin_change_state;
+mod skin_manager;
 mod tasks;
 mod ws;
 
