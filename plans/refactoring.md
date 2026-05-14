@@ -345,11 +345,16 @@ impl SkinSwitchMachine {
 
 ### Шаг 19: Оптимизировать таймер
 
-- [ ] **В `skin_switch/machine.rs`:**
-  - При переходе в `SkinSwitchPending` сохранять `deadline = Instant::now() + 2secs`
-  - В loop использовать `time::sleep_until(deadline)` вместо `sleep(100)`
+- [x] Добавлен метод `deadline()` в `SkinSwitchMachine` — возвращает `Option<tokio::time::Instant>` для следующего таймаута
+- [x] Переписан `spawn_skin_change_tracker`:
+  - Использует `tokio::time::sleep_until(timeout)` вместо polling `sleep(100)`
+  - При переходе в `SkinSwitchPending` вычисляется конкретный deadline
+  - Таймер активируется только когда есть ожидающий переход
 
-**Проверка:** `cargo run` — убедиться что всё работает
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -384,7 +389,7 @@ impl SkinSwitchMachine {
 | 16  | Обновить main.rs импорты            | [x]    |
 | 17  | Реализовать machine::handle()       | [x]    |
 | 18  | Обновить tasks.rs machine usage     | [x]    |
-| 19  | Оптимизировать таймер               | [ ]    |
+| 19  | Оптимизировать таймер               | [x]    |
 | 20  | Очистить button_actions.rs          | [ ]    |
 
 ---

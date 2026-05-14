@@ -108,4 +108,13 @@ impl SkinSwitchMachine {
     pub fn state(&self) -> &SkinChangeState {
         &self.state
     }
+
+    pub fn deadline(&self) -> Option<tokio::time::Instant> {
+        if self.state.state == AppSkinState::SkinSwitchPending {
+            if let Some(pending_since) = self.state.pending_since {
+                return Some((pending_since + std::time::Duration::from_secs(2)).into());
+            }
+        }
+        None
+    }
 }

@@ -97,6 +97,7 @@ pub fn spawn_skin_change_tracker(
 ) {
     tokio::spawn(async move {
         let mut machine = SkinSwitchMachine::new();
+        let mut next_timeout: Option<tokio::time::Instant> = None;
 
         loop {
             tokio::select! {
@@ -114,8 +115,13 @@ pub fn spawn_skin_change_tracker(
                             }
                         }
                     }
+                    next_timeout = machine.deadline();
                 }
-                _ = time::sleep(Duration::from_millis(100)) => {
+                _ = async {
+                    if let Some(timeout) = next_timeout {
+                        tokio::time::sleep_until(timeout).await;
+                    }
+                }, if next_timeout.is_some() => {
                     if let Some(cmd) = machine.check_timeout() {
                         match cmd {
                             crate::skin_switch::commands::Command::SkinSwitchReady => {
@@ -124,6 +130,7 @@ pub fn spawn_skin_change_tracker(
                             _ => {}
                         }
                     }
+                    next_timeout = machine.deadline();
                 }
             }
         }
