@@ -57,6 +57,7 @@ let save_tx = Arc::new(std::sync::Mutex::new(Some(save_tx)));
 **Проблема:** После шага 2 использовался `oneshot::Sender`, который позволяет отправить только ОДИН раз. Но смена скинов может происходить многократно за время работы приложения.
 
 **Исследование:**
+
 - `oneshot::Sender` закрывает канал после первого `send()`
 - Пользователь может нажимать DPad Left/Right много раз в состоянии `SkinSwitchReady`
 - Каждое нажатие должно сохранять новый skin в конфиг
@@ -285,20 +286,52 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 
 ---
 
+### Шаг 10: Восстановить gamepad/input.rs (перенести spawn_gilrs_task)
+
+**Проблема:**
+
+- В шаге 1 был удалён пустой `input.rs`, но по плану он должен содержать "input driver" — цикл опроса геймпада
+- `spawn_gilrs_task` currently lives in `tasks.rs`, which is orchestration, not input driver
+- Это нарушает архитектуру: `gamepad/` должен содержать input driver, `tasks.rs` — только orchestration
+
+**Исследование:**
+
+- `spawn_gilrs_task` (tasks.rs:40-68) инициализирует `Gilrs`, polling loop, отправляет `GamepadEvent` и `AppEvent::Gilrs`
+- Использует `gilrs::Gilrs`, `process_event`, `GamepadState`
+- Логически принадлежит `gamepad/` как "input driver"
+
+**Действие:**
+
+- [ ] Создать `src/gamepad/input.rs`:
+  - Перенести `spawn_gilrs_task` из `tasks.rs`
+  - Добавить `pub fn spawn_input_task(...)` — обёртка для удобства
+- [ ] Обновить `gamepad/mod.rs` → `pub mod input;`
+- [ ] Обновить `tasks.rs`:
+  - Убрать `spawn_gilrs_task` определение
+  - Добавить `use crate::gamepad::input::spawn_gilrs_task;`
+
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
+
+---
+
 ## Статус
 
-| Шаг | Описание                               | Выполнен |
-| --- | -------------------------------------- | -------- |
-| 1   | Удалить пустой файл input.rs           | [x]      |
-| 2   | Упростить паттерн сохранения (mpsc)   | [x]      |
-| 2.1 | Исправить баг с one-shot sender        | [x]      |
-| 3   | Убрать лишний клон gamepad_state       | [ ]      |
-| 4   | Убрать двойную загрузку конфига        | [ ]      |
-| 5   | Консолидировать ws_tx                  | [ ]      |
-| 6   | Улучшить обработку ошибок (unwrap)     | [ ]      |
-| 7   | Абстрагировать ButtonEvent от gilrs    | [ ]      |
-| 8   | Выровнять владение в handle()          | [ ]      |
-| 9   | Убрать неиспользуемый импорт           | [ ]      |
+| Шаг | Описание                            | Выполнен |
+| --- | ----------------------------------- | -------- |
+| 1   | Удалить пустой файл input.rs        | [x]      |
+| 2   | Упростить паттерн сохранения (mpsc) | [x]      |
+| 2.1 | Исправить баг с one-shot sender     | [x]      |
+| 3   | Убрать лишний клон gamepad_state    | [ ]      |
+| 4   | Убрать двойную загрузку конфига     | [ ]      |
+| 5   | Консолидировать ws_tx               | [ ]      |
+| 6   | Улучшить обработку ошибок (unwrap)  | [ ]      |
+| 7   | Абстрагировать ButtonEvent от gilrs | [ ]      |
+| 8   | Выровнять владение в handle()       | [ ]      |
+| 9   | Убрать неиспользуемый импорт        | [ ]      |
+| 10  | Восстановить gamepad/input.rs       | [ ]      |
 
 ---
 
@@ -308,3 +341,4 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 После каждого шага выполнять `cargo check` и `cargo fmt` для верификации.
 
 Шаг 2.1 добавлен как исправление бага, обнаруженного при выполнении шага 2.
+Шаг 10 добавлен для восстановления чистой архитектуры: `gamepad/input.rs` должен содержать input driver (gilrs loop).
