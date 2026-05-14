@@ -26,6 +26,8 @@ mod ws;
 
 #[tokio::main]
 async fn main() {
+    enable_ansi_support::enable_ansi_support().ok();
+
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
