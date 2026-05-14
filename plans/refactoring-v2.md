@@ -104,8 +104,10 @@ pub fn spawn_all_tasks(&self, gamepad_state: Arc<Mutex<GamepadState>>, skin_mana
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
+
+**Статус:** Действия выполнены автоматически при шаге 2 (перенос spawn_stick_tick внутрь spawn_all_tasks).
 
 ---
 
@@ -324,7 +326,7 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 1   | Удалить пустой файл input.rs        | [x]      |
 | 2   | Упростить паттерн сохранения (mpsc) | [x]      |
 | 2.1 | Исправить баг с one-shot sender     | [x]      |
-| 3   | Убрать лишний клон gamepad_state    | [ ]      |
+| 3   | Убрать лишний клон gamepad_state    | [x]      |
 | 4   | Убрать двойную загрузку конфига     | [ ]      |
 | 5   | Консолидировать ws_tx               | [ ]      |
 | 6   | Улучшить обработку ошибок (unwrap)  | [ ]      |
