@@ -4,7 +4,7 @@
 
 ## Цель
 
-Упростить machine.rs: убрать дублирование, вынести логику обработки кнопок в `SkinChangeState`.
+Упростить machine.rs: убрать дублирование, добавить простые методы в SkinChangeState для изменения состояния (без логики).
 
 ---
 
@@ -22,11 +22,19 @@
 
 ---
 
-### Шаг 2: Добавить `handle_pressed` в SkinChangeState
+### Шаг 2: Добавить простые методы в SkinChangeState
 
-- [ ] Добавить `use crate::skin_switch::commands::Command;`
+**Действие:**
+
 - [ ] Добавить `use crate::skin_switch::buttons::ButtonName;`
-- [ ] Добавить функцию `handle_pressed`
+- [ ] Добавить методы:
+  - `press_start()`, `release_start()`
+  - `press_select()`, `release_select()`
+  - `set_pending()` — `state = SkinSwitchPending; pending_since = Some(now)`
+  - `clear_pending()` — `pending_since = None`
+  - `set_normal()` — `state = Normal; clear_pending()`
+  - `set_skin_switch_ready()` — `state = SkinSwitchReady; clear_pending()`
+  - `set_skin_switch()` — `state = SkinSwitch`
 
 **Проверка:**
 
@@ -35,20 +43,14 @@
 
 ---
 
-### Шаг 3: Добавить `handle_released` в SkinChangeState
+### Шаг 3: Упростить machine.rs — использовать методы state
 
-- [ ] Добавить функцию `handle_released`
+**Действие:**
 
-**Проверка:**
-
-- [ ] `cargo check`
-- [ ] `cargo fmt`
-
----
-
-### Шаг 4: Упростить `handle_button` в machine.rs
-
-- [ ] Обновить `handle_button` — вызвать `state.handle_pressed/handle_released`
+- [ ] DPad: использовать `button.into()` для Direction
+- [ ] Start/Select pressed: использовать `press_start()`, `press_select()`, `set_pending()`
+- [ ] Start/Select released: использовать `release_start()`, `release_select()`, `set_normal()`, `set_skin_switch()`
+- [ ] Убрать дублирование
 
 **Проверка:**
 
@@ -57,48 +59,9 @@
 
 ---
 
-### Шаг 5: Добавить `check_timeout` и `deadline` в SkinChangeState
+### Шаг 4: Финальная проверка
 
-- [ ] Добавить `use std::time::Duration;`
-- [ ] Добавить функцию `check_timeout`
-- [ ] Добавить функцию `deadline`
-
-**Проверка:**
-
-- [ ] `cargo check`
-- [ ] `cargo fmt`
-
----
-
-### Шаг 6: Упростить machine.rs — убрать лишние методы
-
-- [ ] Удалить `check_timeout` и `deadline` из machine.rs
-- [ ] Удалить неиспользуемые импорты
-
-**Проверка:**
-
-- [ ] `cargo check`
-- [ ] `cargo fmt`
-
----
-
-### Шаг 7: Обновить tasks.rs
-
-- [ ] Заменить `machine.check_timeout()` на `machine.state.check_timeout()`
-- [ ] Заменить `machine.deadline()` на `machine.state.deadline()`
-
-**Проверка:**
-
-- [ ] `cargo check`
-- [ ] `cargo fmt`
-
----
-
-### Шаг 8: Финальная проверка
-
-- [ ] Проверить что все импорты используются
-
-**Проверка:**
+**Действие:**
 
 - [ ] `cargo check`
 - [ ] `cargo fmt`
@@ -107,19 +70,13 @@
 
 ## Статус
 
-| Шаг | Описание                          | Выполнен |
-| --- | --------------------------------- | -------- |
-| 1   | From<ButtonName> for Direction    | [x]      |
-| 2   | handle_pressed в SkinChangeState  | [ ]      |
-| 3   | handle_released в SkinChangeState | [ ]      |
-| 4   | Упростить handle_button           | [ ]      |
-| 5   | check_timeout и deadline в state  | [ ]      |
-| 6   | Упростить machine.rs              | [ ]      |
-| 7   | Обновить tasks.rs                 | [ ]      |
-| 8   | Финальная проверка                | [ ]      |
+| Шаг | Описание                           | Выполнен |
+| --- | ---------------------------------- | -------- |
+| 1   | From<ButtonName> for Direction     | [x]      |
+| 2   | Простые методы в SkinChangeState   | [ ]      |
+| 3   | Упростить machine.rs               | [ ]      |
+| 4   | Финальная проверка                 | [ ]      |
 
 ---
 
-## Всего 8 шагов
-
-Каждый шаг — компилируемый код. После каждого шага `cargo check` и `cargo fmt`.
+## Всего 4 шага
