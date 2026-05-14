@@ -202,14 +202,14 @@ impl SkinSwitchMachine {
 
 ### Шаг 9: Перенести `event_processor.rs`
 
-- [ ] **Создать:** `src/gamepad/event_processor.rs` — скопировать содержимое
+- [x] **Создать:** `src/gamepad/event_processor.rs` — скопировать содержимое
 
-- [ ] **Обновить:** `event_processor.rs` → `pub use crate::gamepad::event_processor::*;`
+- [x] **Обновить:** `event_processor.rs` → `pub use crate::gamepad::event_processor::*;`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -369,7 +369,7 @@ impl SkinSwitchMachine {
 | 6   | Перенести config/mod.rs             | [x]    |
 | 7   | Создать commands.rs                 | [x]    |
 | 8   | Создать machine.rs                  | [x]    |
-| 9   | Перенести event_processor.rs        | [ ]    |
+| 9   | Перенести event_processor.rs        | [x]    |
 | 10  | Обновить handlers.rs                | [ ]    |
 | 11  | Обновить app.rs                     | [ ]    |
 | 12  | Обновить tasks.rs                   | [ ]    |
