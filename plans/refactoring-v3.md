@@ -26,8 +26,8 @@
 
 **Действие:**
 
-- [ ] Добавить `use crate::skin_switch::buttons::ButtonName;`
-- [ ] Добавить методы:
+- [x] Добавить `use crate::skin_switch::buttons::ButtonName;`
+- [x] Добавить методы:
   - `press_start()`, `release_start()`
   - `press_select()`, `release_select()`
   - `set_pending()` — `state = SkinSwitchPending; pending_since = Some(now)`
@@ -38,8 +38,8 @@
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -73,7 +73,7 @@
 | Шаг | Описание                           | Выполнен |
 | --- | ---------------------------------- | -------- |
 | 1   | From<ButtonName> for Direction     | [x]      |
-| 2   | Простые методы в SkinChangeState   | [ ]      |
+| 2   | Простые методы в SkinChangeState   | [x]      |
 | 3   | Упростить machine.rs               | [ ]      |
 | 4   | Финальная проверка                 | [ ]      |
 

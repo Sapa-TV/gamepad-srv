@@ -44,3 +44,44 @@ impl Default for SkinChangeState {
         }
     }
 }
+
+impl SkinChangeState {
+    pub fn press_start(&mut self) {
+        self.start_pressed = true;
+    }
+
+    pub fn release_start(&mut self) {
+        self.start_pressed = false;
+    }
+
+    pub fn press_select(&mut self) {
+        self.select_pressed = true;
+    }
+
+    pub fn release_select(&mut self) {
+        self.select_pressed = false;
+    }
+
+    pub fn set_pending(&mut self) {
+        self.state = AppSkinState::SkinSwitchPending;
+        self.pending_since = Some(Instant::now());
+    }
+
+    pub fn clear_pending(&mut self) {
+        self.pending_since = None;
+    }
+
+    pub fn set_normal(&mut self) {
+        self.state = AppSkinState::Normal;
+        self.clear_pending();
+    }
+
+    pub fn set_skin_switch_ready(&mut self) {
+        self.state = AppSkinState::SkinSwitchReady;
+        self.clear_pending();
+    }
+
+    pub fn set_skin_switch(&mut self) {
+        self.state = AppSkinState::SkinSwitch;
+    }
+}
