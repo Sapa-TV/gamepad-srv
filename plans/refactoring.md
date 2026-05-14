@@ -51,7 +51,7 @@ src/
 
 **Действие:** Просто создать пустые mod.rs файлы
 
-**Проверка:** `cargo check` ✓
+**Проверка:** `cargo check && cargo fmt` ✓
 
 ---
 
@@ -63,7 +63,7 @@ src/
 
 - [x] **Обновить:** `gamepad_state.rs` → оставить только `pub use crate::gamepad::state::*;` (re-export)
 
-**Проверка:** `cargo check` ✓
+**Проверка:** `cargo check && cargo fmt` ✓
 
 ---
 
@@ -73,16 +73,16 @@ src/
 
 - [x] **Обновить:** `skin.rs` → `pub use crate::skin_manager::discovery::*;`
 
-**Проверка:** `cargo check` ✓ `cargo fmt` ✓
+**Проверка:** `cargo check && cargo fmt` ✓ `cargo fmt` ✓
 
 ---
 
 ### Шаг 3: Перенести `skin_manager/manager.rs`
 
-- [ ] **Создать:** `src/skin_manager/manager.rs`
+- [x] **Создать:** `src/skin_manager/manager.rs`
 
 ```rust
-use super::discovery::{SkinEntry, SkinInfo, load_skin_info};
+use super::discovery::SkinEntry;
 
 pub struct SkinManager {
     skins: Vec<SkinEntry>,
@@ -97,7 +97,7 @@ impl SkinManager {
 }
 ```
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt` ✓
 
 ---
 
@@ -107,7 +107,7 @@ impl SkinManager {
 
 - [ ] **Обновить:** `skin_change_state.rs` → `pub use crate::skin_switch::state::*;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -117,7 +117,7 @@ impl SkinManager {
 
 - [ ] **Обновить:** `ws.rs` → `pub use crate::websocket::handler::*;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -127,7 +127,7 @@ impl SkinManager {
 
 - [ ] **Обновить:** `config.rs` → `pub use crate::config::mod::*;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -148,7 +148,7 @@ pub enum Command {
 
 - [ ] **Обновить:** `skin_switch/mod.rs` → `pub mod state; pub mod commands;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -169,7 +169,7 @@ impl SkinSwitchMachine {
 
 - [ ] **Обновить:** `skin_switch/mod.rs` → `pub mod machine;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -179,7 +179,7 @@ impl SkinSwitchMachine {
 
 - [ ] **Обновить:** `event_processor.rs` → `pub use crate::gamepad::event_processor::*;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -190,7 +190,7 @@ impl SkinSwitchMachine {
 
 - [ ] **Убрать:** `ws.rs` ре-экспорт (теперь handlers.rs будет использовать напрямую)
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -200,7 +200,7 @@ impl SkinSwitchMachine {
   - Убрать `use crate::skin::...` → `use crate::skin_manager::discovery::...`
   - Убрать `use crate::gamepad_state::...` → `use crate::gamepad::state::...`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -211,7 +211,7 @@ impl SkinSwitchMachine {
   - `use crate::skin_change_state::...` → `use crate::skin_switch::state::...`
   - `use crate::event_processor::...` → `use crate::gamepad::event_processor::...`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -221,7 +221,7 @@ impl SkinSwitchMachine {
   - `use crate::skin::...` → `use crate::skin_manager::discovery::...`
   - `use crate::skin_change_state::...` → `use crate::skin_switch::state::...`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -231,7 +231,7 @@ impl SkinSwitchMachine {
   - `use crate::app::{Channels, create_app_state}` — пока оставить как есть
   - `use crate::tasks::spawn_stick_tick` — пока оставить
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -247,7 +247,7 @@ impl SkinSwitchMachine {
 
 - [ ] **Обновить:** `main.rs` — убрать `mod gamepad_state;`, `mod skin;`, etc.
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -257,7 +257,7 @@ impl SkinSwitchMachine {
   - `mod app; mod button_actions; mod config; mod event_processor; mod events; mod gamepad_state; mod handlers; mod skin; mod skin_change_state; mod tasks; mod ws;`
   - Заменить на новые `mod gamepad; mod skin_manager; mod skin_switch; mod websocket; mod config; mod events; mod handlers; mod tasks;`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -267,7 +267,7 @@ impl SkinSwitchMachine {
   - Метод `handle(&mut self, event: &AppEvent) -> Option<Command>`
   - Все переходы состояний из текущего loop
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -278,7 +278,7 @@ impl SkinSwitchMachine {
   - В цикле вызывать `machine.handle(&event)` вместо direct state manipulation
   - Убрать прямой доступ к `button_state.lock()`
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check && cargo fmt`
 
 ---
 
@@ -307,7 +307,7 @@ impl SkinSwitchMachine {
 | 0   | Создать структуру папок             | [x]    |
 | 1   | Перенести gamepad/state.rs          | [x]    |
 | 2   | Перенести skin_manager/discovery.rs | [x]    |
-| 3   | Перенести skin_manager/manager.rs   | - [ ]  |
+| 3   | Перенести skin_manager/manager.rs   | [x]  |
 | 4   | Перенести skin_switch/state.rs      | - [ ]  |
 | 5   | Перенести websocket/handler.rs      | - [ ]  |
 | 6   | Перенести config/mod.rs             | - [ ]  |
@@ -330,4 +330,4 @@ impl SkinSwitchMachine {
 
 ## Всего 20 шагов
 
-Каждый шаг оставляет код в рабочем состоянии. После каждого шага выполнять `cargo check` для верификации.
+Каждый шаг оставляет код в рабочем состоянии. После каждого шага выполнять `cargo check` и `cargo fmt` для верификации.
