@@ -156,6 +156,7 @@ if let Some(skin) = app_state.skin_manager.get_current() {
 - Или: `AppState` владеет `Channels`, HTTP handlers используют `state.channels.ws_sender()`
 
 **Выполнено:**
+
 - [x] В `app.rs` заменено `ws_tx` на `channels: Channels` в `AppState`
 - [x] Добавлено `#[derive(Clone)]` к `Channels`
 - [x] В `handlers.rs` используется `state.channels.ws_sender().subscribe()`
@@ -215,6 +216,7 @@ match to_string(&output) {
 ```
 
 **Выполнено:**
+
 - [x] Добавлен anyhow в зависимости
 - [x] main.rs: unwrap заменён на map_err/ok_or_else
 - [x] websocket/handler.rs: match для обработки ошибок сериализации
@@ -235,21 +237,11 @@ match to_string(&output) {
 
 - Создать `src/skin_switch/buttons.rs`:
 
-```rust
-#[derive(Debug, Clone)]
-pub enum ButtonName {
-    DPadRight,
-    DPadLeft,
-    Start,
-    Select,
-}
-
-#[derive(Debug, Clone)]
-pub enum ButtonEvent {
-    Pressed(ButtonName),
-    Released(ButtonName),
-}
-```
+  ```rust
+  pub enum ButtonName { DPadRight, DPadLeft, Start, Select }
+  pub enum ButtonEvent { Pressed(ButtonName), Released(ButtonName) }
+  pub fn gilrs_event_to_button_event(event: &Event) -> Option<ButtonEvent>
+  ```
 
 - В `machine.rs`:
   - `handle(&mut self, event: &AppEvent)` -> `handle_button(&mut self, event: ButtonEvent)`
@@ -258,10 +250,16 @@ pub enum ButtonEvent {
 - В `tasks.rs::spawn_skin_change_tracker`:
   - Конвертировать `AppEvent::Gilrs` в `ButtonEvent` перед вызовом machine
 
+**Выполнено:**
+
+- [x] Создан `buttons.rs` с ButtonName, ButtonEvent и функцией конвертации
+- [x] Обновлён `machine.rs` - убран импорт gilrs, метод handle заменён на handle_button
+- [x] Обновлён `tasks.rs::spawn_skin_change_tracker` - конвертация AppEvent::Gilrs -> ButtonEvent
+
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -341,17 +339,20 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 ### Шаг 11: Исследовать зачем нужен Clone на Channels и копирование State в Axum
 
 **Проблема/Вопрос:**
+
 - `#[derive(Clone)]` добавлен к `Channels` чтобы `AppState` мог быть `Clone`
 - Axum требует `Clone` для `.with_state()`
 - Но в текущей реализации `channels` передаётся через move, не клонируется
 - Возможно, это архитектурный костыль
 
 **Исследование:**
+
 - Зачем axum копирует State? Это для каждого запроса new state или shared?
 - Можно ли избежать Clone на Channels?
 - Какие есть альтернативы (Arc<Channels>, не Clone State, etc.)
 
 **Действие:**
+
 - [ ] Исследовать как axum использует State
 - [ ] Определить оптимальный дизайн
 
@@ -373,7 +374,7 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 4   | Убрать двойную загрузку конфига     | [x]      |
 | 5   | Консолидировать ws_tx               | [x]      |
 | 6   | Улучшить обработку ошибок (unwrap)  | [x]      |
-| 7   | Абстрагировать ButtonEvent от gilrs | [ ]      |
+| 7   | Абстрагировать ButtonEvent от gilrs | [x]      |
 | 8   | Выровнять владение в handle()       | [ ]      |
 | 9   | Убрать неиспользуемый импорт        | [ ]      |
 | 10  | Восстановить gamepad/input.rs       | [ ]      |

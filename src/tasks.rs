@@ -11,6 +11,7 @@ use crate::button_actions::run_button_actions;
 use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
 use crate::gamepad::state::GamepadEvent;
+use crate::skin_switch::buttons::gilrs_event_to_button_event;
 use crate::skin_switch::machine::SkinSwitchMachine;
 use gilrs::Gilrs;
 use tracing::{debug, error, info};
@@ -89,7 +90,16 @@ pub fn spawn_skin_change_tracker(
         loop {
             tokio::select! {
                 Ok(event) = events_rx.recv() => {
-                    if let Some(cmd) = machine.handle(&event) {
+                    if let Some(cmd) = match event {
+                        AppEvent::Gilrs(gilrs_event) => {
+                            if let Some(button_event) = gilrs_event_to_button_event(&gilrs_event) {
+                                machine.handle_button(button_event)
+                            } else {
+                                None
+                            }
+                        }
+                        AppEvent::SkinChange(_) => None,
+                    } {
                         match cmd {
                             crate::skin_switch::commands::Command::SkinChange(dir) => {
                                 let _ = events_tx.send(AppEvent::SkinChange(dir));
