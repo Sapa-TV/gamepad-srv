@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::sync::Mutex;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 
@@ -13,7 +12,7 @@ pub async fn run_button_actions(
     mut rx: broadcast::Receiver<AppEvent>,
     mut skin_manager: SkinManager,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
-    save_tx: Arc<Mutex<Option<mpsc::Sender<String>>>>,
+    save_tx: mpsc::Sender<String>,
 ) {
     loop {
         match rx.recv().await {
@@ -28,10 +27,7 @@ pub async fn run_button_actions(
                         index: new_idx,
                     });
 
-                    let tx_guard = save_tx.lock().unwrap();
-                    if let Some(ref tx) = *tx_guard {
-                        let _ = tx.try_send(skin.dir_name.clone());
-                    }
+                    let _ = save_tx.send(skin.dir_name.clone()).await;
                 }
             }
             Err(_) => break,

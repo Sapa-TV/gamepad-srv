@@ -9,8 +9,8 @@ use tracing::info;
 
 use crate::app::{Channels, create_app_state};
 use crate::handlers::{index_handler, list_skins_handler, skin_handler, ws_handler};
-use crate::tasks::spawn_stick_tick;
 use tokio::signal;
+use tokio::sync::mpsc;
 
 mod app;
 mod button_actions;
@@ -57,16 +57,11 @@ async fn main() {
         let _ = config::save_config(&cfg);
     }
 
-    let tick_state = app_state.gamepad_state.clone();
-    let tick_ws_tx = channels.ws_sender();
-    spawn_stick_tick(tick_state, tick_ws_tx);
+    let (save_tx, mut save_rx) = mpsc::channel::<String>(32);
 
-    let (save_tx, mut save_rx) = tokio::sync::mpsc::channel::<String>(10);
-    let save_tx = Arc::new(std::sync::Mutex::new(Some(save_tx)));
-
-    let gilrs_state = app_state.gamepad_state.clone();
+    let gamepad_state = app_state.gamepad_state.clone();
     let skin_manager = app_state.skin_manager.clone();
-    channels.spawn_all_tasks(gilrs_state, skin_manager, save_tx);
+    channels.spawn_all_tasks(gamepad_state, skin_manager, save_tx);
 
     let shutting_down = app_state.shutting_down.clone();
 

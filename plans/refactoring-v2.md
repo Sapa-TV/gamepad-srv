@@ -31,23 +31,46 @@
 let save_tx = Arc::new(std::sync::Mutex::new(Some(save_tx)));
 ```
 
-`Arc<Mutex<Option<mpsc::Sender>>>` — `Option` используется только для `take()` один раз.
+`Arc<Mutex<Option<mpsc::Sender>>>` — лишняя обёртка над mpsc::Sender.
 
 **Действие:**
 
-- Изменить `tasks.rs::spawn_button_actions`:
-  - `save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>` -> `save_tx: tokio::sync::oneshot::Sender<String>`
-- Изменить `button_actions.rs`:
-  - `save_tx: Arc<Mutex<Option<...>>>` -> `save_tx: oneshot::Sender<String>`
-  - Убрать `tx_guard.lock().unwrap()` и `if let Some(ref tx)` — просто `save_tx.send(skin.dir_name)`
-- Изменить `main.rs`:
-  - Создать `let (save_tx, save_rx) = tokio::sync::oneshot::channel();`
+- [x] Изменить `tasks.rs::spawn_button_actions`:
+  - `save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>` -> `save_tx: tokio::sync::mpsc::Sender<String>`
+- [x] Изменить `button_actions.rs`:
+  - `save_tx: Arc<Mutex<Option<...>>>` -> `save_tx: mpsc::Sender<String>`
+  - Убрать `tx_guard.lock().unwrap()` и `if let Some(ref tx)` — просто `save_tx.send(...).await`
+- [x] Изменить `main.rs`:
+  - Создать `let (save_tx, save_rx) = tokio::sync::mpsc::channel(32);`
   - Передать `save_tx` напрямую, без Arc/Mutex/Option
+  - Изменить receiver на `while let` для множественных сохранений
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
+
+---
+
+### Шаг 2.1: Исправить баг с one-shot (был шаг 2)
+
+**Проблема:** После шага 2 использовался `oneshot::Sender`, который позволяет отправить только ОДИН раз. Но смена скинов может происходить многократно за время работы приложения.
+
+**Исследование:**
+- `oneshot::Sender` закрывает канал после первого `send()`
+- Пользователь может нажимать DPad Left/Right много раз в состоянии `SkinSwitchReady`
+- Каждое нажатие должно сохранять новый skin в конфиг
+
+**Действие (исправление):**
+
+- [x] Изменить обратно на `mpsc::channel` (был `oneshot::channel`)
+- [x] Убрать `Option`/`take()` в `button_actions.rs` — mpsc позволяет множественные send
+- [x] Изменить receiver в `main.rs` на `while let` вместо `if let`
+
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -66,7 +89,7 @@ let gilrs_state = app_state.gamepad_state.clone();  // для spawn_all_tasks
 - В `tasks.rs::spawn_all_tasks` клонировать `gilrs_state` внутри из `app_state.gamepad_state.clone()`:
 
 ```rust
-pub fn spawn_all_tasks(&self, gamepad_state: Arc<Mutex<GamepadState>>, skin_manager: SkinManager, save_tx: oneshot::Sender<String>) {
+pub fn spawn_all_tasks(&self, gamepad_state: Arc<Mutex<GamepadState>>, skin_manager: SkinManager, save_tx: mpsc::Sender<String>) {
     let tick_state = gamepad_state.clone();
     spawn_stick_tick(tick_state, self.ws_sender());
 
@@ -267,7 +290,8 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | Шаг | Описание                               | Выполнен |
 | --- | -------------------------------------- | -------- |
 | 1   | Удалить пустой файл input.rs           | [x]      |
-| 2   | Упростить паттерн сохранения (oneshot) | [ ]      |
+| 2   | Упростить паттерн сохранения (mpsc)   | [x]      |
+| 2.1 | Исправить баг с one-shot sender        | [x]      |
 | 3   | Убрать лишний клон gamepad_state       | [ ]      |
 | 4   | Убрать двойную загрузку конфига        | [ ]      |
 | 5   | Консолидировать ws_tx                  | [ ]      |
@@ -278,7 +302,9 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 
 ---
 
-## Всего 9 шагов
+## Всего 10 шагов
 
 Каждый шаг - законченная единица работы, после которой код компилируется и работает.
 После каждого шага выполнять `cargo check` и `cargo fmt` для верификации.
+
+Шаг 2.1 добавлен как исправление бага, обнаруженного при выполнении шага 2.

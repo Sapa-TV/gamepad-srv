@@ -71,7 +71,7 @@ pub fn spawn_button_actions(
     events_rx: broadcast::Receiver<AppEvent>,
     skin_manager: SkinManager,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
-    save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
+    save_tx: mpsc::Sender<String>,
 ) {
     tokio::spawn(async move {
         run_button_actions(events_rx, skin_manager, ws_tx, save_tx).await;
@@ -128,13 +128,17 @@ pub fn spawn_skin_change_tracker(
 impl Channels {
     pub fn spawn_all_tasks(
         &self,
-        gilrs_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
+        gamepad_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
         skin_manager: SkinManager,
-        save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
+        save_tx: mpsc::Sender<String>,
     ) {
         let ws_tx = self.ws_tx.clone();
         let events_tx = self.events_tx.clone();
 
+        let tick_state = gamepad_state.clone();
+        spawn_stick_tick(tick_state, ws_tx.clone());
+
+        let gilrs_state = gamepad_state.clone();
         spawn_gilrs_task(gilrs_state, ws_tx.clone(), events_tx.clone());
 
         let button_events_rx = self.create_events_receiver();
