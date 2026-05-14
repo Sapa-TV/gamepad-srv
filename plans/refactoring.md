@@ -390,6 +390,7 @@ impl SkinSwitchMachine {
   - Принимает `SkinManager` вместо `Vec<SkinEntry>` и `Arc<Mutex<usize>>`
 
 **Проверка:**
+
 - [x] `cargo check`
 - [x] `cargo fmt`
 
@@ -404,6 +405,7 @@ impl SkinSwitchMachine {
   - `app.rs` теперь использует `SkinManager::discover_with_config()` вместо прямого вызова
 
 **Проверка:**
+
 - [x] `cargo check`
 - [x] `cargo fmt`
 
@@ -418,7 +420,38 @@ impl SkinSwitchMachine {
   - `app.rs` больше не использует `skin_manager.get_index()`
 
 **Проверка:**
+
 - [x] `cargo check`
+- [x] `cargo fmt`
+
+---
+
+### Шаг 24: SkinManager предоставляет API для работы со скинами
+
+- [x] **Проблема:** Внешние модули вызывают `load_skin_info` напрямую вместо SkinManager
+- [x] **Действие:**
+  - Добавлен `get_current_info() -> Option<SkinInfo>` в SkinManager
+  - Добавлен `get_current_full() -> Option<(&SkinEntry, SkinInfo)>` в SkinManager
+  - `app.rs` теперь использует `skin_manager.get_current_info()`
+  - `handlers.rs` теперь использует `skin_manager.get_current_info()`
+  - `button_actions.rs` теперь использует `skin_manager.get_current_full()`
+  - Удалён прямой вызов `load_skin_info` из внешних модулей
+
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
+
+---
+
+### Шаг 25: Удалить неиспользуемые методы
+
+- [x] **SkinManager:** удалены `discover()`, `with_skins()`, `next()`, `prev()`
+- [x] **SkinSwitchMachine:** удалён `state()`
+
+**Проверка:**
+
+- [x] `cargo check` - чистая компиляция без warnings
 - [x] `cargo fmt`
 
 ---
@@ -448,7 +481,7 @@ impl SkinSwitchMachine {
 | 18  | Обновить tasks.rs machine usage     | [x]    |
 | 19  | Оптимизировать таймер               | [x]    |
 | 20  | Очистить button_actions.rs          | [x]    |
-| 21  | Интегрировать SkinManager            | [x]    |
+| 21  | Интегрировать SkinManager           | [x]    |
 
 ---
 

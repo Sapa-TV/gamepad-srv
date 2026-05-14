@@ -6,7 +6,6 @@ use tokio::sync::broadcast;
 
 use crate::events::AppEvent;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
-use crate::skin_manager::discovery::load_skin_info;
 use crate::skin_manager::manager::SkinManager;
 use tracing::{debug, info};
 
@@ -52,12 +51,8 @@ impl AppState {
         let count = skin_manager.get_all_skins().len();
         info!("Found {} valid skins", count);
 
-        if let Some(skin) = skin_manager.get_current() {
-            if let Ok(info) = load_skin_info(&skin.dir_name) {
-                info!("Current skin: {}", info.name);
-            } else {
-                debug!("Failed to load current skin info");
-            }
+        if let Some(info) = skin_manager.get_current_info() {
+            info!("Current skin: {}", info.name);
         } else {
             debug!("No skins found in assets/skins/");
         }

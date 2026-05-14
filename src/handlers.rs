@@ -18,10 +18,8 @@ pub async fn index_handler() -> Html<String> {
 }
 
 pub async fn skin_handler(State(state): State<AppState>) -> Response {
-    if let Some(skin) = state.skin_manager.get_current() {
-        if let Ok(info) = crate::skin_manager::discovery::load_skin_info(&skin.dir_name) {
-            return axum::Json(info).into_response();
-        }
+    if let Some(info) = state.skin_manager.get_current_info() {
+        return axum::Json(info).into_response();
     }
     (
         axum::http::StatusCode::SERVICE_UNAVAILABLE,

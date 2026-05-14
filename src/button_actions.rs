@@ -7,7 +7,6 @@ use tracing::debug;
 
 use crate::events::AppEvent;
 use crate::gamepad::state::GamepadEvent;
-use crate::skin_manager::discovery::load_skin_info;
 use crate::skin_manager::manager::SkinManager;
 
 pub async fn run_button_actions(
@@ -21,19 +20,17 @@ pub async fn run_button_actions(
             Ok(AppEvent::SkinChange(dir)) => {
                 let new_idx = skin_manager.set_next_by_direction(dir);
 
-                if let Some(skin) = skin_manager.get_current() {
-                    if let Ok(info) = load_skin_info(&skin.dir_name) {
-                        debug!("Skin change: {} -> index: {}", info.name, new_idx);
-                        let _ = ws_tx.send(GamepadEvent::SkinChanged {
-                            name: info.name,
-                            path: info.path,
-                            index: new_idx,
-                        });
+                if let Some((skin, info)) = skin_manager.get_current_full() {
+                    debug!("Skin change: {} -> index: {}", info.name, new_idx);
+                    let _ = ws_tx.send(GamepadEvent::SkinChanged {
+                        name: info.name,
+                        path: info.path,
+                        index: new_idx,
+                    });
 
-                        let tx_guard = save_tx.lock().unwrap();
-                        if let Some(ref tx) = *tx_guard {
-                            let _ = tx.try_send(skin.dir_name.clone());
-                        }
+                    let tx_guard = save_tx.lock().unwrap();
+                    if let Some(ref tx) = *tx_guard {
+                        let _ = tx.try_send(skin.dir_name.clone());
                     }
                 }
             }
