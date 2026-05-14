@@ -155,10 +155,17 @@ if let Some(skin) = app_state.skin_manager.get_current() {
 - HTTP handlers получают `ws_tx` через `State(Arc<broadcast::Sender<GamepadEvent>>)` через Channels
 - Или: `AppState` владеет `Channels`, HTTP handlers используют `state.channels.ws_sender()`
 
+**Выполнено:**
+- [x] В `app.rs` заменено `ws_tx` на `channels: Channels` в `AppState`
+- [x] Добавлено `#[derive(Clone)]` к `Channels`
+- [x] В `handlers.rs` используется `state.channels.ws_sender().subscribe()`
+- [x] В `main.rs` передаётся `channels` (move) при создании `AppState`
+- [x] `spawn_all_tasks` вызывается через `app_state.channels.spawn_all_tasks()`
+
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -319,6 +326,35 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 - [ ] `cargo check`
 - [ ] `cargo fmt`
 
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
+
+---
+
+### Шаг 11: Исследовать зачем нужен Clone на Channels и копирование State в Axum
+
+**Проблема/Вопрос:**
+- `#[derive(Clone)]` добавлен к `Channels` чтобы `AppState` мог быть `Clone`
+- Axum требует `Clone` для `.with_state()`
+- Но в текущей реализации `channels` передаётся через move, не клонируется
+- Возможно, это архитектурный костыль
+
+**Исследование:**
+- Зачем axum копирует State? Это для каждого запроса new state или shared?
+- Можно ли избежать Clone на Channels?
+- Какие есть альтернативы (Arc<Channels>, не Clone State, etc.)
+
+**Действие:**
+- [ ] Исследовать как axum использует State
+- [ ] Определить оптимальный дизайн
+
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
+
 ---
 
 ## Статус
@@ -330,19 +366,21 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 2.1 | Исправить баг с one-shot sender     | [x]      |
 | 3   | Убрать лишний клон gamepad_state    | [x]      |
 | 4   | Убрать двойную загрузку конфига     | [x]      |
-| 5   | Консолидировать ws_tx               | [ ]      |
+| 5   | Консолидировать ws_tx               | [x]      |
 | 6   | Улучшить обработку ошибок (unwrap)  | [ ]      |
 | 7   | Абстрагировать ButtonEvent от gilrs | [ ]      |
 | 8   | Выровнять владение в handle()       | [ ]      |
 | 9   | Убрать неиспользуемый импорт        | [ ]      |
 | 10  | Восстановить gamepad/input.rs       | [ ]      |
+| 11  | Исследовать Clone на Channels       | [ ]      |
 
 ---
 
-## Всего 10 шагов
+## Всего 11 шагов
 
 Каждый шаг - законченная единица работы, после которой код компилируется и работает.
 После каждого шага выполнять `cargo check` и `cargo fmt` для верификации.
 
 Шаг 2.1 добавлен как исправление бага, обнаруженного при выполнении шага 2.
 Шаг 10 добавлен для восстановления чистой архитектуры: `gamepad/input.rs` должен содержать input driver (gilrs loop).
+Шаг 11 добавлен для исследования архитектурного вопроса: зачем нужен Clone на Channels и как axum использует State.

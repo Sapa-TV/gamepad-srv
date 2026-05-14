@@ -49,9 +49,9 @@ async fn main() {
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
 
     let channels = Channels::new();
-    let app_state = create_app_state(channels.ws_sender(), config.skin.clone());
+    let app_state = create_app_state(channels, config.skin.clone());
 
-    if let Some(skin) = app_state.skin_manager.get_current() {
+    if let Some(skin) = app_state.skin_manager.lock().unwrap().get_current() {
         let mut cfg = config.clone();
         cfg.skin = Some(skin.dir_name.clone());
         let _ = config::save_config(&cfg);
@@ -59,9 +59,11 @@ async fn main() {
 
     let (save_tx, mut save_rx) = mpsc::channel::<String>(32);
 
-    let gamepad_state = app_state.gamepad_state.clone();
-    let skin_manager = app_state.skin_manager.clone();
-    channels.spawn_all_tasks(gamepad_state, skin_manager, save_tx);
+    app_state.channels.spawn_all_tasks(
+        app_state.gamepad_state.clone(),
+        app_state.skin_manager.clone(),
+        save_tx,
+    );
 
     let shutting_down = app_state.shutting_down.clone();
 

@@ -11,7 +11,6 @@ use crate::button_actions::run_button_actions;
 use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
 use crate::gamepad::state::GamepadEvent;
-use crate::skin_manager::manager::SkinManager;
 use crate::skin_switch::machine::SkinSwitchMachine;
 use gilrs::Gilrs;
 use tracing::{debug, error, info};
@@ -69,7 +68,7 @@ pub fn spawn_gilrs_task(
 
 pub fn spawn_button_actions(
     events_rx: broadcast::Receiver<AppEvent>,
-    skin_manager: SkinManager,
+    skin_manager: Arc<Mutex<crate::skin_manager::manager::SkinManager>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     save_tx: mpsc::Sender<String>,
 ) {
@@ -129,7 +128,7 @@ impl Channels {
     pub fn spawn_all_tasks(
         &self,
         gamepad_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
-        skin_manager: SkinManager,
+        skin_manager: Arc<Mutex<crate::skin_manager::manager::SkinManager>>,
         save_tx: mpsc::Sender<String>,
     ) {
         let ws_tx = self.ws_tx.clone();

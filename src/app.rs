@@ -9,6 +9,7 @@ use crate::gamepad::state::{GamepadEvent, GamepadState};
 use crate::skin_manager::manager::SkinManager;
 use tracing::{debug, info};
 
+#[derive(Clone)]
 pub struct Channels {
     pub ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     pub events_tx: Arc<broadcast::Sender<AppEvent>>,
@@ -36,17 +37,14 @@ impl Channels {
 
 #[derive(Clone)]
 pub struct AppState {
+    pub channels: Channels,
     pub gamepad_state: Arc<Mutex<GamepadState>>,
-    pub ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     pub shutting_down: Arc<AtomicBool>,
-    pub skin_manager: SkinManager,
+    pub skin_manager: Arc<Mutex<SkinManager>>,
 }
 
 impl AppState {
-    pub fn new(
-        ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
-        skin_from_config: Option<String>,
-    ) -> Self {
+    pub fn new(channels: Channels, skin_from_config: Option<String>) -> Self {
         let skin_manager = SkinManager::discover_with_config(skin_from_config);
         let count = skin_manager.get_all_skins().len();
         info!("Found {} valid skins", count);
@@ -58,17 +56,14 @@ impl AppState {
         }
 
         Self {
+            channels,
             gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
-            ws_tx,
             shutting_down: Arc::new(AtomicBool::new(false)),
-            skin_manager,
+            skin_manager: Arc::new(Mutex::new(skin_manager)),
         }
     }
 }
 
-pub fn create_app_state(
-    ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
-    skin_from_config: Option<String>,
-) -> AppState {
-    AppState::new(ws_tx, skin_from_config)
+pub fn create_app_state(channels: Channels, skin_from_config: Option<String>) -> AppState {
+    AppState::new(channels, skin_from_config)
 }
