@@ -5,6 +5,7 @@ edition = "2024"
 metadata = { embedded-dependencies = true }
 
 [dependencies]
+anyhow = "1"
 axum = { version = "0.8.6", features = ["ws"] }
 futures = "0.3.31"
 gilrs = "0.8"

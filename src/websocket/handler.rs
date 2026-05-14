@@ -20,7 +20,16 @@ pub async fn handle_socket(
         let s = state.lock().unwrap();
         s.to_output()
     };
-    let _ = socket.send(to_string(&output).unwrap().into()).await;
+    match to_string(&output) {
+        Ok(json) => {
+            if socket.send(json.into()).await.is_err() {
+                info!("WebSocket client disconnected");
+            }
+        }
+        Err(e) => {
+            tracing::error!("Failed to serialize: {}", e);
+        }
+    }
 
     loop {
         tokio::select! {
@@ -31,9 +40,16 @@ pub async fn handle_socket(
             event = rx.recv() => {
                 match event {
                     Ok(e) => {
-                        if socket.send(to_string(&vec![e]).unwrap().into()).await.is_err() {
-                            info!("WebSocket client disconnected");
-                            break;
+                        match to_string(&vec![e]) {
+                            Ok(json) => {
+                                if socket.send(json.into()).await.is_err() {
+                                    info!("WebSocket client disconnected");
+                                    break;
+                                }
+                            }
+                            Err(e) => {
+                                tracing::error!("Failed to serialize: {}", e);
+                            }
                         }
                     }
                     Err(_) => break,

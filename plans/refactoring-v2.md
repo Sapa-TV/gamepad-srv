@@ -171,54 +171,59 @@ if let Some(skin) = app_state.skin_manager.get_current() {
 
 ### Шаг 6: Улучшить обработку ошибок
 
-**Проблема:** main.rs:44-46 и websocket/handler.rs - unwrap может вызвать panic
+**Проблема:** main.rs и websocket/handler.rs - unwrap может вызвать panic
 
-**Действие 6.1:** main.rs:42-46
+**Действие 6.1:** main.rs - заменить unwrap на Result
 
 ```rust
+// before
 let addr: SocketAddr = format!("0.0.0.0:{}", config.port)
     .to_socket_addrs()
     .unwrap()   // может panic
     .next()
     .unwrap();
-```
+let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
-Заменить на:
-
-```rust
+// after
 let addr: SocketAddr = format!("0.0.0.0:{}", config.port)
     .to_socket_addrs()
     .map_err(|e| anyhow::anyhow!("Failed to parse address: {}", e))?
     .next()
     .ok_or_else(|| anyhow::anyhow!("No addresses found"))?;
+let listener = tokio::net::TcpListener::bind(addr)
+    .await
+    .map_err(|e| anyhow::anyhow!("Failed to bind to address: {}", e))?;
 ```
 
-**Действие 6.2:** websocket/handler.rs:23,34
+**Действие 6.2:** websocket/handler.rs - обработка ошибок сериализации
 
 ```rust
+// before
 let _ = socket.send(to_string(&output).unwrap().into()).await;
-```
 
-Заменить на обработку ошибки:
-
-```rust
+// after
 match to_string(&output) {
     Ok(json) => {
         if socket.send(json.into()).await.is_err() {
-            break;
+            info!("WebSocket client disconnected");
         }
     }
     Err(e) => {
         tracing::error!("Failed to serialize: {}", e);
-        break;
     }
 }
 ```
 
+**Выполнено:**
+- [x] Добавлен anyhow в зависимости
+- [x] main.rs: unwrap заменён на map_err/ok_or_else
+- [x] websocket/handler.rs: match для обработки ошибок сериализации
+- [x] main() теперь возвращает Result<(), anyhow::Error>
+
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -367,7 +372,7 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 3   | Убрать лишний клон gamepad_state    | [x]      |
 | 4   | Убрать двойную загрузку конфига     | [x]      |
 | 5   | Консолидировать ws_tx               | [x]      |
-| 6   | Улучшить обработку ошибок (unwrap)  | [ ]      |
+| 6   | Улучшить обработку ошибок (unwrap)  | [x]      |
 | 7   | Абстрагировать ButtonEvent от gilrs | [ ]      |
 | 8   | Выровнять владение в handle()       | [ ]      |
 | 9   | Убрать неиспользуемый импорт        | [ ]      |

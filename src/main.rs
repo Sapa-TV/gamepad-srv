@@ -24,7 +24,7 @@ mod tasks;
 mod websocket;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), anyhow::Error> {
     enable_ansi_support::enable_ansi_support().ok();
 
     tracing_subscriber::fmt()
@@ -41,10 +41,12 @@ async fn main() {
 
     let addr: SocketAddr = format!("0.0.0.0:{}", config.port)
         .to_socket_addrs()
-        .unwrap()
+        .map_err(|e| anyhow::anyhow!("Failed to parse address: {}", e))?
         .next()
-        .unwrap();
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+        .ok_or_else(|| anyhow::anyhow!("No addresses found"))?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to bind to address: {}", e))?;
 
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
 
@@ -93,7 +95,9 @@ async fn main() {
     axum::serve(listener, app)
         .with_graceful_shutdown(graceful_shutdown(shutting_down))
         .await
-        .unwrap();
+        .map_err(|e| anyhow::anyhow!("Server error: {}", e))?;
+
+    Ok(())
 }
 
 async fn graceful_shutdown(shutting_down: Arc<AtomicBool>) {
