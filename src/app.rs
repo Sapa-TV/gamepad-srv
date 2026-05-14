@@ -6,8 +6,8 @@ use tokio::sync::broadcast;
 
 use crate::events::AppEvent;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
-use crate::skin_manager::discovery::{SkinEntry, discover_skins, load_skin_info};
-use crate::skin_switch::state::SkinChangeState;
+use crate::skin_manager::discovery::load_skin_info;
+use crate::skin_manager::manager::SkinManager;
 use tracing::{debug, info};
 
 pub struct Channels {
@@ -38,11 +38,9 @@ impl Channels {
 #[derive(Clone)]
 pub struct AppState {
     pub gamepad_state: Arc<Mutex<GamepadState>>,
-    pub button_state: Arc<Mutex<SkinChangeState>>,
     pub ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     pub shutting_down: Arc<AtomicBool>,
-    pub current_skin_index: Arc<Mutex<usize>>,
-    pub skins: Vec<SkinEntry>,
+    pub skin_manager: SkinManager,
 }
 
 impl AppState {
@@ -50,48 +48,29 @@ impl AppState {
         ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
         skin_from_config: Option<String>,
     ) -> Self {
-        let skins = discover_skins();
-        info!("Found {} valid skins", skins.len());
+        let skin_manager = SkinManager::discover_with_config(skin_from_config);
+        let count = skin_manager.get_all_skins().len();
+        info!("Found {} valid skins", count);
 
-        let current_skin_index = if !skins.is_empty() {
-            match &skin_from_config {
-                Some(name) if skins.iter().any(|s| &s.dir_name == name) => {
-                    let idx = skins.iter().position(|s| &s.dir_name == name).unwrap();
-                    info!("Using skin from config: {} (index: {})", name, idx);
-                    idx
-                }
-                _ => {
-                    if skin_from_config.is_some() {
-                        info!(
-                            "Skin '{}' from config not found, using default",
-                            skin_from_config.as_ref().unwrap()
-                        );
-                    }
-                    0
-                }
+        if let Some(skin) = skin_manager.get_current() {
+            if let Ok(info) = load_skin_info(&skin.dir_name) {
+                info!(
+                    "Current skin: {} (index: {})",
+                    info.name,
+                    skin_manager.get_index()
+                );
+            } else {
+                debug!("Failed to load current skin info");
             }
         } else {
             debug!("No skins found in assets/skins/");
-            usize::MAX
-        };
-
-        if !skins.is_empty() {
-            match load_skin_info(&skins[current_skin_index].dir_name) {
-                Ok(info) => info!(
-                    "Current skin: {} (index: {})",
-                    info.name, current_skin_index
-                ),
-                Err(e) => debug!("Failed to load current skin: {}", e),
-            }
         }
 
         Self {
             gamepad_state: Arc::new(Mutex::new(GamepadState::new())),
-            button_state: Arc::new(Mutex::new(SkinChangeState::default())),
             ws_tx,
             shutting_down: Arc::new(AtomicBool::new(false)),
-            current_skin_index: Arc::new(Mutex::new(current_skin_index)),
-            skins,
+            skin_manager,
         }
     }
 }

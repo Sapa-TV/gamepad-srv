@@ -11,7 +11,7 @@ use crate::button_actions::run_button_actions;
 use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
 use crate::gamepad::state::GamepadEvent;
-use crate::skin_manager::discovery::SkinEntry;
+use crate::skin_manager::manager::SkinManager;
 use crate::skin_switch::machine::SkinSwitchMachine;
 use gilrs::Gilrs;
 use tracing::{debug, error, info};
@@ -69,13 +69,12 @@ pub fn spawn_gilrs_task(
 
 pub fn spawn_button_actions(
     events_rx: broadcast::Receiver<AppEvent>,
-    skins: Vec<SkinEntry>,
-    current_skin_index: Arc<Mutex<usize>>,
+    skin_manager: SkinManager,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
 ) {
     tokio::spawn(async move {
-        run_button_actions(events_rx, skins, current_skin_index, ws_tx, save_tx).await;
+        run_button_actions(events_rx, skin_manager, ws_tx, save_tx).await;
     });
 }
 
@@ -130,8 +129,7 @@ impl Channels {
     pub fn spawn_all_tasks(
         &self,
         gilrs_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
-        skins: Vec<SkinEntry>,
-        current_skin_index: Arc<Mutex<usize>>,
+        skin_manager: SkinManager,
         save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
     ) {
         let ws_tx = self.ws_tx.clone();
@@ -140,13 +138,7 @@ impl Channels {
         spawn_gilrs_task(gilrs_state, ws_tx.clone(), events_tx.clone());
 
         let button_events_rx = self.create_events_receiver();
-        spawn_button_actions(
-            button_events_rx,
-            skins,
-            current_skin_index,
-            ws_tx.clone(),
-            save_tx,
-        );
+        spawn_button_actions(button_events_rx, skin_manager, ws_tx.clone(), save_tx);
 
         let button_state_events_rx = self.create_events_receiver();
         spawn_skin_change_tracker(button_state_events_rx, events_tx, ws_tx);

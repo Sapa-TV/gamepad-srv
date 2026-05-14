@@ -373,6 +373,42 @@ impl SkinSwitchMachine {
 
 ---
 
+### Шаг 21: Интегрировать SkinManager
+
+- [x] **Проблема:** SkinManager создан в шаге 3, но не использовался — логика смены индекса скина дублировалась в `button_actions.rs`
+- [x] **Действие:**
+  - Добавлен метод `set_next_by_direction(dir: Direction) -> usize` в SkinManager
+  - Добавлен метод `get_all_skins() -> &[SkinEntry]` для получения списка скинов
+  - SkinManager теперь владеет состоянием скинов
+- [x] **Обновлён `app.rs`:**
+  - Заменён `current_skin_index: Arc<Mutex<usize>>` и `skins: Vec<SkinEntry>` на `skin_manager: SkinManager`
+  - SkinManager содержит и список скинов и текущий индекс
+- [x] **Обновлён `handlers.rs`:**
+  - `skin_handler` теперь использует `skin_manager.get_current()`
+  - `list_skins_handler` использует `skin_manager.get_all_skins()`
+- [x] **Обновлён `button_actions.rs`:**
+  - Принимает `SkinManager` вместо `Vec<SkinEntry>` и `Arc<Mutex<usize>>`
+
+**Проверка:**
+- [x] `cargo check`
+- [x] `cargo fmt`
+
+---
+
+### Шаг 22: Перенести discover_skins в SkinManager
+
+- [x] **Проблема:** `discover_skins()` вызывается в `app.rs`, а не в SkinManager
+- [x] **Действие:**
+  - Добавлен `SkinManager::discover()` для вызова `discover_skins()` внутри
+  - Добавлен `SkinManager::discover_with_config(skin_from_config)` для логики с конфигом
+  - `app.rs` теперь использует `SkinManager::discover_with_config()` вместо прямого вызова
+
+**Проверка:**
+- [x] `cargo check`
+- [x] `cargo fmt`
+
+---
+
 ## Статус
 
 | Шаг | Описание                            | Статус |
@@ -398,9 +434,10 @@ impl SkinSwitchMachine {
 | 18  | Обновить tasks.rs machine usage     | [x]    |
 | 19  | Оптимизировать таймер               | [x]    |
 | 20  | Очистить button_actions.rs          | [x]    |
+| 21  | Интегрировать SkinManager            | [x]    |
 
 ---
 
-## Всего 20 шагов
+## Всего 21 шаг
 
 Каждый шаг оставляет код в рабочем состоянии. После каждого шага выполнять `cargo check` и `cargo fmt` для верификации.

@@ -18,10 +18,8 @@ pub async fn index_handler() -> Html<String> {
 }
 
 pub async fn skin_handler(State(state): State<AppState>) -> Response {
-    let idx = *state.current_skin_index.lock().unwrap();
-    if idx < state.skins.len() {
-        if let Ok(info) = crate::skin_manager::discovery::load_skin_info(&state.skins[idx].dir_name)
-        {
+    if let Some(skin) = state.skin_manager.get_current() {
+        if let Ok(info) = crate::skin_manager::discovery::load_skin_info(&skin.dir_name) {
             return axum::Json(info).into_response();
         }
     }
@@ -35,7 +33,7 @@ pub async fn skin_handler(State(state): State<AppState>) -> Response {
 pub async fn list_skins_handler(
     State(state): State<AppState>,
 ) -> Json<Vec<crate::skin_manager::discovery::SkinEntry>> {
-    Json(state.skins.clone())
+    Json(state.skin_manager.get_all_skins().to_vec())
 }
 
 pub async fn ws_handler(ws: WebSocketUpgrade, State(state): State<AppState>) -> Response {
