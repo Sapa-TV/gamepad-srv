@@ -330,23 +330,17 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 
 **Действие:**
 
-- [ ] Создать `src/gamepad/input.rs`:
-  - Перенести `spawn_gilrs_task` из `tasks.rs`
-  - Добавить `pub fn spawn_input_task(...)` — обёртка для удобства
-- [ ] Обновить `gamepad/mod.rs` → `pub mod input;`
-- [ ] Обновить `tasks.rs`:
-  - Убрать `spawn_gilrs_task` определение
-  - Добавить `use crate::gamepad::input::spawn_gilrs_task;`
+- [x] Создать `src/gamepad/input.rs`:
+  - Перенесён `spawn_gilrs_task` из `tasks.rs`
+- [x] Обновить `gamepad/mod.rs` → `pub mod input;`
+- [x] Обновить `tasks.rs`:
+  - Удалено определение `spawn_gilrs_task`
+  - Добавлен `use crate::gamepad::input::spawn_gilrs_task;`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
-
-**Проверка:**
-
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -391,7 +385,7 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 7   | Абстрагировать ButtonEvent от gilrs | [x]      |
 | 8   | Выровнять владение в handle()       | [x]      |
 | 9   | Убрать неиспользуемый импорт        | [x]      |
-| 10  | Восстановить gamepad/input.rs       | [ ]      |
+| 10  | Восстановить gamepad/input.rs      | [x]      |
 | 11  | Исследовать Clone на Channels       | [ ]      |
 
 ---
