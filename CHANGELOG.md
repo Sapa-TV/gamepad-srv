@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.3.2](https://github.com/Sapa-TV/gamepad-srv/compare/77972c97e139266aa3562e1b0c1ab818568ba09a..0.3.2) - 2026-05-14
+#### Bug Fixes
+- resolve terminal colored text issue - ([77972c9](https://github.com/Sapa-TV/gamepad-srv/commit/77972c97e139266aa3562e1b0c1ab818568ba09a)) - Th0rN13
+
+- - -
+
 ## [0.3.1](https://github.com/Sapa-TV/gamepad-srv/compare/8d75db75cc8f3f9cc4031ffdb7dcb7caa7cf2699..0.3.1) - 2026-05-14
 #### Bug Fixes
 - initial skin loading flow save to config, sort by dir name - ([8d75db7](https://github.com/Sapa-TV/gamepad-srv/commit/8d75db75cc8f3f9cc4031ffdb7dcb7caa7cf2699)) - Th0rN13
