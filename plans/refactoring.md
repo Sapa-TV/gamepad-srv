@@ -256,14 +256,14 @@ impl SkinSwitchMachine {
 
 ### Шаг 13: Обновить `button_actions.rs`
 
-- [ ] **Обновить импорты:**
+- [x] **Обновить импорты:**
   - `use crate::skin::...` → `use crate::skin_manager::discovery::...`
   - `use crate::skin_change_state::...` → `use crate::skin_switch::state::...`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -373,7 +373,7 @@ impl SkinSwitchMachine {
 | 10  | Обновить handlers.rs                | [x]    |
 | 11  | Обновить app.rs                     | [x]    |
 | 12  | Обновить tasks.rs                   | [x]    |
-| 13  | Обновить button_actions.rs          | [ ]    |
+| 13  | Обновить button_actions.rs          | [x]    |
 | 14  | Обновить main.rs                    | [ ]    |
 | 15  | Удалить re-export файлы             | [ ]    |
 | 16  | Обновить main.rs импорты            | [ ]    |
