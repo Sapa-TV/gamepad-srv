@@ -1,20 +1,18 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
-use std::time::Instant;
 
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 use tokio::time;
 
 use crate::app::Channels;
-use crate::button_actions::{ButtonAction, run_button_actions};
+use crate::button_actions::run_button_actions;
 use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
 use crate::gamepad::state::GamepadEvent;
 use crate::skin_manager::discovery::SkinEntry;
 use crate::skin_switch::machine::SkinSwitchMachine;
-use crate::skin_switch::state::SkinChangeState;
 use gilrs::Gilrs;
 use tracing::{debug, error, info};
 
@@ -71,22 +69,13 @@ pub fn spawn_gilrs_task(
 
 pub fn spawn_button_actions(
     events_rx: broadcast::Receiver<AppEvent>,
-    actions: Vec<ButtonAction>,
     skins: Vec<SkinEntry>,
     current_skin_index: Arc<Mutex<usize>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
 ) {
     tokio::spawn(async move {
-        run_button_actions(
-            events_rx,
-            actions,
-            skins,
-            current_skin_index,
-            ws_tx,
-            save_tx,
-        )
-        .await;
+        run_button_actions(events_rx, skins, current_skin_index, ws_tx, save_tx).await;
     });
 }
 
@@ -153,7 +142,6 @@ impl Channels {
         let button_events_rx = self.create_events_receiver();
         spawn_button_actions(
             button_events_rx,
-            Vec::new(),
             skins,
             current_skin_index,
             ws_tx.clone(),

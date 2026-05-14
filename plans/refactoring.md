@@ -360,9 +360,16 @@ impl SkinSwitchMachine {
 
 ### Шаг 20: (Опционально) Очистить button_actions.rs
 
-- [ ] **Если `button_actions.rs` больше не нужен** — удалить и перенести функциональность в machine или skin_manager
+- [x] Удалён неиспользуемый код:
+  - `ButtonAction` trait и `ButtonAction` struct — больше не нужны
+  - Обработка `AppEvent::Gilrs` событий — только слушает `AppEvent::SkinChange`
+- [x] Упрощён `run_button_actions` — теперь только обрабатывает смену скинов
+- [x] Убраны лишние импорты (`Button`, `ButtonHandler`)
 
-**Проверка:** `cargo check && cargo run`
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -390,7 +397,7 @@ impl SkinSwitchMachine {
 | 17  | Реализовать machine::handle()       | [x]    |
 | 18  | Обновить tasks.rs machine usage     | [x]    |
 | 19  | Оптимизировать таймер               | [x]    |
-| 20  | Очистить button_actions.rs          | [ ]    |
+| 20  | Очистить button_actions.rs          | [x]    |
 
 ---
 
