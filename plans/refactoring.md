@@ -409,6 +409,20 @@ impl SkinSwitchMachine {
 
 ---
 
+### Шаг 23: Убрать get_index/set_index из SkinManager
+
+- [x] **Проблема:** Внешние модули не должны знать про индекс скина
+- [x] **Действие:**
+  - Удалён `get_index()` из SkinManager
+  - Удалён `set_index()` из SkinManager
+  - `app.rs` больше не использует `skin_manager.get_index()`
+
+**Проверка:**
+- [x] `cargo check`
+- [x] `cargo fmt`
+
+---
+
 ## Статус
 
 | Шаг | Описание                            | Статус |

@@ -54,11 +54,7 @@ impl AppState {
 
         if let Some(skin) = skin_manager.get_current() {
             if let Ok(info) = load_skin_info(&skin.dir_name) {
-                info!(
-                    "Current skin: {} (index: {})",
-                    info.name,
-                    skin_manager.get_index()
-                );
+                info!("Current skin: {}", info.name);
             } else {
                 debug!("Failed to load current skin info");
             }

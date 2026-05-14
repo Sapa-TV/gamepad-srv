@@ -63,16 +63,6 @@ impl SkinManager {
         &self.skins[self.current_idx]
     }
 
-    pub fn get_index(&self) -> usize {
-        self.current_idx
-    }
-
-    pub fn set_index(&mut self, idx: usize) {
-        if idx < self.skins.len() {
-            self.current_idx = idx;
-        }
-    }
-
     pub fn get_all_skins(&self) -> &[SkinEntry] {
         &self.skins
     }
