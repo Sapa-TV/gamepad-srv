@@ -300,14 +300,15 @@ impl SkinSwitchMachine {
 
 ### Шаг 16: Обновить `main.rs` — убрать лишние импорты
 
-- [ ] **Убрать из main.rs:**
-  - `mod app; mod button_actions; mod config; mod event_processor; mod events; mod gamepad_state; mod handlers; mod skin; mod skin_change_state; mod tasks; mod ws;`
-  - Заменить на новые `mod gamepad; mod skin_manager; mod skin_switch; mod websocket; mod config; mod events; mod handlers; mod tasks;`
+- [x] В шаге 15 уже обновлены `mod` декларации в main.rs:
+  - Удалены: `mod event_processor; mod gamepad_state; mod skin; mod skin_change_state; mod ws;`
+  - Сохранены: `mod app; mod button_actions; mod config; mod events; mod gamepad; mod handlers; mod skin_manager; mod skin_switch; mod tasks; mod websocket;`
+- [x] Файлы `events.rs`, `handlers.rs`, `tasks.rs` обновлены для использования новых путей импортов
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -376,7 +377,7 @@ impl SkinSwitchMachine {
 | 13  | Обновить button_actions.rs          | [x]    |
 | 14  | Обновить main.rs                    | [x]    |
 | 15  | Удалить re-export файлы             | [x]    |
-| 16  | Обновить main.rs импорты            | [ ]    |
+| 16  | Обновить main.rs импорты            | [x]    |
 | 17  | Реализовать machine::handle()       | [ ]    |
 | 18  | Обновить tasks.rs machine usage     | [ ]    |
 | 19  | Оптимизировать таймер               | [ ]    |
