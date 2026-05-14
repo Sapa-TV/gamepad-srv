@@ -17,6 +17,7 @@ mod button_actions;
 mod config;
 mod event_processor;
 mod events;
+mod gamepad;
 mod gamepad_state;
 mod handlers;
 mod skin;
@@ -41,7 +42,10 @@ async fn main() {
     });
 
     let addr: SocketAddr = format!("0.0.0.0:{}", config.port)
-        .to_socket_addrs().unwrap().next().unwrap();
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap();
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
     let local_ip = local_ip_address::local_ip().unwrap_or_else(|_| "127.0.0.1".parse().unwrap());
@@ -67,7 +71,13 @@ async fn main() {
     let button_state = app_state.button_state.clone();
     let skins = app_state.skins.clone();
     let current_skin_index = app_state.current_skin_index.clone();
-    channels.spawn_all_tasks(gilrs_state, button_state, skins, current_skin_index, save_tx);
+    channels.spawn_all_tasks(
+        gilrs_state,
+        button_state,
+        skins,
+        current_skin_index,
+        save_tx,
+    );
 
     let shutting_down = app_state.shutting_down.clone();
 

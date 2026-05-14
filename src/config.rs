@@ -1,7 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io;
 use std::path::Path;
-use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
 
 const CONFIG_FILE: &str = "config.toml";
@@ -45,9 +45,8 @@ pub fn load_or_create_config() -> io::Result<Config> {
 }
 
 pub fn save_config(config: &Config) -> io::Result<()> {
-    let contents = toml::to_string_pretty(config).map_err(|e| {
-        io::Error::new(io::ErrorKind::InvalidData, e.to_string())
-    })?;
+    let contents = toml::to_string_pretty(config)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
     fs::write(CONFIG_FILE, contents)?;
     debug!("Saved config to {}", CONFIG_FILE);
     Ok(())

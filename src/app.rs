@@ -46,7 +46,10 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(ws_tx: Arc<broadcast::Sender<GamepadEvent>>, skin_from_config: Option<String>) -> Self {
+    pub fn new(
+        ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
+        skin_from_config: Option<String>,
+    ) -> Self {
         let skins = discover_skins();
         info!("Found {} valid skins", skins.len());
 
@@ -59,7 +62,10 @@ impl AppState {
                 }
                 _ => {
                     if skin_from_config.is_some() {
-                        info!("Skin '{}' from config not found, using default", skin_from_config.as_ref().unwrap());
+                        info!(
+                            "Skin '{}' from config not found, using default",
+                            skin_from_config.as_ref().unwrap()
+                        );
                     }
                     0
                 }
@@ -71,7 +77,10 @@ impl AppState {
 
         if !skins.is_empty() {
             match load_skin_info(&skins[current_skin_index].dir_name) {
-                Ok(info) => info!("Current skin: {} (index: {})", info.name, current_skin_index),
+                Ok(info) => info!(
+                    "Current skin: {} (index: {})",
+                    info.name, current_skin_index
+                ),
                 Err(e) => debug!("Failed to load current skin: {}", e),
             }
         }
@@ -87,6 +96,9 @@ impl AppState {
     }
 }
 
-pub fn create_app_state(ws_tx: Arc<broadcast::Sender<GamepadEvent>>, skin_from_config: Option<String>) -> AppState {
+pub fn create_app_state(
+    ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
+    skin_from_config: Option<String>,
+) -> AppState {
     AppState::new(ws_tx, skin_from_config)
 }

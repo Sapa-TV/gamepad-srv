@@ -77,7 +77,15 @@ pub fn spawn_button_actions(
     save_tx: Arc<std::sync::Mutex<Option<mpsc::Sender<String>>>>,
 ) {
     tokio::spawn(async move {
-        run_button_actions(events_rx, actions, skins, current_skin_index, ws_tx, save_tx).await;
+        run_button_actions(
+            events_rx,
+            actions,
+            skins,
+            current_skin_index,
+            ws_tx,
+            save_tx,
+        )
+        .await;
     });
 }
 

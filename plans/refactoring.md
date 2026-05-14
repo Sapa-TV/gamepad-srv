@@ -57,13 +57,13 @@ src/
 
 ### Шаг 1: Перенести `gamepad/state.rs`
 
-- [ ] **Создать:** `src/gamepad/state.rs` — скопировать содержимое `gamepad_state.rs`
+- [x] **Создать:** `src/gamepad/state.rs` — скопировать содержимое `gamepad_state.rs`
 
-- [ ] **Создать:** `src/gamepad/input.rs` — пока пустой
+- [x] **Создать:** `src/gamepad/input.rs` — пока пустой
 
-- [ ] **Обновить:** `gamepad_state.rs` → оставить только `pub use crate::gamepad::state::*;` (re-export)
+- [x] **Обновить:** `gamepad_state.rs` → оставить только `pub use crate::gamepad::state::*;` (re-export)
 
-**Проверка:** `cargo check`
+**Проверка:** `cargo check` ✓
 
 ---
 
@@ -305,7 +305,7 @@ impl SkinSwitchMachine {
 | Шаг | Описание                            | Статус |
 | --- | ----------------------------------- | ------ |
 | 0   | Создать структуру папок             | [x]    |
-| 1   | Перенести gamepad/state.rs          | - [ ]  |
+| 1   | Перенести gamepad/state.rs          | [x]    |
 | 2   | Перенести skin_manager/discovery.rs | - [ ]  |
 | 3   | Перенести skin_manager/manager.rs   | - [ ]  |
 | 4   | Перенести skin_switch/state.rs      | - [ ]  |
