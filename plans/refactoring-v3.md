@@ -59,12 +59,12 @@
 
 ---
 
-### Шаг 4: Финальная проверка
+### Шаг 4: Объединить обработку Start/Select через trait
 
 **Действие:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [ ] Добавить `From<ButtonName> for AppSkinState` (или другой подходящий подход)
+- [ ] Объединить Start/Select в одном плече match через тернарку или trait
 
 ---
 
@@ -75,7 +75,7 @@
 | 1   | From<ButtonName> for Direction     | [x]      |
 | 2   | Простые методы в SkinChangeState   | [x]      |
 | 3   | Упростить machine.rs               | [x]      |
-| 4   | Финальная проверка                 | [ ]      |
+| 4   | Объединить Start/Select через trait| [ ]      |
 
 ---
 
