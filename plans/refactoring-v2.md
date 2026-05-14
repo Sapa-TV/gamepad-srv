@@ -123,7 +123,7 @@ let mut cfg = config::load_or_create_config()...   // строка 55 - повт
 
 **Действие:**
 
-- В `main.rs` использовать уже загруженный `config`:
+- [x] В `main.rs` использовать уже загруженный `config`:
 
 ```rust
 if let Some(skin) = app_state.skin_manager.get_current() {
@@ -133,12 +133,14 @@ if let Some(skin) = app_state.skin_manager.get_current() {
 }
 ```
 
-- Или: не сохранять при старте — skin всё равно загружен в SkinManager
+- Альтернатива (не выбрана): не сохранять при старте — skin всё равно загружен в SkinManager
+
+**Заметка:** Сохранение конфига при старте нужно чтобы записать skin в файл для persistence между перезапусками. Простое клонирование + сохранение дешевле полной загрузки.
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -327,7 +329,7 @@ pub fn handle(&mut self, event: &AppEvent) -> Option<Command>
 | 2   | Упростить паттерн сохранения (mpsc) | [x]      |
 | 2.1 | Исправить баг с one-shot sender     | [x]      |
 | 3   | Убрать лишний клон gamepad_state    | [x]      |
-| 4   | Убрать двойную загрузку конфига     | [ ]      |
+| 4   | Убрать двойную загрузку конфига     | [x]      |
 | 5   | Консолидировать ws_tx               | [ ]      |
 | 6   | Улучшить обработку ошибок (unwrap)  | [ ]      |
 | 7   | Абстрагировать ButtonEvent от gilrs | [ ]      |

@@ -52,7 +52,7 @@ async fn main() {
     let app_state = create_app_state(channels.ws_sender(), config.skin.clone());
 
     if let Some(skin) = app_state.skin_manager.get_current() {
-        let mut cfg = config::load_or_create_config().unwrap_or_else(|_| config::Config::default());
+        let mut cfg = config.clone();
         cfg.skin = Some(skin.dir_name.clone());
         let _ = config::save_config(&cfg);
     }
