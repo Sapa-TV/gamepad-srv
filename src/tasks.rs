@@ -9,16 +9,16 @@ use tokio::time;
 
 use crate::app::Channels;
 use crate::button_actions::{ButtonAction, run_button_actions};
-use crate::event_processor::process_event;
 use crate::events::AppEvent;
-use crate::gamepad_state::GamepadEvent;
-use crate::skin::SkinEntry;
-use crate::skin_change_state::{AppSkinState, SkinChangeState};
+use crate::gamepad::event_processor::process_event;
+use crate::gamepad::state::GamepadEvent;
+use crate::skin_manager::discovery::SkinEntry;
+use crate::skin_switch::state::{AppSkinState, SkinChangeState};
 use gilrs::{Button, Gilrs};
 use tracing::{debug, error, info};
 
 pub fn spawn_stick_tick(
-    state: Arc<Mutex<crate::gamepad_state::GamepadState>>,
+    state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
 ) {
     tokio::spawn(async move {
@@ -39,7 +39,7 @@ pub fn spawn_stick_tick(
 }
 
 pub fn spawn_gilrs_task(
-    state: Arc<Mutex<crate::gamepad_state::GamepadState>>,
+    state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
     ws_tx: Arc<broadcast::Sender<GamepadEvent>>,
     events_tx: Arc<broadcast::Sender<AppEvent>>,
 ) {
@@ -192,7 +192,7 @@ pub fn spawn_skin_change_tracker(
 impl Channels {
     pub fn spawn_all_tasks(
         &self,
-        gilrs_state: Arc<Mutex<crate::gamepad_state::GamepadState>>,
+        gilrs_state: Arc<Mutex<crate::gamepad::state::GamepadState>>,
         button_state: Arc<Mutex<SkinChangeState>>,
         skins: Vec<SkinEntry>,
         current_skin_index: Arc<Mutex<usize>>,

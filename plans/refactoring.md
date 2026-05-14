@@ -242,15 +242,15 @@ impl SkinSwitchMachine {
 
 ### Шаг 12: Обновить `tasks.rs`
 
-- [ ] **Обновить импорты в `tasks.rs`:**
+- [x] **Обновить импорты в `tasks.rs`:**
   - `use crate::gamepad_state::...` → `use crate::gamepad::state::...`
   - `use crate::skin_change_state::...` → `use crate::skin_switch::state::...`
   - `use crate::event_processor::...` → `use crate::gamepad::event_processor::...`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -372,7 +372,7 @@ impl SkinSwitchMachine {
 | 9   | Перенести event_processor.rs        | [x]    |
 | 10  | Обновить handlers.rs                | [x]    |
 | 11  | Обновить app.rs                     | [x]    |
-| 12  | Обновить tasks.rs                   | [ ]    |
+| 12  | Обновить tasks.rs                   | [x]    |
 | 13  | Обновить button_actions.rs          | [ ]    |
 | 14  | Обновить main.rs                    | [ ]    |
 | 15  | Удалить re-export файлы             | [ ]    |
