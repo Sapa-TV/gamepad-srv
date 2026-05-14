@@ -1,5 +1,7 @@
 use std::time::Instant;
 
+use crate::skin_switch::buttons::ButtonName;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AppSkinState {
     Normal,
@@ -12,6 +14,16 @@ pub enum AppSkinState {
 pub enum Direction {
     Left,
     Right,
+}
+
+impl From<ButtonName> for Direction {
+    fn from(button: ButtonName) -> Self {
+        match button {
+            ButtonName::DPadRight => Direction::Right,
+            ButtonName::DPadLeft => Direction::Left,
+            _ => unreachable!(),
+        }
+    }
 }
 
 #[derive(Clone)]

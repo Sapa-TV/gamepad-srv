@@ -12,13 +12,13 @@
 
 ### Шаг 1: Добавить `From<ButtonName> for Direction` в state.rs
 
-- [ ] Добавить `use crate::skin_switch::buttons::ButtonName;`
-- [ ] Добавить impl From для Direction
+- [x] Добавить `use crate::skin_switch::buttons::ButtonName;`
+- [x] Добавить impl From для Direction
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -109,7 +109,7 @@
 
 | Шаг | Описание                          | Выполнен |
 | --- | --------------------------------- | -------- |
-| 1   | From<ButtonName> for Direction    | [ ]      |
+| 1   | From<ButtonName> for Direction    | [x]      |
 | 2   | handle_pressed в SkinChangeState  | [ ]      |
 | 3   | handle_released в SkinChangeState | [ ]      |
 | 4   | Упростить handle_button           | [ ]      |
