@@ -15,18 +15,13 @@ use tokio::signal;
 mod app;
 mod button_actions;
 mod config;
-mod event_processor;
 mod events;
 mod gamepad;
-mod gamepad_state;
 mod handlers;
-mod skin;
-mod skin_change_state;
 mod skin_manager;
 mod skin_switch;
 mod tasks;
 mod websocket;
-mod ws;
 
 #[tokio::main]
 async fn main() {

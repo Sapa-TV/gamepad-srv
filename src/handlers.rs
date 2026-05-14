@@ -20,7 +20,8 @@ pub async fn index_handler() -> Html<String> {
 pub async fn skin_handler(State(state): State<AppState>) -> Response {
     let idx = *state.current_skin_index.lock().unwrap();
     if idx < state.skins.len() {
-        if let Ok(info) = crate::skin::load_skin_info(&state.skins[idx].dir_name) {
+        if let Ok(info) = crate::skin_manager::discovery::load_skin_info(&state.skins[idx].dir_name)
+        {
             return axum::Json(info).into_response();
         }
     }
@@ -33,7 +34,7 @@ pub async fn skin_handler(State(state): State<AppState>) -> Response {
 
 pub async fn list_skins_handler(
     State(state): State<AppState>,
-) -> Json<Vec<crate::skin::SkinEntry>> {
+) -> Json<Vec<crate::skin_manager::discovery::SkinEntry>> {
     Json(state.skins.clone())
 }
 

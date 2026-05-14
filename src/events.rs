@@ -1,6 +1,6 @@
 use gilrs::Event;
 
-use crate::skin_change_state::Direction;
+use crate::skin_switch::state::Direction;
 
 #[derive(Debug, Clone)]
 pub enum AppEvent {

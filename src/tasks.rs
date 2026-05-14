@@ -13,7 +13,7 @@ use crate::events::AppEvent;
 use crate::gamepad::event_processor::process_event;
 use crate::gamepad::state::GamepadEvent;
 use crate::skin_manager::discovery::SkinEntry;
-use crate::skin_switch::state::{AppSkinState, SkinChangeState};
+use crate::skin_switch::state::{AppSkinState, Direction, SkinChangeState};
 use gilrs::{Button, Gilrs};
 use tracing::{debug, error, info};
 
@@ -106,13 +106,13 @@ pub fn spawn_skin_change_tracker(
                             Button::DPadRight => {
                                 if state.state == AppSkinState::SkinSwitch {
                                     debug!("Skin switch: DPadRight pressed, sending direction Right");
-                                    let _ = events_tx.send(AppEvent::SkinChange(crate::skin_change_state::Direction::Right));
+                                    let _ = events_tx.send(AppEvent::SkinChange(Direction::Right));
                                 }
                             }
                             Button::DPadLeft => {
                                 if state.state == AppSkinState::SkinSwitch {
                                     debug!("Skin switch: DPadLeft pressed, sending direction Left");
-                                    let _ = events_tx.send(AppEvent::SkinChange(crate::skin_change_state::Direction::Left));
+                                    let _ = events_tx.send(AppEvent::SkinChange(Direction::Left));
                                 }
                             }
                             Button::Start => {

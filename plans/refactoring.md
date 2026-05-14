@@ -280,19 +280,21 @@ impl SkinSwitchMachine {
 
 ### Шаг 15: Удалить re-export файлы
 
-- [ ] **Удалить:**
+- [x] **Удалить:**
   - `src/gamepad_state.rs`
   - `src/skin.rs`
   - `src/skin_change_state.rs`
   - `src/ws.rs`
   - `src/event_processor.rs`
 
-- [ ] **Обновить:** `main.rs` — убрать `mod gamepad_state;`, `mod skin;`, etc.
+- [x] **Обновить:** `main.rs` — убрать `mod gamepad_state;`, `mod skin;`, etc.
+
+- [x] **Обновить:** файлы которые использовали старые пути (`events.rs`, `handlers.rs`, `tasks.rs`)
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -373,7 +375,7 @@ impl SkinSwitchMachine {
 | 12  | Обновить tasks.rs                   | [x]    |
 | 13  | Обновить button_actions.rs          | [x]    |
 | 14  | Обновить main.rs                    | [x]    |
-| 15  | Удалить re-export файлы             | [ ]    |
+| 15  | Удалить re-export файлы             | [x]    |
 | 16  | Обновить main.rs импорты            | [ ]    |
 | 17  | Реализовать machine::handle()       | [ ]    |
 | 18  | Обновить tasks.rs machine usage     | [ ]    |
