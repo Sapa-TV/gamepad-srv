@@ -51,7 +51,10 @@ src/
 
 **Действие:** Просто создать пустые mod.rs файлы
 
-**Проверка:** `cargo check && cargo fmt` ✓
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -63,7 +66,10 @@ src/
 
 - [x] **Обновить:** `gamepad_state.rs` → оставить только `pub use crate::gamepad::state::*;` (re-export)
 
-**Проверка:** `cargo check && cargo fmt` ✓
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -73,7 +79,10 @@ src/
 
 - [x] **Обновить:** `skin.rs` → `pub use crate::skin_manager::discovery::*;`
 
-**Проверка:** `cargo check && cargo fmt` ✓ `cargo fmt` ✓
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -97,7 +106,10 @@ impl SkinManager {
 }
 ```
 
-**Проверка:** `cargo check && cargo fmt` ✓
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -107,7 +119,10 @@ impl SkinManager {
 
 - [x] **Обновить:** `skin_change_state.rs` → `pub use crate::skin_switch::state::*;`
 
-**Проверка:** `cargo check && cargo fmt` ✓
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -117,17 +132,23 @@ impl SkinManager {
 
 - [x] **Обновить:** `ws.rs` → `pub use crate::websocket::handler::handle_socket;`
 
-**Проверка:** `cargo check && cargo fmt` ✓
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
 ### Шаг 6: Перенести `config/mod.rs`
 
-- [ ] **Создать:** `src/config/mod.rs` — содержимое `config.rs`
+- [x] **Создать:** `src/config/mod.rs` — содержимое `config.rs`
 
-- [ ] **Обновить:** `config.rs` → `pub use crate::config::mod::*;`
+- [x] **Удалить:** `config.rs` (нельзя иметь одновременно `config.rs` и `config/mod.rs`)
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -148,7 +169,10 @@ pub enum Command {
 
 - [ ] **Обновить:** `skin_switch/mod.rs` → `pub mod state; pub mod commands;`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -169,7 +193,10 @@ impl SkinSwitchMachine {
 
 - [ ] **Обновить:** `skin_switch/mod.rs` → `pub mod machine;`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -179,7 +206,10 @@ impl SkinSwitchMachine {
 
 - [ ] **Обновить:** `event_processor.rs` → `pub use crate::gamepad::event_processor::*;`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -190,7 +220,10 @@ impl SkinSwitchMachine {
 
 - [ ] **Убрать:** `ws.rs` ре-экспорт (теперь handlers.rs будет использовать напрямую)
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -200,7 +233,10 @@ impl SkinSwitchMachine {
   - Убрать `use crate::skin::...` → `use crate::skin_manager::discovery::...`
   - Убрать `use crate::gamepad_state::...` → `use crate::gamepad::state::...`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -211,7 +247,10 @@ impl SkinSwitchMachine {
   - `use crate::skin_change_state::...` → `use crate::skin_switch::state::...`
   - `use crate::event_processor::...` → `use crate::gamepad::event_processor::...`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -221,7 +260,10 @@ impl SkinSwitchMachine {
   - `use crate::skin::...` → `use crate::skin_manager::discovery::...`
   - `use crate::skin_change_state::...` → `use crate::skin_switch::state::...`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -231,7 +273,10 @@ impl SkinSwitchMachine {
   - `use crate::app::{Channels, create_app_state}` — пока оставить как есть
   - `use crate::tasks::spawn_stick_tick` — пока оставить
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -242,12 +287,14 @@ impl SkinSwitchMachine {
   - `src/skin.rs`
   - `src/skin_change_state.rs`
   - `src/ws.rs`
-  - `src/config.rs`
   - `src/event_processor.rs`
 
 - [ ] **Обновить:** `main.rs` — убрать `mod gamepad_state;`, `mod skin;`, etc.
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -257,7 +304,10 @@ impl SkinSwitchMachine {
   - `mod app; mod button_actions; mod config; mod event_processor; mod events; mod gamepad_state; mod handlers; mod skin; mod skin_change_state; mod tasks; mod ws;`
   - Заменить на новые `mod gamepad; mod skin_manager; mod skin_switch; mod websocket; mod config; mod events; mod handlers; mod tasks;`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -267,7 +317,10 @@ impl SkinSwitchMachine {
   - Метод `handle(&mut self, event: &AppEvent) -> Option<Command>`
   - Все переходы состояний из текущего loop
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -278,7 +331,10 @@ impl SkinSwitchMachine {
   - В цикле вызывать `machine.handle(&event)` вместо direct state manipulation
   - Убрать прямой доступ к `button_state.lock()`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:**
+
+- [ ] `cargo check`
+- [ ] `cargo fmt`
 
 ---
 
@@ -310,21 +366,21 @@ impl SkinSwitchMachine {
 | 3   | Перенести skin_manager/manager.rs   | [x]    |
 | 4   | Перенести skin_switch/state.rs      | [x]    |
 | 5   | Перенести websocket/handler.rs      | [x]    |
-| 6   | Перенести config/mod.rs             | - [ ]  |
-| 7   | Создать commands.rs                 | - [ ]  |
-| 8   | Создать machine.rs                  | - [ ]  |
-| 9   | Перенести event_processor.rs        | - [ ]  |
-| 10  | Обновить handlers.rs                | - [ ]  |
-| 11  | Обновить app.rs                     | - [ ]  |
-| 12  | Обновить tasks.rs                   | - [ ]  |
-| 13  | Обновить button_actions.rs          | - [ ]  |
-| 14  | Обновить main.rs                    | - [ ]  |
-| 15  | Удалить re-export файлы             | - [ ]  |
-| 16  | Обновить main.rs импорты            | - [ ]  |
-| 17  | Реализовать machine::handle()       | - [ ]  |
-| 18  | Обновить tasks.rs machine usage     | - [ ]  |
-| 19  | Оптимизировать таймер               | - [ ]  |
-| 20  | Очистить button_actions.rs          | - [ ]  |
+| 6   | Перенести config/mod.rs             | [x]    |
+| 7   | Создать commands.rs                 | [ ]    |
+| 8   | Создать machine.rs                  | [ ]    |
+| 9   | Перенести event_processor.rs        | [ ]    |
+| 10  | Обновить handlers.rs                | [ ]    |
+| 11  | Обновить app.rs                     | [ ]    |
+| 12  | Обновить tasks.rs                   | [ ]    |
+| 13  | Обновить button_actions.rs          | [ ]    |
+| 14  | Обновить main.rs                    | [ ]    |
+| 15  | Удалить re-export файлы             | [ ]    |
+| 16  | Обновить main.rs импорты            | [ ]    |
+| 17  | Реализовать machine::handle()       | [ ]    |
+| 18  | Обновить tasks.rs machine usage     | [ ]    |
+| 19  | Оптимизировать таймер               | [ ]    |
+| 20  | Очистить button_actions.rs          | [ ]    |
 
 ---
 
