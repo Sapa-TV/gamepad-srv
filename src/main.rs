@@ -23,6 +23,7 @@ mod handlers;
 mod skin;
 mod skin_change_state;
 mod skin_manager;
+mod skin_switch;
 mod tasks;
 mod ws;
 

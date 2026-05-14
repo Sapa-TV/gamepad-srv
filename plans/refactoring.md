@@ -103,11 +103,11 @@ impl SkinManager {
 
 ### Шаг 4: Перенести `skin_switch/state.rs`
 
-- [ ] **Создать:** `src/skin_switch/state.rs` — скопировать `skin_change_state.rs`
+- [x] **Создать:** `src/skin_switch/state.rs` — скопировать `skin_change_state.rs`
 
-- [ ] **Обновить:** `skin_change_state.rs` → `pub use crate::skin_switch::state::*;`
+- [x] **Обновить:** `skin_change_state.rs` → `pub use crate::skin_switch::state::*;`
 
-**Проверка:** `cargo check && cargo fmt`
+**Проверка:** `cargo check && cargo fmt` ✓
 
 ---
 
@@ -307,8 +307,8 @@ impl SkinSwitchMachine {
 | 0   | Создать структуру папок             | [x]    |
 | 1   | Перенести gamepad/state.rs          | [x]    |
 | 2   | Перенести skin_manager/discovery.rs | [x]    |
-| 3   | Перенести skin_manager/manager.rs   | [x]  |
-| 4   | Перенести skin_switch/state.rs      | - [ ]  |
+| 3   | Перенести skin_manager/manager.rs   | [x]    |
+| 4   | Перенести skin_switch/state.rs      | [x]    |
 | 5   | Перенести websocket/handler.rs      | - [ ]  |
 | 6   | Перенести config/mod.rs             | - [ ]  |
 | 7   | Создать commands.rs                 | - [ ]  |
