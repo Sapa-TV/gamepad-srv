@@ -1,4 +1,3 @@
-use gilrs::Button;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -63,28 +62,5 @@ impl GamepadState {
             right_y: self.right_y,
             buttons: self.buttons.clone(),
         }
-    }
-}
-
-pub fn button_name(button: Button) -> &'static str {
-    match button {
-        Button::South => "A",
-        Button::East => "B",
-        Button::North => "Y",
-        Button::West => "X",
-        Button::LeftTrigger => "LB",
-        Button::RightTrigger => "RB",
-        Button::Select => "SE",
-        Button::Start => "ST",
-        Button::LeftThumb => "LS",
-        Button::RightThumb => "RS",
-        Button::DPadUp => "DU",
-        Button::DPadDown => "DD",
-        Button::DPadLeft => "DL",
-        Button::DPadRight => "DR",
-        Button::Mode => "MN",
-        Button::LeftTrigger2 => "LT",
-        Button::RightTrigger2 => "RT",
-        _ => "U",
     }
 }

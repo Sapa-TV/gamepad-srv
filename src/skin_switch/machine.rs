@@ -74,10 +74,10 @@ impl SkinSwitchMachine {
         None
     }
 
-    pub fn deadline(&self) -> Option<tokio::time::Instant> {
+    pub fn deadline(&self) -> Option<std::time::Instant> {
         if self.state.state == AppSkinState::SkinSwitchPending {
             if let Some(pending_since) = self.state.pending_since {
-                return Some((pending_since + std::time::Duration::from_secs(2)).into());
+                return Some(pending_since + std::time::Duration::from_secs(2));
             }
         }
         None

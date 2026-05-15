@@ -54,7 +54,7 @@ pub fn spawn_skin_change_tracker(
         use crate::skin_switch::commands::Command;
 
         let mut machine = SkinSwitchMachine::new();
-        let mut next_timeout: Option<tokio::time::Instant> = None;
+        let mut next_timeout: Option<std::time::Instant> = None;
 
         loop {
             tokio::select! {
@@ -82,7 +82,7 @@ pub fn spawn_skin_change_tracker(
                 }
                 _ = async {
                     if let Some(timeout) = next_timeout {
-                        tokio::time::sleep_until(timeout).await;
+                        tokio::time::sleep_until(timeout.into()).await;
                     }
                 }, if next_timeout.is_some() => {
                     if let Some(cmd) = machine.check_timeout() {

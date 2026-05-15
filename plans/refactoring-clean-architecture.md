@@ -71,28 +71,28 @@ pub trait GamepadInput: Send + Sync {
 
 #### Шаг 2.1: Очистить `src/gamepad/state.rs`
 
-- [ ] Убрать `use gilrs::Button`
-- [ ] Убрать `button_name()` (перенесён в gamepad_input)
-- [ ] `GamepadState` и `GamepadEvent` остаются как domain
+- [x] Убрать `use gilrs::Button`
+- [x] Убрать `button_name()` (перенесён в gamepad_input)
+- [x] `GamepadState` и `GamepadEvent` остаются как domain
 
 #### Шаг 2.2: Очистить `src/skin_switch/machine.rs`
 
-- [ ] Заменить `tokio::time::Instant` на `std::time::Instant`
-- [ ] `deadline()` возвращает `Option<std::time::Instant>`
+- [x] Заменить `tokio::time::Instant` на `std::time::Instant`
+- [x] `deadline()` возвращает `Option<std::time::Instant>`
 
 #### Шаг 2.3: Очистить `src/events.rs`
 
-- [ ] Убрать `use gilrs::Event`
-- [ ] `AppEvent::Gilrs` использовать domain тип вместо `gilrs::Event`
+- [x] Убрать `use gilrs::Event`
+- [x] `AppEvent::Gilrs` использовать domain тип вместо `gilrs::Event`
 
 #### Шаг 2.4: Удалить `src/skin_switch/buttons.rs`
 
-- [ ] Конвертация перенесена в `gamepad_input/converter.rs`
+- [x] Конвертация перенесена в `gamepad_input/converter.rs`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -151,7 +151,7 @@ let (skin, info) = match sm.get_current_full() {
 | Этап | Описание                  | Выполнен |
 | ---- | ------------------------- | -------- |
 | 1    | Создать gamepad_input/    | [x]      |
-| 2    | Очистить domain от infra  | [ ]      |
+| 2    | Очистить domain от infra  | [x]      |
 | 3    | Magic numbers в константы | [ ]      |
 | 4    | Исправить не-mutex unwrap | [ ]      |
 
