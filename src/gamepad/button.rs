@@ -1,8 +1,8 @@
 use serde::{Serialize, Serializer};
-use strum::{EnumMessage, VariantNames};
+use strum::{EnumIter, EnumMessage, VariantNames};
 
 #[derive(
-    strum::VariantNames, strum::EnumMessage, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+    EnumIter, VariantNames, EnumMessage, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
 )]
 #[strum(serialize_all = "snake_case")]
 pub enum ButtonName {
@@ -39,7 +39,11 @@ pub enum ButtonName {
     #[strum(serialize = "SE", message = "Select")]
     Select,
     #[strum(serialize = "MN", message = "Menu")]
-    Mode,
+    Menu,
+    #[strum(serialize = "LSP", message = "LeftStickPressed")]
+    LeftStickPressed,
+    #[strum(serialize = "RSP", message = "RightStickPressed")]
+    RightStickPressed,
 }
 
 impl ButtonName {
@@ -61,7 +65,9 @@ impl ButtonName {
             ButtonName::DPadRight => 13,
             ButtonName::Start => 14,
             ButtonName::Select => 15,
-            ButtonName::Mode => 16,
+            ButtonName::Menu => 16,
+            ButtonName::LeftStickPressed => 17,
+            ButtonName::RightStickPressed => 18,
         }
     }
 
@@ -87,7 +93,9 @@ impl ButtonName {
             ButtonName::DPadRight => "DR",
             ButtonName::Start => "ST",
             ButtonName::Select => "SE",
-            ButtonName::Mode => "MN",
+            ButtonName::Menu => "MN",
+            ButtonName::LeftStickPressed => "LSP",
+            ButtonName::RightStickPressed => "RSP",
         }
     }
 
@@ -109,7 +117,9 @@ impl ButtonName {
             13 => Some(ButtonName::DPadRight),
             14 => Some(ButtonName::Start),
             15 => Some(ButtonName::Select),
-            16 => Some(ButtonName::Mode),
+            16 => Some(ButtonName::Menu),
+            17 => Some(ButtonName::LeftStickPressed),
+            18 => Some(ButtonName::RightStickPressed),
             _ => None,
         }
     }

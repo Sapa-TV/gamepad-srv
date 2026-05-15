@@ -92,15 +92,15 @@ Variant Mode надо переименовать в Menu.
 | Шаг | Описание                           | Выполнен |
 | --- | ---------------------------------- | -------- |
 | 1   | MESSAGE атрибуты                   | [x]      |
-| 2   | Обновить skin.json и VALID_BUTTONS | [ ]      |
-| 3   | Mode → Menu                        | [ ]      |
+| 2   | Обновить skin.json и VALID_BUTTONS | [x]      |
+| 3   | Mode → Menu                        | [x]      |
 | 4   | Удалить методы                     | [ ]      |
 
 ## Ключевые решения
 
 1. **LB/LeftBar** - оставляем LeftBar (enum variant) с serialize = "LB", message = "Left Shoulder"
 2. **Menu** - переименовываем Mode в Menu, serialize = "MN", message = "Menu"
-3. **LeftStickPressed** - не добавляем, используем LeftStick/RightStick для stick pressed
+3. **LeftStickPressed/RightStickPressed** - добавлены фантомными вариантами для skin.json валидации
 
 ## Ожидаемый результат
 

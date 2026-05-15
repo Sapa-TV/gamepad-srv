@@ -23,7 +23,7 @@ impl From<gilrs::Button> for ButtonName {
             gilrs::Button::DPadRight => ButtonName::DPadRight,
             gilrs::Button::Start => ButtonName::Start,
             gilrs::Button::Select => ButtonName::Select,
-            gilrs::Button::Mode => ButtonName::Mode,
+            gilrs::Button::Mode => ButtonName::Menu,
             _ => ButtonName::South,
         }
     }

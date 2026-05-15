@@ -1,29 +1,14 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
+use strum::{EnumMessage, IntoEnumIterator};
 
 pub const SKIN_DIR: &str = "assets/skins";
 
-const VALID_BUTTONS: &[&str] = &[
-    "DPadUp",
-    "DPadDown",
-    "DPadLeft",
-    "DPadRight",
-    "South",
-    "East",
-    "West",
-    "North",
-    "LeftShoulder",
-    "RightShoulder",
-    "LeftTrigger",
-    "RightTrigger",
-    "LeftStick",
-    "RightStick",
-    "LeftStickPressed",
-    "RightStickPressed",
-    "Select",
-    "Start",
-    "Menu",
-];
+use crate::gamepad::button::ButtonName;
+
+pub fn button_name_valid(name: &str) -> bool {
+    ButtonName::iter().any(|btn| btn.get_message() == Some(name))
+}
 
 #[derive(Clone, Serialize)]
 pub struct SkinEntry {
@@ -63,10 +48,6 @@ struct JsonButton {
     #[allow(dead_code)]
     left: i64,
     image: String,
-}
-
-pub fn button_name_valid(name: &str) -> bool {
-    VALID_BUTTONS.contains(&name)
 }
 
 pub fn validate_skin(skin_name: &str) -> Result<(), String> {

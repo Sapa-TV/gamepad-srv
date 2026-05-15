@@ -4,6 +4,8 @@ const isDebug = new URLSearchParams(window.location.search).get('debug') === 'tr
 
 const log = (...args) => { if (isDebug) console.log(...args); };
 
+log("Debug mode enabled: isDebug");
+
 const RECONNECT_DELAYS = [0, 1000, 2000, 4000, 8000, 16000, 30000];
 
 const BUTTONS = {
@@ -15,8 +17,8 @@ const BUTTONS = {
   B: 'img[data-name="East"]',
   X: 'img[data-name="West"]',
   Y: 'img[data-name="North"]',
-  LB: 'img[data-name="LeftShoulder"]',
-  RB: 'img[data-name="RightShoulder"]',
+  LB: 'img[data-name="LeftBar"]',
+  RB: 'img[data-name="RightBar"]',
   LT: 'img[data-name="LeftTrigger"]',
   RT: 'img[data-name="RightTrigger"]',
   LS: 'img[data-name="LeftStick"]',

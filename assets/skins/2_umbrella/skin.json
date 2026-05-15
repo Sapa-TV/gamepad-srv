@@ -19,8 +19,8 @@
     { "name": "East", "top": 180, "left": 983, "image": "b.png" },
     { "name": "West", "top": 183, "left": 834, "image": "x.png" },
     { "name": "North", "top": 112, "left": 914, "image": "y.png" },
-    { "name": "LeftShoulder", "top": 36, "left": 313, "image": "lb.png" },
-    { "name": "RightShoulder", "top": 36, "left": 846, "image": "rb.png" },
+    { "name": "LeftBar", "top": 36, "left": 313, "image": "lb.png" },
+    { "name": "RightBar", "top": 36, "left": 846, "image": "rb.png" },
     { "name": "LeftTrigger", "top": 167, "left": 128, "image": "lt.png" },
     { "name": "RightTrigger", "top": 167, "left": 1151, "image": "rt.png" },
     {
