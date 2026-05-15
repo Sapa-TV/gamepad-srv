@@ -36,12 +36,12 @@ Variant Mode надо переименовать в Menu.
 
 ### Шаг 1: Добавить MESSAGE атрибуты к ButtonName
 
-- [ ] К каждому variant добавить `#[strum(message = "...", detailed)]`
+- [x] К каждому variant добавить `#[strum(message = "...", detailed)]`
 
 **Проверка:**
 
-- [ ] cargo check
-- [ ] cargo fmt
+- [x] cargo check
+- [x] cargo fmt
 
 ---
 
@@ -91,7 +91,7 @@ Variant Mode надо переименовать в Menu.
 
 | Шаг | Описание                           | Выполнен |
 | --- | ---------------------------------- | -------- |
-| 1   | MESSAGE атрибуты                   | [ ]      |
+| 1   | MESSAGE атрибуты                   | [x]      |
 | 2   | Обновить skin.json и VALID_BUTTONS | [ ]      |
 | 3   | Mode → Menu                        | [ ]      |
 | 4   | Удалить методы                     | [ ]      |

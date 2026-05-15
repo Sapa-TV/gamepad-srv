@@ -1,42 +1,44 @@
-use strum::VariantNames;
 use serde::{Serialize, Serializer};
+use strum::{EnumMessage, VariantNames};
 
-#[derive(strum::VariantNames, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(
+    strum::VariantNames, strum::EnumMessage, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+)]
 #[strum(serialize_all = "snake_case")]
 pub enum ButtonName {
-    #[strum(serialize = "A")]
+    #[strum(serialize = "A", message = "South")]
     South,
-    #[strum(serialize = "B")]
+    #[strum(serialize = "B", message = "East")]
     East,
-    #[strum(serialize = "Y")]
+    #[strum(serialize = "Y", message = "North")]
     North,
-    #[strum(serialize = "X")]
+    #[strum(serialize = "X", message = "West")]
     West,
-    #[strum(serialize = "LB")]
+    #[strum(serialize = "LB", message = "LeftBar")]
     LeftBar,
-    #[strum(serialize = "RB")]
+    #[strum(serialize = "RB", message = "RightBar")]
     RightBar,
-    #[strum(serialize = "LT")]
+    #[strum(serialize = "LT", message = "LeftTrigger")]
     LeftTrigger,
-    #[strum(serialize = "RT")]
+    #[strum(serialize = "RT", message = "RightTrigger")]
     RightTrigger,
-    #[strum(serialize = "LS")]
+    #[strum(serialize = "LS", message = "LeftStick")]
     LeftStick,
-    #[strum(serialize = "RS")]
+    #[strum(serialize = "RS", message = "RightStick")]
     RightStick,
-    #[strum(serialize = "DU")]
+    #[strum(serialize = "DU", message = "DPadUp")]
     DPadUp,
-    #[strum(serialize = "DD")]
+    #[strum(serialize = "DD", message = "DPadDown")]
     DPadDown,
-    #[strum(serialize = "DL")]
+    #[strum(serialize = "DL", message = "DPadLeft")]
     DPadLeft,
-    #[strum(serialize = "DR")]
+    #[strum(serialize = "DR", message = "DPadRight")]
     DPadRight,
-    #[strum(serialize = "ST")]
+    #[strum(serialize = "ST", message = "Start")]
     Start,
-    #[strum(serialize = "SE")]
+    #[strum(serialize = "SE", message = "Select")]
     Select,
-    #[strum(serialize = "MN")]
+    #[strum(serialize = "MN", message = "Menu")]
     Mode,
 }
 
@@ -136,14 +138,14 @@ impl Serialize for ButtonMask {
     where
         S: Serializer,
     {
-        let names = ButtonName::VARIANTS;
-        let buf = (0..names.len())
+        let button_names = ButtonName::VARIANTS;
+        let buf = (0..button_names.len())
             .filter(|i| self.0 & (1 << i) != 0)
             .fold(String::new(), |mut acc, i| {
                 if !acc.is_empty() {
                     acc.push(',');
                 }
-                acc.push_str(names[i]);
+                acc.push_str(button_names[i]);
                 acc
             });
 
