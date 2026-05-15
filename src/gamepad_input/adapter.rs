@@ -62,13 +62,13 @@ pub fn spawn_gilrs_task(
                         let name: ButtonName = btn.into();
                         state_guard.press_button(name);
                         debug!("Button pressed: {:?}", name);
-                        let _ = ws_tx.send(GamepadEvent::ButtonPressed(name.to_string().into()));
+                        let _ = ws_tx.send(GamepadEvent::ButtonPressed(name));
                     }
                     EventType::ButtonReleased(btn, _) => {
                         let name: ButtonName = btn.into();
                         state_guard.release_button(name);
                         debug!("Button released: {:?}", name);
-                        let _ = ws_tx.send(GamepadEvent::ButtonReleased(name.to_string().into()));
+                        let _ = ws_tx.send(GamepadEvent::ButtonReleased(name));
                     }
                     EventType::AxisChanged(axis, value, _) => {
                         process_axis(&mut state_guard, axis, value);

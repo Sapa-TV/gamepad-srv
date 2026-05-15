@@ -1,14 +1,14 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::gamepad::button::{ButtonMask, ButtonName};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "t", content = "d")]
 pub enum GamepadEvent {
     #[serde(rename = "p")]
-    ButtonPressed(String),
+    ButtonPressed(ButtonName),
     #[serde(rename = "r")]
-    ButtonReleased(String),
+    ButtonReleased(ButtonName),
     #[serde(rename = "s")]
     Sticks { lx: i8, ly: i8, rx: i8, ry: i8 },
     #[serde(rename = "sc")]

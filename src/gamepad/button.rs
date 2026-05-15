@@ -1,10 +1,19 @@
 use serde::{Serialize, Serializer};
-use strum::{EnumIter, EnumMessage, VariantNames};
+use strum::{AsRefStr, EnumIter, EnumMessage, VariantNames};
 
 #[derive(
-    EnumIter, VariantNames, EnumMessage, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+    AsRefStr,
+    EnumIter,
+    VariantNames,
+    EnumMessage,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
 )]
-#[strum(serialize_all = "snake_case")]
 pub enum ButtonName {
     #[strum(serialize = "A", message = "South")]
     South,
@@ -46,82 +55,22 @@ pub enum ButtonName {
     RightStickPressed,
 }
 
+impl Serialize for ButtonName {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.as_ref())
+    }
+}
+
 impl ButtonName {
     pub fn index(&self) -> u32 {
-        match self {
-            ButtonName::South => 0,
-            ButtonName::East => 1,
-            ButtonName::North => 2,
-            ButtonName::West => 3,
-            ButtonName::LeftBar => 4,
-            ButtonName::RightBar => 5,
-            ButtonName::LeftTrigger => 6,
-            ButtonName::RightTrigger => 7,
-            ButtonName::LeftStick => 8,
-            ButtonName::RightStick => 9,
-            ButtonName::DPadUp => 10,
-            ButtonName::DPadDown => 11,
-            ButtonName::DPadLeft => 12,
-            ButtonName::DPadRight => 13,
-            ButtonName::Start => 14,
-            ButtonName::Select => 15,
-            ButtonName::Menu => 16,
-            ButtonName::LeftStickPressed => 17,
-            ButtonName::RightStickPressed => 18,
-        }
+        *self as u32
     }
 
     pub fn bit(&self) -> u32 {
         1 << self.index()
-    }
-
-    pub fn to_string(&self) -> &'static str {
-        match self {
-            ButtonName::South => "A",
-            ButtonName::East => "B",
-            ButtonName::North => "Y",
-            ButtonName::West => "X",
-            ButtonName::LeftBar => "LB",
-            ButtonName::RightBar => "RB",
-            ButtonName::LeftTrigger => "LT",
-            ButtonName::RightTrigger => "RT",
-            ButtonName::LeftStick => "LS",
-            ButtonName::RightStick => "RS",
-            ButtonName::DPadUp => "DU",
-            ButtonName::DPadDown => "DD",
-            ButtonName::DPadLeft => "DL",
-            ButtonName::DPadRight => "DR",
-            ButtonName::Start => "ST",
-            ButtonName::Select => "SE",
-            ButtonName::Menu => "MN",
-            ButtonName::LeftStickPressed => "LSP",
-            ButtonName::RightStickPressed => "RSP",
-        }
-    }
-
-    pub fn from_index(index: u32) -> Option<Self> {
-        match index {
-            0 => Some(ButtonName::South),
-            1 => Some(ButtonName::East),
-            2 => Some(ButtonName::North),
-            3 => Some(ButtonName::West),
-            4 => Some(ButtonName::LeftBar),
-            5 => Some(ButtonName::RightBar),
-            6 => Some(ButtonName::LeftTrigger),
-            7 => Some(ButtonName::RightTrigger),
-            8 => Some(ButtonName::LeftStick),
-            9 => Some(ButtonName::RightStick),
-            10 => Some(ButtonName::DPadUp),
-            11 => Some(ButtonName::DPadDown),
-            12 => Some(ButtonName::DPadLeft),
-            13 => Some(ButtonName::DPadRight),
-            14 => Some(ButtonName::Start),
-            15 => Some(ButtonName::Select),
-            16 => Some(ButtonName::Menu),
-            17 => Some(ButtonName::LeftStickPressed),
-            18 => Some(ButtonName::RightStickPressed),
-            _ => None,
-        }
     }
 }
 
@@ -129,15 +78,6 @@ impl ButtonName {
 pub enum ButtonEvent {
     Pressed(ButtonName),
     Released(ButtonName),
-}
-
-impl ButtonEvent {
-    pub fn button_name(&self) -> ButtonName {
-        match self {
-            ButtonEvent::Pressed(btn) => *btn,
-            ButtonEvent::Released(btn) => *btn,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
