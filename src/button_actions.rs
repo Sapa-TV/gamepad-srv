@@ -18,9 +18,9 @@ pub async fn run_button_actions(
     loop {
         match rx.recv().await {
             Ok(AppEvent::SkinChange(dir)) => {
-                let (new_idx, skin, info) = {
+                let (skin, info) = {
                     let mut sm = skin_manager.lock().unwrap();
-                    let new_idx = sm.set_next_by_direction(dir);
+                    sm.set_next_by_direction(dir);
                     let (skin, info) = match sm.get_current_full() {
                         Some(result) => result,
                         None => {
@@ -28,14 +28,13 @@ pub async fn run_button_actions(
                             return;
                         }
                     };
-                    (new_idx, skin.clone(), info)
+                    (skin.clone(), info)
                 };
 
-                debug!("Skin change: {} -> index: {}", info.name, new_idx);
+                debug!("Skin change: {}", info.name);
                 let _ = ws_tx.send(GamepadEvent::SkinChanged {
                     name: info.name,
                     path: info.path,
-                    index: new_idx,
                 });
 
                 let _ = save_tx.send(skin.dir_name.clone()).await;

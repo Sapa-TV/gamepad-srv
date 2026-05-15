@@ -10,11 +10,7 @@ pub enum GamepadEvent {
     #[serde(rename = "s")]
     Sticks { lx: i8, ly: i8, rx: i8, ry: i8 },
     #[serde(rename = "sc")]
-    SkinChanged {
-        name: String,
-        path: String,
-        index: usize,
-    },
+    SkinChanged { name: String, path: String },
     #[serde(rename = "sch")]
     SkinChanging(bool),
     #[serde(rename = "ssr")]

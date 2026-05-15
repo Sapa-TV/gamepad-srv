@@ -45,13 +45,12 @@ impl SkinManager {
         &self.skins
     }
 
-    pub fn set_next_by_direction(&mut self, dir: Direction) -> usize {
+    pub fn set_next_by_direction(&mut self, dir: Direction) {
         let delta = match dir {
             Direction::Right => 1isize,
             Direction::Left => -1isize,
         };
         self.current_idx =
             (self.current_idx as isize + delta).rem_euclid(self.skins.len() as isize) as usize;
-        self.current_idx
     }
 }
