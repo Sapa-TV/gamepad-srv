@@ -100,26 +100,26 @@ pub trait GamepadInput: Send + Sync {
 
 #### Шаг 3.1: Создать `src/constants.rs`
 
-- [ ] `SKIN_SWITCH_TIMEOUT_MS: u64 = 2000`
-- [ ] `GAMEPAD_POLL_INTERVAL_MS: u64 = 16`
-- [ ] `STICK_TICK_INTERVAL_MS: u64 = 50`
-- [ ] `WS_CHANNEL_CAPACITY: usize = 100`
-- [ ] `SAVE_CHANNEL_CAPACITY: usize = 32`
-- [ ] `AXIS_SCALE: i8 = 127`
+- [x] `SKIN_SWITCH_TIMEOUT_MS: u64 = 2000`
+- [x] `GAMEPAD_POLL_INTERVAL_MS: u64 = 16`
+- [x] `STICK_TICK_INTERVAL_MS: u64 = 50`
+- [x] `WS_CHANNEL_CAPACITY: usize = 100`
+- [x] `SAVE_CHANNEL_CAPACITY: usize = 32`
+- [x] `AXIS_SCALE: i8 = 127`
 
 #### Шаг 3.2: Заменить magic numbers
 
-- [ ] `skin_switch/machine.rs:67,80` → `SKIN_SWITCH_TIMEOUT_MS`
-- [ ] `gamepad_input/adapter.rs` → `GAMEPAD_POLL_INTERVAL_MS`
-- [ ] `tasks.rs:24` → `STICK_TICK_INTERVAL_MS`
-- [ ] `app.rs:20,21` → `WS_CHANNEL_CAPACITY`
-- [ ] `main.rs:62` → `SAVE_CHANNEL_CAPACITY`
-- [ ] `event_processor.rs:22` → `AXIS_SCALE`
+- [x] `skin_switch/machine.rs:67,80` → `SKIN_SWITCH_TIMEOUT_MS`
+- [x] `gamepad_input/adapter.rs` → `GAMEPAD_POLL_INTERVAL_MS`
+- [x] `tasks.rs:24` → `STICK_TICK_INTERVAL_MS`
+- [x] `app.rs:20,21` → `WS_CHANNEL_CAPACITY`
+- [x] `main.rs:62` → `SAVE_CHANNEL_CAPACITY`
+- [x] `gamepad_input/converter.rs:73` → `AXIS_SCALE`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -152,7 +152,7 @@ let (skin, info) = match sm.get_current_full() {
 | ---- | ------------------------- | -------- |
 | 1    | Создать gamepad_input/    | [x]      |
 | 2    | Очистить domain от infra  | [x]      |
-| 3    | Magic numbers в константы | [ ]      |
+| 3    | Magic numbers в константы | [x]      |
 | 4    | Исправить не-mutex unwrap | [ ]      |
 
 ---

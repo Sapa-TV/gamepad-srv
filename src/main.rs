@@ -10,11 +10,13 @@ use tower_http::services::ServeDir;
 use tracing::info;
 
 use crate::app::{Channels, create_app_state};
+use crate::constants::SAVE_CHANNEL_CAPACITY;
 use crate::handlers::{index_handler, list_skins_handler, skin_handler, ws_handler};
 
 mod app;
 mod button_actions;
 mod config;
+mod constants;
 mod events;
 mod gamepad;
 mod gamepad_input;
@@ -60,7 +62,7 @@ async fn main() -> Result<(), anyhow::Error> {
         let _ = config::save_config(&cfg);
     }
 
-    let (save_tx, mut save_rx) = mpsc::channel::<String>(32);
+    let (save_tx, mut save_rx) = mpsc::channel::<String>(SAVE_CHANNEL_CAPACITY);
 
     app_state.channels.spawn_all_tasks(
         app_state.gamepad_state.clone(),

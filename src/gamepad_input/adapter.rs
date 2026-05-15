@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use tokio::sync::broadcast;
 use tracing::{debug, error, info};
 
+use crate::constants::GAMEPAD_POLL_INTERVAL_MS;
 use crate::events::AppEvent;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
 use crate::gamepad_input::converter::{gilrs_event_to_button_event, process_event};
@@ -50,7 +51,7 @@ pub fn spawn_gilrs_task(
                     let _ = events_tx.send(AppEvent::ButtonEvent(button_event));
                 }
             }
-            tokio::time::sleep(tokio::time::Duration::from_millis(16)).await;
+            tokio::time::sleep(tokio::time::Duration::from_millis(GAMEPAD_POLL_INTERVAL_MS)).await;
         }
     });
 }

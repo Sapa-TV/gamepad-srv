@@ -1,5 +1,6 @@
 use gilrs::{Axis, Event, EventType};
 
+use crate::constants::AXIS_SCALE;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
 use crate::skin_switch::buttons::{ButtonEvent, ButtonName};
 
@@ -70,7 +71,7 @@ pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEv
             }
         }
         EventType::AxisChanged(axis, value, _) => {
-            let value = (value * 127.0) as i8;
+            let value = (value * AXIS_SCALE as f32) as i8;
             match axis {
                 Axis::LeftStickX => {
                     state.left_x = value;

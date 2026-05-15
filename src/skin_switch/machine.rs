@@ -1,3 +1,4 @@
+use crate::constants::SKIN_SWITCH_TIMEOUT_MS;
 use crate::skin_switch::buttons::{ButtonEvent, ButtonName};
 use crate::skin_switch::commands::Command;
 use crate::skin_switch::state::{AppSkinState, SkinChangeState};
@@ -64,7 +65,9 @@ impl SkinSwitchMachine {
     pub fn check_timeout(&mut self) -> Option<Command> {
         if self.state.state == AppSkinState::SkinSwitchPending {
             if let Some(pending_since) = self.state.pending_since {
-                if pending_since.elapsed() >= std::time::Duration::from_secs(2) {
+                if pending_since.elapsed()
+                    >= std::time::Duration::from_millis(SKIN_SWITCH_TIMEOUT_MS)
+                {
                     self.state.set_skin_switch_ready();
                     info!("AppSkinState: SkinSwitchPending -> SkinSwitchReady (timeout)");
                     return Some(Command::SkinSwitchReady);
@@ -77,7 +80,9 @@ impl SkinSwitchMachine {
     pub fn deadline(&self) -> Option<std::time::Instant> {
         if self.state.state == AppSkinState::SkinSwitchPending {
             if let Some(pending_since) = self.state.pending_since {
-                return Some(pending_since + std::time::Duration::from_secs(2));
+                return Some(
+                    pending_since + std::time::Duration::from_millis(SKIN_SWITCH_TIMEOUT_MS),
+                );
             }
         }
         None

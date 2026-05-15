@@ -7,6 +7,7 @@ use tokio::time;
 
 use crate::app::Channels;
 use crate::button_actions::run_button_actions;
+use crate::constants::STICK_TICK_INTERVAL_MS;
 use crate::events::AppEvent;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
 use crate::gamepad_input::adapter::spawn_gilrs_task;
@@ -19,7 +20,7 @@ pub fn spawn_stick_tick(
 ) {
     tokio::spawn(async move {
         loop {
-            time::sleep(Duration::from_millis(50)).await;
+            time::sleep(Duration::from_millis(STICK_TICK_INTERVAL_MS)).await;
             let sticks = {
                 let s = state.lock().unwrap();
                 GamepadEvent::Sticks {

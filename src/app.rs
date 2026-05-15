@@ -4,6 +4,7 @@ use std::sync::atomic::AtomicBool;
 
 use tokio::sync::broadcast;
 
+use crate::constants::WS_CHANNEL_CAPACITY;
 use crate::events::AppEvent;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
 use crate::skin_manager::manager::SkinManager;
@@ -17,8 +18,8 @@ pub struct Channels {
 
 impl Channels {
     pub fn new() -> Self {
-        let (ws_tx, _) = broadcast::channel(100);
-        let (events_tx, _) = broadcast::channel(100);
+        let (ws_tx, _) = broadcast::channel(WS_CHANNEL_CAPACITY);
+        let (events_tx, _) = broadcast::channel(WS_CHANNEL_CAPACITY);
 
         Self {
             ws_tx: Arc::new(ws_tx),
