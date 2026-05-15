@@ -8,12 +8,10 @@ use tokio::time;
 use crate::app::Channels;
 use crate::button_actions::run_button_actions;
 use crate::events::AppEvent;
-use crate::gamepad::{
-    input::spawn_gilrs_task,
-    state::{GamepadEvent, GamepadState},
-};
+use crate::gamepad::state::{GamepadEvent, GamepadState};
+use crate::gamepad_input::adapter::spawn_gilrs_task;
 use crate::skin_manager::manager::SkinManager;
-use crate::skin_switch::{buttons::gilrs_event_to_button_event, machine::SkinSwitchMachine};
+use crate::skin_switch::machine::SkinSwitchMachine;
 
 pub fn spawn_stick_tick(
     state: Arc<Mutex<GamepadState>>,
@@ -62,12 +60,8 @@ pub fn spawn_skin_change_tracker(
             tokio::select! {
                 Ok(event) = events_rx.recv() => {
                     if let Some(cmd) = match event {
-                        AppEvent::Gilrs(gilrs_event) => {
-                            if let Some(button_event) = gilrs_event_to_button_event(&gilrs_event) {
-                                machine.handle_button(button_event)
-                            } else {
-                                None
-                            }
+                        AppEvent::ButtonEvent(button_event) => {
+                            machine.handle_button(button_event)
                         }
                         AppEvent::SkinChange(_) => None,
                     } {

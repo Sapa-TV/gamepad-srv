@@ -5,6 +5,7 @@
 ## Цель
 
 Разделить domain от infrastructure, соблюдая Dependency Rule:
+
 - Domain не должен зависеть от `gilrs`, `tokio::time`
 - Создать порты (traits) для внешних зависимостей
 - Вынести magic numbers в константы
@@ -31,11 +32,12 @@ src/
 
 #### Шаг 1.1: Создать `src/gamepad_input/mod.rs`
 
-- [ ] Создать модуль `gamepad_input`
+- [x] Создать модуль `gamepad_input`
 
 #### Шаг 1.2: Создать `src/gamepad_input/port.rs`
 
-- [ ] Создать trait `GamepadInput`:
+- [x] Создать trait `GamepadInput`:
+
 ```rust
 pub trait GamepadInput: Send + Sync {
     fn next_event(&self) -> Option<GamepadEvent>;
@@ -44,24 +46,24 @@ pub trait GamepadInput: Send + Sync {
 
 #### Шаг 1.3: Создать `src/gamepad_input/converter.rs`
 
-- [ ] Перенести `button_name()` из `gamepad/state.rs` как `GamepadButton::name()`
-- [ ] Перенести логику конвертации из `gamepad/event_processor.rs`
-- [ ] Создать enum `GamepadButton` (вместо `gilrs::Button`)
-- [ ] Создать enum `GamepadEventType` (Pressed/Released)
+- [x] Перенести `button_name()` из `gamepad/state.rs` как `GamepadButton::name()`
+- [x] Перенести логику конвертации из `gamepad/event_processor.rs`
+- [x] Создать enum `GamepadButton` (вместо `gilrs::Button`)
+- [x] Создать enum `GamepadEventType` (Pressed/Released)
 
 #### Шаг 1.4: Создать `src/gamepad_input/adapter.rs`
 
-- [ ] Создать `GilrsAdapter` реализующий `GamepadInput`
-- [ ] Перенести `spawn_gilrs_task()` из `gamepad/input.rs`
+- [x] Создать `GilrsAdapter` реализующий `GamepadInput`
+- [x] Перенести `spawn_gilrs_task()` из `gamepad/input.rs`
 
 #### Шаг 1.5: Обновить `gamepad/mod.rs`
 
-- [ ] Перенести экспорты в `gamepad_input/mod.rs`
+- [x] Перенести экспорты в `gamepad_input/mod.rs`
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -126,6 +128,7 @@ pub trait GamepadInput: Send + Sync {
 #### Шаг 4.1: Исправить `src/button_actions.rs:24`
 
 - [ ] `sm.get_current_full().unwrap()` заменить на match:
+
 ```rust
 let (skin, info) = match sm.get_current_full() {
     Some(result) => result,
@@ -145,12 +148,12 @@ let (skin, info) = match sm.get_current_full() {
 
 ## Статус
 
-| Этап | Описание                          | Выполнен |
-| ---- | --------------------------------- | -------- |
-| 1    | Создать gamepad_input/            | [ ]      |
-| 2    | Очистить domain от infra          | [ ]      |
-| 3    | Magic numbers в константы         | [ ]      |
-| 4    | Исправить не-mutex unwrap         | [ ]      |
+| Этап | Описание                  | Выполнен |
+| ---- | ------------------------- | -------- |
+| 1    | Создать gamepad_input/    | [x]      |
+| 2    | Очистить domain от infra  | [ ]      |
+| 3    | Magic numbers в константы | [ ]      |
+| 4    | Исправить не-mutex unwrap | [ ]      |
 
 ---
 

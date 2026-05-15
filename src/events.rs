@@ -1,9 +1,8 @@
-use gilrs::Event;
-
+use crate::skin_switch::buttons::ButtonEvent;
 use crate::skin_switch::state::Direction;
 
 #[derive(Debug, Clone)]
 pub enum AppEvent {
-    Gilrs(Event),
+    ButtonEvent(ButtonEvent),
     SkinChange(Direction),
 }

@@ -17,6 +17,7 @@ mod button_actions;
 mod config;
 mod events;
 mod gamepad;
+mod gamepad_input;
 mod handlers;
 mod skin_manager;
 mod skin_switch;
