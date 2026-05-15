@@ -1,4 +1,4 @@
-use crate::skin_switch::buttons::ButtonEvent;
+use crate::gamepad::button::ButtonEvent;
 use crate::skin_switch::state::Direction;
 
 #[derive(Debug, Clone)]

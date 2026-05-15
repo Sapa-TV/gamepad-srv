@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::gamepad::button::{ButtonMask, ButtonName};
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "t", content = "d")]
 pub enum GamepadEvent {
@@ -17,17 +19,13 @@ pub enum GamepadEvent {
     SkinSwitchReady,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Clone, Serialize)]
 pub struct GamepadOutput {
-    #[serde(rename = "lx")]
     pub left_x: i8,
-    #[serde(rename = "ly")]
     pub left_y: i8,
-    #[serde(rename = "rx")]
     pub right_x: i8,
-    #[serde(rename = "ry")]
     pub right_y: i8,
-    pub buttons: Vec<String>,
+    pub buttons: ButtonMask,
 }
 
 #[derive(Clone)]
@@ -36,7 +34,7 @@ pub struct GamepadState {
     pub left_y: i8,
     pub right_x: i8,
     pub right_y: i8,
-    pub buttons: Vec<String>,
+    pub buttons: ButtonMask,
 }
 
 impl GamepadState {
@@ -46,8 +44,16 @@ impl GamepadState {
             left_y: 0,
             right_x: 0,
             right_y: 0,
-            buttons: Vec::new(),
+            buttons: ButtonMask(0),
         }
+    }
+
+    pub fn press_button(&mut self, name: ButtonName) {
+        self.buttons.0 |= name.bit();
+    }
+
+    pub fn release_button(&mut self, name: ButtonName) {
+        self.buttons.0 &= !name.bit();
     }
 
     pub fn to_output(&self) -> GamepadOutput {
@@ -56,7 +62,7 @@ impl GamepadState {
             left_y: self.left_y,
             right_x: self.right_x,
             right_y: self.right_y,
-            buttons: self.buttons.clone(),
+            buttons: ButtonMask(self.buttons.0),
         }
     }
 }

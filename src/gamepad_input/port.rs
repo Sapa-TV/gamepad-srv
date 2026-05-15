@@ -1,5 +1,5 @@
-use crate::skin_switch::buttons::ButtonEvent;
+use crate::gamepad::button::ButtonEvent;
 
-pub trait GamepadInput: Send + Sync {
+pub trait GamepadInput {
     fn next_button_event(&mut self) -> Option<ButtonEvent>;
 }

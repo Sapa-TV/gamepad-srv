@@ -1,94 +1,55 @@
 use gilrs::{Axis, Event, EventType};
 
 use crate::constants::AXIS_SCALE;
-use crate::gamepad::state::{GamepadEvent, GamepadState};
-use crate::skin_switch::buttons::{ButtonEvent, ButtonName};
+use crate::gamepad::button::{ButtonEvent, ButtonName};
+use crate::gamepad::state::GamepadState;
 
-pub fn button_name(button: gilrs::Button) -> &'static str {
-    match button {
-        gilrs::Button::South => "A",
-        gilrs::Button::East => "B",
-        gilrs::Button::North => "Y",
-        gilrs::Button::West => "X",
-        gilrs::Button::LeftTrigger => "LB",
-        gilrs::Button::RightTrigger => "RB",
-        gilrs::Button::Select => "SE",
-        gilrs::Button::Start => "ST",
-        gilrs::Button::LeftThumb => "LS",
-        gilrs::Button::RightThumb => "RS",
-        gilrs::Button::DPadUp => "DU",
-        gilrs::Button::DPadDown => "DD",
-        gilrs::Button::DPadLeft => "DL",
-        gilrs::Button::DPadRight => "DR",
-        gilrs::Button::Mode => "MN",
-        gilrs::Button::LeftTrigger2 => "LT",
-        gilrs::Button::RightTrigger2 => "RT",
-        _ => "U",
+impl From<gilrs::Button> for ButtonName {
+    fn from(btn: gilrs::Button) -> Self {
+        match btn {
+            gilrs::Button::South => ButtonName::South,
+            gilrs::Button::East => ButtonName::East,
+            gilrs::Button::North => ButtonName::North,
+            gilrs::Button::West => ButtonName::West,
+            gilrs::Button::LeftTrigger => ButtonName::LeftBar,
+            gilrs::Button::RightTrigger => ButtonName::RightBar,
+            gilrs::Button::LeftTrigger2 => ButtonName::LeftTrigger,
+            gilrs::Button::RightTrigger2 => ButtonName::RightTrigger,
+            gilrs::Button::LeftThumb => ButtonName::LeftStick,
+            gilrs::Button::RightThumb => ButtonName::RightStick,
+            gilrs::Button::DPadUp => ButtonName::DPadUp,
+            gilrs::Button::DPadDown => ButtonName::DPadDown,
+            gilrs::Button::DPadLeft => ButtonName::DPadLeft,
+            gilrs::Button::DPadRight => ButtonName::DPadRight,
+            gilrs::Button::Start => ButtonName::Start,
+            gilrs::Button::Select => ButtonName::Select,
+            gilrs::Button::Mode => ButtonName::Mode,
+            _ => ButtonName::South,
+        }
     }
 }
 
-pub fn gilrs_event_to_button_event(event: &Event) -> Option<ButtonEvent> {
-    match event.event {
-        EventType::ButtonPressed(btn, _) => {
-            let name = match btn {
-                gilrs::Button::DPadRight => ButtonName::DPadRight,
-                gilrs::Button::DPadLeft => ButtonName::DPadLeft,
-                gilrs::Button::Start => ButtonName::Start,
-                gilrs::Button::Select => ButtonName::Select,
-                _ => return None,
-            };
-            Some(ButtonEvent::Pressed(name))
+pub trait GilrsEventExt {
+    fn to_button_event(&self) -> Option<ButtonEvent>;
+}
+
+impl GilrsEventExt for Event {
+    fn to_button_event(&self) -> Option<ButtonEvent> {
+        match self.event {
+            EventType::ButtonPressed(btn, _) => Some(ButtonEvent::Pressed(btn.into())),
+            EventType::ButtonReleased(btn, _) => Some(ButtonEvent::Released(btn.into())),
+            _ => None,
         }
-        EventType::ButtonReleased(btn, _) => {
-            let name = match btn {
-                gilrs::Button::DPadRight => ButtonName::DPadRight,
-                gilrs::Button::DPadLeft => ButtonName::DPadLeft,
-                gilrs::Button::Start => ButtonName::Start,
-                gilrs::Button::Select => ButtonName::Select,
-                _ => return None,
-            };
-            Some(ButtonEvent::Released(name))
-        }
-        _ => None,
     }
 }
 
-pub fn process_event(state: &mut GamepadState, event: Event) -> Option<GamepadEvent> {
-    match event.event {
-        EventType::ButtonPressed(btn, _) => {
-            let name = button_name(btn).to_string();
-            if !state.buttons.contains(&name) {
-                state.buttons.push(name.clone());
-                state.buttons.sort();
-                return Some(GamepadEvent::ButtonPressed(name));
-            }
-        }
-        EventType::ButtonReleased(btn, _) => {
-            let name = button_name(btn).to_string();
-            if state.buttons.contains(&name) {
-                state.buttons.retain(|b| b != &name);
-                return Some(GamepadEvent::ButtonReleased(name));
-            }
-        }
-        EventType::AxisChanged(axis, value, _) => {
-            let value = (value * AXIS_SCALE as f32) as i8;
-            match axis {
-                Axis::LeftStickX => {
-                    state.left_x = value;
-                }
-                Axis::LeftStickY => {
-                    state.left_y = value;
-                }
-                Axis::RightStickX => {
-                    state.right_x = value;
-                }
-                Axis::RightStickY => {
-                    state.right_y = value;
-                }
-                _ => {}
-            };
-        }
+pub fn process_axis(state: &mut GamepadState, axis: Axis, value: f32) {
+    let value = (value * AXIS_SCALE as f32) as i8;
+    match axis {
+        Axis::LeftStickX => state.left_x = value,
+        Axis::LeftStickY => state.left_y = value,
+        Axis::RightStickX => state.right_x = value,
+        Axis::RightStickY => state.right_y = value,
         _ => {}
     }
-    None
 }

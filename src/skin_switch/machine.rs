@@ -1,5 +1,5 @@
 use crate::constants::SKIN_SWITCH_TIMEOUT_MS;
-use crate::skin_switch::buttons::{ButtonEvent, ButtonName};
+use crate::gamepad::button::{ButtonEvent, ButtonName};
 use crate::skin_switch::commands::Command;
 use crate::skin_switch::state::{AppSkinState, SkinChangeState};
 use tracing::info;
@@ -38,6 +38,7 @@ impl SkinSwitchMachine {
                         info!("AppSkinState: Normal -> SkinSwitchPending");
                     }
                 }
+                _ => {}
             },
             ButtonEvent::Released(button) => match button {
                 ButtonName::Start | ButtonName::Select => {

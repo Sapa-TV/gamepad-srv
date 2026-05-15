@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::skin_switch::buttons::ButtonName;
+use crate::gamepad::button::ButtonName;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AppSkinState {

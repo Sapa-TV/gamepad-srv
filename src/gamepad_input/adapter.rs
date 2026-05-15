@@ -5,9 +5,12 @@ use tracing::{debug, error, info};
 
 use crate::constants::GAMEPAD_POLL_INTERVAL_MS;
 use crate::events::AppEvent;
+use crate::gamepad::button::ButtonName;
 use crate::gamepad::state::{GamepadEvent, GamepadState};
-use crate::gamepad_input::converter::{gilrs_event_to_button_event, process_event};
+use crate::gamepad_input::converter::{GilrsEventExt, process_axis};
+use crate::gamepad_input::port::GamepadInput;
 
+use gilrs::EventType;
 use gilrs::Gilrs;
 
 pub struct GilrsAdapter {
@@ -18,9 +21,19 @@ impl GilrsAdapter {
     pub fn new() -> Option<Self> {
         Gilrs::new().ok().map(|gilrs| Self { gilrs })
     }
+}
 
-    pub fn next_event(&mut self) -> Option<gilrs::Event> {
-        self.gilrs.next_event()
+impl GamepadInput for GilrsAdapter {
+    fn next_button_event(&mut self) -> Option<crate::gamepad::button::ButtonEvent> {
+        loop {
+            if let Some(event) = self.gilrs.next_event() {
+                if let Some(button_event) = event.to_button_event() {
+                    return Some(button_event);
+                }
+            } else {
+                return None;
+            }
+        }
     }
 }
 
@@ -41,16 +54,33 @@ pub fn spawn_gilrs_task(
         info!("Gamepad polling started");
 
         loop {
-            while let Some(event) = adapter.next_event() {
+            while let Some(event) = adapter.gilrs.next_event() {
                 let mut state_guard = state.lock().unwrap();
-                if let Some(gamepad_event) = process_event(&mut state_guard, event) {
-                    debug!("Gamepad event: {:?}", gamepad_event);
-                    let _ = ws_tx.send(gamepad_event);
+
+                match event.event {
+                    EventType::ButtonPressed(btn, _) => {
+                        let name: ButtonName = btn.into();
+                        state_guard.press_button(name);
+                        debug!("Button pressed: {:?}", name);
+                        let _ = ws_tx.send(GamepadEvent::ButtonPressed(name.to_string().into()));
+                    }
+                    EventType::ButtonReleased(btn, _) => {
+                        let name: ButtonName = btn.into();
+                        state_guard.release_button(name);
+                        debug!("Button released: {:?}", name);
+                        let _ = ws_tx.send(GamepadEvent::ButtonReleased(name.to_string().into()));
+                    }
+                    EventType::AxisChanged(axis, value, _) => {
+                        process_axis(&mut state_guard, axis, value);
+                    }
+                    _ => {}
                 }
-                if let Some(button_event) = gilrs_event_to_button_event(&event) {
+
+                if let Some(button_event) = event.to_button_event() {
                     let _ = events_tx.send(AppEvent::ButtonEvent(button_event));
                 }
             }
+
             tokio::time::sleep(tokio::time::Duration::from_millis(GAMEPAD_POLL_INTERVAL_MS)).await;
         }
     });
