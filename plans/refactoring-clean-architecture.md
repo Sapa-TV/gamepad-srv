@@ -127,7 +127,7 @@ pub trait GamepadInput: Send + Sync {
 
 #### Шаг 4.1: Исправить `src/button_actions.rs:24`
 
-- [ ] `sm.get_current_full().unwrap()` заменить на match:
+- [x] `sm.get_current_full().unwrap()` заменить на match:
 
 ```rust
 let (skin, info) = match sm.get_current_full() {
@@ -141,8 +141,8 @@ let (skin, info) = match sm.get_current_full() {
 
 **Проверка:**
 
-- [ ] `cargo check`
-- [ ] `cargo fmt`
+- [x] `cargo check`
+- [x] `cargo fmt`
 
 ---
 
@@ -153,7 +153,7 @@ let (skin, info) = match sm.get_current_full() {
 | 1    | Создать gamepad_input/    | [x]      |
 | 2    | Очистить domain от infra  | [x]      |
 | 3    | Magic numbers в константы | [x]      |
-| 4    | Исправить не-mutex unwrap | [ ]      |
+| 4    | Исправить не-mutex unwrap | [x]      |
 
 ---
 

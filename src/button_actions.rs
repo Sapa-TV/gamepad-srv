@@ -21,7 +21,13 @@ pub async fn run_button_actions(
                 let (new_idx, skin, info) = {
                     let mut sm = skin_manager.lock().unwrap();
                     let new_idx = sm.set_next_by_direction(dir);
-                    let (skin, info) = sm.get_current_full().unwrap();
+                    let (skin, info) = match sm.get_current_full() {
+                        Some(result) => result,
+                        None => {
+                            tracing::warn!("No current skin loaded");
+                            return;
+                        }
+                    };
                     (new_idx, skin.clone(), info)
                 };
 
