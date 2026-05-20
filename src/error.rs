@@ -15,7 +15,6 @@ pub enum AppError {
     Skin(String),
 
     #[error("Internal error: {0}")]
-    #[allow(dead_code)]
     Internal(String),
 
     #[error("Server error: {0}")]

@@ -1,11 +1,12 @@
 use serde::{Serialize, Serializer};
-use strum::{AsRefStr, EnumIter, EnumMessage, VariantNames};
+use strum::{AsRefStr, EnumCount, EnumIter, EnumMessage, VariantNames};
 
 #[derive(
     AsRefStr,
     EnumIter,
     VariantNames,
     EnumMessage,
+    EnumCount,
     Debug,
     Clone,
     Copy,
