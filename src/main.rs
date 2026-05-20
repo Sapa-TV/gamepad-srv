@@ -5,11 +5,11 @@
 use crate::{app::manager::AppManager, error::AppResult};
 
 mod app;
-mod config;
+// mod config;
 mod error;
-mod gamepad;
-mod server;
-mod skin_manager;
+// mod gamepad;
+// mod server;
+// mod skin_manager;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> AppResult<()> {
