@@ -1,56 +1,86 @@
-use super::discovery::{SkinEntry, SkinInfo, discover_skins, load_skin_info};
-use crate::skin_switch::state::Direction;
+use tokio::fs;
 
+use crate::{
+    error::{AppError, AppResult},
+    skin_manager::skin::Skin,
+};
+
+const SKIN_DIR: &str = "assets/skins";
+
+pub enum Direction {
+    Next,
+    Prev,
+}
+
+#[non_exhaustive]
+#[derive(Debug)]
 pub struct SkinManager {
-    skins: Vec<SkinEntry>,
-    current_idx: usize,
+    skins: Vec<Skin>,
+    idx: usize,
 }
 
 impl SkinManager {
-    pub fn discover_with_config(skin_from_config: Option<String>) -> Self {
-        let skins = discover_skins();
-        let current_idx = if !skins.is_empty() {
-            if let Some(name) = &skin_from_config {
-                if let Some(idx) = skins.iter().position(|s| &s.dir_name == name) {
-                    return Self {
-                        skins,
-                        current_idx: idx,
-                    };
-                }
+    pub fn builder() -> SkinManagerBuilder {
+        SkinManagerBuilder::default()
+    }
+
+    pub fn get_current_skin(&self) -> Option<&Skin> {
+        self.skins.get(self.idx)
+    }
+
+    // pub fn get_skins(&self) -> Vec<&Skin> {
+    //     self.skins.iter().collect()
+    // }
+
+    pub fn cycle_skin(&mut self, direction: Direction) -> Option<&Skin> {
+        let skin_list_len = self.skins.len();
+        match skin_list_len {
+            0 => return None,
+            len => {
+                self.idx = match direction {
+                    Direction::Next => (self.idx + 1) % len,
+                    Direction::Prev => (self.idx + len - 1) % len,
+                };
+                self.get_current_skin()
             }
-            0
-        } else {
-            0
-        };
-        Self { skins, current_idx }
+        }
     }
 
-    pub fn get_current(&self) -> Option<&SkinEntry> {
-        self.skins.get(self.current_idx)
+    pub fn next_skin(&mut self) -> Option<&Skin> {
+        self.cycle_skin(Direction::Next)
     }
 
-    pub fn get_current_info(&self) -> Option<SkinInfo> {
-        self.skins
-            .get(self.current_idx)
-            .and_then(|s| load_skin_info(&s.dir_name).ok())
+    pub fn prev_skin(&mut self) -> Option<&Skin> {
+        self.cycle_skin(Direction::Prev)
+    }
+}
+
+#[non_exhaustive]
+#[derive(Debug, Default)]
+pub struct SkinManagerBuilder {}
+
+impl SkinManagerBuilder {
+    async fn load_skins() -> AppResult<Vec<Skin>> {
+        let mut skin_list = Vec::new();
+        let mut entries = fs::read_dir(SKIN_DIR)
+            .await
+            .map_err(|err| AppError::Skin(format!("Skin directory read error: {err}")))?;
+
+        while let Some(entry) = entries.next_entry().await? {
+            let new_skin = Skin::try_from_dir(&entry.path()).ok();
+            if let Some(skin) = new_skin {
+                skin_list.push(skin);
+            }
+        }
+
+        Ok(skin_list)
     }
 
-    pub fn get_current_full(&self) -> Option<(&SkinEntry, SkinInfo)> {
-        self.skins
-            .get(self.current_idx)
-            .and_then(|s| load_skin_info(&s.dir_name).ok().map(|info| (s, info)))
-    }
-
-    pub fn get_all_skins(&self) -> &[SkinEntry] {
-        &self.skins
-    }
-
-    pub fn set_next_by_direction(&mut self, dir: Direction) {
-        let delta = match dir {
-            Direction::Right => 1isize,
-            Direction::Left => -1isize,
-        };
-        self.current_idx =
-            (self.current_idx as isize + delta).rem_euclid(self.skins.len() as isize) as usize;
+    pub async fn build(self) -> AppResult<SkinManager> {
+        let skin_list = Self::load_skins().await?;
+        Ok(SkinManager {
+            skins: skin_list,
+            idx: 0,
+        })
     }
 }
