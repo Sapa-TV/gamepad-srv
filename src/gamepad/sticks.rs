@@ -2,7 +2,7 @@ use serde::Serialize;
 
 const AXIS_MULTIPLIER: f32 = 127.0;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AxisEnum {
     LeftStickX(i8),
     LeftStickY(i8),
