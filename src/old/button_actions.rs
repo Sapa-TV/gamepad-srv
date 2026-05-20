@@ -1,5 +1,4 @@
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::sync::{Arc, nonpoison::Mutex};
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 
@@ -19,7 +18,7 @@ pub async fn run_button_actions(
         match rx.recv().await {
             Ok(AppEvent::SkinChange(dir)) => {
                 let (skin, info) = {
-                    let mut sm = skin_manager.lock().unwrap();
+                    let mut sm = skin_manager.lock();
                     sm.set_next_by_direction(dir);
                     let (skin, info) = match sm.get_current_full() {
                         Some(result) => result,

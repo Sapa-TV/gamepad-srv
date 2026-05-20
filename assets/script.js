@@ -4,38 +4,34 @@ const isDebug = new URLSearchParams(window.location.search).get('debug') === 'tr
 
 const log = (...args) => { if (isDebug) console.log(...args); };
 
-log("Debug mode enabled: isDebug");
+log("Debug mode enabled:", isDebug);
 
 const RECONNECT_DELAYS = [0, 1000, 2000, 4000, 8000, 16000, 30000];
 
-const BUTTONS = {
-  DU: 'img[data-name="DPadUp"]',
-  DD: 'img[data-name="DPadDown"]',
-  DL: 'img[data-name="DPadLeft"]',
-  DR: 'img[data-name="DPadRight"]',
-  A: 'img[data-name="South"]',
-  B: 'img[data-name="East"]',
-  X: 'img[data-name="West"]',
-  Y: 'img[data-name="North"]',
-  LB: 'img[data-name="LeftBar"]',
-  RB: 'img[data-name="RightBar"]',
-  LT: 'img[data-name="LeftTrigger"]',
-  RT: 'img[data-name="RightTrigger"]',
-  LS: 'img[data-name="LeftStick"]',
-  RS: 'img[data-name="RightStick"]',
-  SE: 'img[data-name="Select"]',
-  ST: 'img[data-name="Start"]',
-};
+const BUTTONS = [
+  'South',
+  'East',
+  'North',
+  'West',
+  'LeftBar',
+  'RightBar',
+  'LeftTrigger',
+  'RightTrigger',
+  'LeftStickWrapper',
+  'RightStickWrapper',
+  'DPadUp',
+  'DPadDown',
+  'DPadLeft',
+  'DPadRight',
+  'Start',
+  'Select',
+];
+
+const BUTTONS_ELEMENTS = BUTTONS.map((name) => document.querySelector(`[data-name="${name}"]`));
 
 const STICKS = {
-  left: {
-    base: document.querySelector('img.stick[data-name="LeftStick"]'),
-    active: document.querySelector('img.stick-active[data-name="LeftStickPressed"]'),
-  },
-  right: {
-    base: document.querySelector('img.stick[data-name="RightStick"]'),
-    active: document.querySelector('img.stick-active[data-name="RightStickPressed"]'),
-  },
+  left: document.querySelector('[data-name="LeftStickWrapper"]'),
+  right: document.querySelector('[data-name="RightStickWrapper"]')
 };
 
 const pressedButtons = new Set();
@@ -64,62 +60,6 @@ function updateStatus(connected) {
       indicatorElem.classList.remove("connected");
     }
   }
-}
-
-function applyButtonState(button, isPressed) {
-  const elem = document.querySelector(BUTTONS[button]);
-  if (elem) {
-    elem.classList.toggle('visible', isPressed);
-  }
-
-  if (button === 'LS' && STICKS.left.base) {
-    STICKS.left.base.classList.toggle('hidden', isPressed);
-    STICKS.left.active.classList.toggle('visible', isPressed);
-  }
-  if (button === 'RS' && STICKS.right.base) {
-    STICKS.right.base.classList.toggle('hidden', isPressed);
-    STICKS.right.active.classList.toggle('visible', isPressed);
-  }
-}
-
-function applyInitialButtons(buttons) {
-  for (const button of buttons) {
-    applyButtonState(button, true);
-  }
-}
-
-function applyAxisState(axis, value) {
-  let stick;
-  if (axis === 'lx' || axis === 'ly') {
-    stick = STICKS.left;
-  } else if (axis === 'rx' || axis === 'ry') {
-    stick = STICKS.right;
-  }
-
-  if (stick) {
-    let offsetX = 0;
-    let offsetY = 0;
-
-    if (axis === 'lx') offsetX = (value / 127) * STICK_OFFSET;
-    if (axis === 'ly') offsetY = -(value / 127) * STICK_OFFSET;
-    if (axis === 'rx') offsetX = (value / 127) * STICK_OFFSET;
-    if (axis === 'ry') offsetY = -(value / 127) * STICK_OFFSET;
-
-    stick.base.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-    stick.active.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-  }
-}
-
-function applySticks(sticks) {
-  const offsetX = (sticks.lx / 127) * STICK_OFFSET;
-  const offsetY = -(sticks.ly / 127) * STICK_OFFSET;
-  STICKS.left.base.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-  STICKS.left.active.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-
-  const offsetX2 = (sticks.rx / 127) * STICK_OFFSET;
-  const offsetY2 = -(sticks.ry / 127) * STICK_OFFSET;
-  STICKS.right.base.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
-  STICKS.right.active.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
 }
 
 async function loadSkin(skinPath) {
@@ -152,6 +92,77 @@ async function loadSkin(skinPath) {
   log('Skin loaded:', skin.name);
 }
 
+
+function applySticks(lx, ly, rx, ry) {
+  const offsetX = (lx / 127) * STICK_OFFSET;
+  const offsetY = -(ly / 127) * STICK_OFFSET;
+  STICKS.left.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+  const offsetX2 = (rx / 127) * STICK_OFFSET;
+  const offsetY2 = -(ry / 127) * STICK_OFFSET;
+  STICKS.right.style.transform = `translate(${offsetX2}px, ${offsetY2}px)`;
+}
+
+function applyButtons(buttonsMask) {
+  const btns = [];
+  for (let i = 0; i < BUTTONS.length; i++) {
+    btns.push((buttonsMask >> i) & 1);
+  }
+  let btnsState = btns.map((btn, idx) => ({ name: BUTTONS[idx], state: btn }));
+  for (let i = 0; i < btnsState.length; i++) {
+    if (btnsState[i].state) log(btnsState[i].name);
+    BUTTONS_ELEMENTS[i].classList.toggle('active', Boolean(btnsState[i].state));
+  }
+
+}
+
+function applyState(state) {
+  let lx = state?.ls?.x ?? 0;
+  let ly = state?.ls?.y ?? 0;
+  let rx = state?.rs?.x ?? 0;
+  let ry = state?.rs?.y ?? 0;
+  let buttons = state?.b ?? 0;
+
+  applySticks(lx, ly, rx, ry);
+  applyButtons(buttons);
+}
+
+function applyCommand(data) {
+
+  switch (data?.cmd) {
+    case "a":
+      gamepadElem.classList.add('skin_changing');
+      break;
+    case "d":
+      gamepadElem.classList.remove('skin_changing');
+      break;
+    case "r":
+      gamepadElem.classList.add('skin_changing');
+      skinSwitchTimeout = setTimeout(() => gamepadElem.classList.remove('skin_changing'), 1000);
+    default:
+      break;
+  }
+  // if (data.cmd`` === 'p') {
+  //   pressedButtons.add(ev.d);
+  //   applyButtonState(ev.d, true);
+  // } else if (ev.t === 'r') {
+  //   pressedButtons.delete(ev.d);
+  //   applyButtonState(ev.d, false);
+  // } else if (ev.t === 's') {
+  //   applySticks(ev.d);
+  // } else if (ev.t === 'sch') {
+  //   clearTimeout(skinSwitchTimeout);
+  //   gamepadElem.classList.toggle('skin_changing', ev.d);
+  // } else if (ev.t === 'sc') {
+  //   loadSkin(ev.d.path);
+  // } else if (ev.t === 'ssr') {
+  //   gamepadElem.classList.add('skin_changing');
+  //   skinSwitchTimeout = setTimeout(() => gamepadElem.classList.remove('skin_changing'), 1000);
+  // }
+
+}
+
+
 function connect() {
   const host = window.location.host;
   const ws = new WebSocket(`ws://${host}/ws`);
@@ -166,38 +177,10 @@ function connect() {
     const data = JSON.parse(event.data);
     log("Received:", data);
 
-    if (data.buttons && Array.isArray(data.buttons)) {
-      pressedButtons.clear();
-      for (const button of data.buttons) {
-        pressedButtons.add(button);
-        applyButtonState(button, true);
-      }
-      if (data.lx !== undefined) {
-        applySticks(data);
-      }
-      return;
-    }
-
-    if (Array.isArray(data)) {
-      for (const ev of data) {
-        if (ev.t === 'p') {
-          pressedButtons.add(ev.d);
-          applyButtonState(ev.d, true);
-        } else if (ev.t === 'r') {
-          pressedButtons.delete(ev.d);
-          applyButtonState(ev.d, false);
-        } else if (ev.t === 's') {
-          applySticks(ev.d);
-        } else if (ev.t === 'sch') {
-          clearTimeout(skinSwitchTimeout);
-          gamepadElem.classList.toggle('skin_changing', ev.d);
-        } else if (ev.t === 'sc') {
-          loadSkin(ev.d.path);
-        } else if (ev.t === 'ssr') {
-          gamepadElem.classList.add('skin_changing');
-          skinSwitchTimeout = setTimeout(() => gamepadElem.classList.remove('skin_changing'), 1000);
-        }
-      }
+    if (data.cmd) {
+      applyCommand(data);
+    } else {
+      applyState(data);
     }
   };
 
