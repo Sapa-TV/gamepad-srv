@@ -22,3 +22,9 @@ impl From<gilrs::EventType> for GamepadEvent {
         }
     }
 }
+
+impl From<gilrs::Event> for GamepadEvent {
+    fn from(event: gilrs::Event) -> Self {
+        event.event.into()
+    }
+}
