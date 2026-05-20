@@ -2,9 +2,10 @@ use gilrs::EventType;
 
 use crate::gamepad::{buttons::ButtonEnum, sticks::AxisEnum};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GamepadEvent {
     ButtonPressed(ButtonEnum),
+    ButtonHold(ButtonEnum),
     ButtonReleased(ButtonEnum),
     AxisMoved(AxisEnum),
     Ignored,
