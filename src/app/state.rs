@@ -1,7 +1,7 @@
 use tracing::debug;
 
 use super::AppCommandEnum;
-use crate::{gamepad::CommandReceiver, skins::SkinNavigator};
+use crate::{gamepad::CommandReceiver, server::AppCommandSender, skins::SkinNavigator};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AppMode {
@@ -9,29 +9,35 @@ enum AppMode {
     SkinSelect,
 }
 
-pub struct AppState<SN> {
+pub struct AppState<SN, DCR> {
     skin_manager: SN,
     current_mode: AppMode,
+    command_rx: DCR,
 }
 
-impl<SN: SkinNavigator> AppState<SN> {
-    pub fn new(skin_manager: SN) -> Self {
+impl<SN: SkinNavigator, DCR: AppCommandSender> AppState<SN, DCR> {
+    pub fn new(skin_manager: SN, command_rx: DCR) -> Self {
         Self {
             skin_manager,
             current_mode: AppMode::Normal,
+            command_rx,
         }
     }
 }
 
-impl<SN: SkinNavigator> CommandReceiver for AppState<SN> {
+impl<SN: SkinNavigator, DCR: AppCommandSender> CommandReceiver for AppState<SN, DCR> {
     fn receive_command(&mut self, command: AppCommandEnum) {
         debug!("Received command: {:?}", command);
         match command {
             AppCommandEnum::EnterSkinSelectMode => {
                 self.current_mode = AppMode::SkinSelect;
+                self.command_rx
+                    .send_command(AppCommandEnum::EnterSkinSelectMode);
             }
             AppCommandEnum::LeaveSkinSelectMode => {
                 self.current_mode = AppMode::Normal;
+                self.command_rx
+                    .send_command(AppCommandEnum::LeaveSkinSelectMode);
             }
             AppCommandEnum::SelectNextSkin => {
                 if self.current_mode == AppMode::SkinSelect {
@@ -40,7 +46,7 @@ impl<SN: SkinNavigator> CommandReceiver for AppState<SN> {
             }
             AppCommandEnum::SelectPrevSkin => {
                 if self.current_mode == AppMode::SkinSelect {
-                    self.skin_manager.next_skin();
+                    self.skin_manager.prev_skin();
                 }
             }
             _ => {}

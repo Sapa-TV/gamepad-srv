@@ -1,4 +1,6 @@
 mod handlers;
-mod worker;
+mod interface;
+pub mod worker;
+pub mod ws_sender;
 
-pub use worker::*;
+pub use interface::*;
