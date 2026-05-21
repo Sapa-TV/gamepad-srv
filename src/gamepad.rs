@@ -1,7 +1,7 @@
 mod button_data;
 pub mod buttons;
 mod event;
-mod gamepad_state;
+pub mod gamepad_store;
 pub mod input_worker;
 mod interface;
 pub mod listener;

@@ -1,5 +1,5 @@
 use crate::gamepad::{
-    button_data::ButtonDataState, event::GamepadEvent, gamepad_state::GamepadStateExt,
+    button_data::ButtonDataState, event::GamepadEvent, gamepad_store::GamepadStoreExt,
     mapper::InputMapper,
 };
 
@@ -10,13 +10,13 @@ pub trait InputListener: Send + Sync {
 }
 
 #[non_exhaustive]
-pub struct AppInputListener<M: InputMapper, S: GamepadStateExt> {
+pub struct AppInputListener<M: InputMapper, S: GamepadStoreExt> {
     mapper: M,
     state: S,
     buttons: ButtonDataState,
 }
 
-impl<M: InputMapper, S: GamepadStateExt> InputListener for AppInputListener<M, S> {
+impl<M: InputMapper, S: GamepadStoreExt> InputListener for AppInputListener<M, S> {
     fn handle_raw(&mut self, raw_event: gilrs::Event) {
         let gamepad_event: GamepadEvent = raw_event.into();
         if gamepad_event == GamepadEvent::Ignored {
@@ -39,7 +39,7 @@ impl<M: InputMapper, S: GamepadStateExt> InputListener for AppInputListener<M, S
     }
 }
 
-impl<M: InputMapper, S: GamepadStateExt> AppInputListener<M, S> {
+impl<M: InputMapper, S: GamepadStoreExt> AppInputListener<M, S> {
     pub fn build(mapper: M, state: S) -> Self {
         Self {
             mapper,

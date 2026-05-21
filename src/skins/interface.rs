@@ -12,20 +12,12 @@ pub trait SkinViewer: Send + Sync {
 #[non_exhaustive]
 #[derive(Debug, Clone, Serialize)]
 pub struct Skin {
-    name: String,
-    path: String,
+    pub name: String,
+    pub path: String,
 }
 
 impl Skin {
     pub fn new(name: String, path: String) -> Self {
         Self { name, path }
-    }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn path(&self) -> &str {
-        &self.path
     }
 }
