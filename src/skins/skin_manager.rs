@@ -1,7 +1,11 @@
 use tokio::fs;
+use tracing::info;
 
 use super::{Skin, SkinNavigator, SkinViewer};
-use crate::error::{AppError, AppResult};
+use crate::{
+    error::{AppError, AppResult},
+    server::SkinChangeSender,
+};
 
 const SKIN_FOLDER: &str = "assets/skins";
 
@@ -12,14 +16,15 @@ pub enum Direction {
 
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct AppSkinManager {
+pub struct AppSkinManager<SCS> {
     skins: Vec<Skin>,
     idx: usize,
+    skin_shange_tx: SCS,
 }
 
-impl AppSkinManager {
-    pub fn builder() -> SkinManagerBuilder {
-        SkinManagerBuilder::new()
+impl<SCS: SkinChangeSender> AppSkinManager<SCS> {
+    pub fn builder(skin_shange_tx: SCS) -> SkinManagerBuilder<SCS> {
+        SkinManagerBuilder { skin_shange_tx }
     }
 
     fn cycle_skin(&mut self, direction: Direction) {
@@ -33,10 +38,16 @@ impl AppSkinManager {
                 };
             }
         }
+        let current_skin = self.current_skin();
+        if let Some(current_skin) = current_skin {
+            self.skin_shange_tx.send_skin_change(current_skin.clone());
+        } else {
+            info!("No skins found");
+        }
     }
 }
 
-impl SkinNavigator for AppSkinManager {
+impl<SCS: SkinChangeSender> SkinNavigator for AppSkinManager<SCS> {
     fn next_skin(&mut self) {
         self.cycle_skin(Direction::Next);
     }
@@ -46,7 +57,7 @@ impl SkinNavigator for AppSkinManager {
     }
 }
 
-impl SkinViewer for AppSkinManager {
+impl<SCS: SkinChangeSender> SkinViewer for AppSkinManager<SCS> {
     fn current_skin(&self) -> Option<&Skin> {
         self.skins.get(self.idx)
     }
@@ -54,13 +65,11 @@ impl SkinViewer for AppSkinManager {
 
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct SkinManagerBuilder {}
+pub struct SkinManagerBuilder<SCS> {
+    skin_shange_tx: SCS,
+}
 
-impl SkinManagerBuilder {
-    pub fn new() -> Self {
-        Self {}
-    }
-
+impl<SCS: SkinChangeSender> SkinManagerBuilder<SCS> {
     async fn load_skins() -> AppResult<Vec<Skin>> {
         let mut skin_list = Vec::new();
         let mut entries = fs::read_dir(SKIN_FOLDER)
@@ -77,11 +86,13 @@ impl SkinManagerBuilder {
         Ok(skin_list)
     }
 
-    pub async fn build(self) -> AppResult<AppSkinManager> {
+    pub async fn build(self) -> AppResult<AppSkinManager<SCS>> {
         let skin_list = Self::load_skins().await?;
+        let skin_shange_tx = self.skin_shange_tx;
         Ok(AppSkinManager {
             skins: skin_list,
             idx: 0,
+            skin_shange_tx,
         })
     }
 }

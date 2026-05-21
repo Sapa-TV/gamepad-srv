@@ -6,7 +6,7 @@ use crate::{
     app::AppState,
     error::AppResult,
     gamepad::{
-        GamepadState, input_worker::RawInputWorker, listener::AppInputListener,
+        gamepad_store::GamepadStore, input_worker::RawInputWorker, listener::AppInputListener,
         mapper::AppInputMapper,
     },
     server::{WsInput, worker::ServerWorker, ws_sender::AppWsSender},
@@ -33,11 +33,12 @@ impl AppManager {
         let (ws_tx, ws_rx) = broadcast::channel::<WsInput>(20);
 
         // TODO: start app manager
-        let ws_sender = AppWsSender::new(ws_tx);
+        let ws_sender = AppWsSender::new(ws_tx.clone());
 
-        let skin_manager = AppSkinManager::builder().build().await?;
-        let app = AppState::new(skin_manager, ws_sender);
-        let gamepad_state = GamepadState::default();
+        let skin_manager = AppSkinManager::builder(ws_sender.clone()).build().await?;
+        let app = AppState::new(skin_manager, ws_sender.clone());
+        let gamepad_state = GamepadStore::new(ws_sender);
+
         let input_mapper = AppInputMapper::new(app);
         let input_listener = AppInputListener::build(input_mapper, gamepad_state);
         let input_worker = RawInputWorker::build(input_listener)?;

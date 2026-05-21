@@ -1,26 +1,42 @@
-use serde::Serialize;
-use tracing::debug;
-
-use crate::gamepad::{
-    GamepadState,
-    buttons::{ButtonEnum, Buttons},
-    event::GamepadEvent,
-    sticks::{AxisEnum, Stick},
+use crate::{
+    gamepad::{GamepadState, buttons::ButtonEnum, event::GamepadEvent, sticks::AxisEnum},
+    server::GamepadStateSender,
 };
 
-pub trait GamepadStateExt: Send + Sync {
+pub trait GamepadStoreExt: Send + Sync {
     fn update(&mut self, event: &GamepadEvent);
 }
 
-trait GamepadStatePrivateExt {
-    fn stick_update(&mut self, axis: &AxisEnum);
-
-    fn button_press(&mut self, button: &ButtonEnum);
-
-    fn button_release(&mut self, button: &ButtonEnum);
+pub struct GamepadStore<GSS> {
+    gamepad_state: GamepadState,
+    state_sender: GSS,
 }
 
-impl GamepadStatePrivateExt for GamepadState {
+impl<GSS: GamepadStateSender> GamepadStore<GSS> {
+    pub fn new(state_sender: GSS) -> Self {
+        Self {
+            gamepad_state: GamepadState::default(),
+            state_sender,
+        }
+    }
+}
+
+impl<GSS: GamepadStateSender> GamepadStoreExt for GamepadStore<GSS> {
+    fn update(&mut self, event: &GamepadEvent) {
+        self.gamepad_state.update(event);
+        self.state_sender
+            .send_gamepad_state(self.gamepad_state.clone());
+    }
+}
+
+trait GamepadStateExt {
+    fn button_press(&mut self, button: &ButtonEnum);
+    fn button_release(&mut self, button: &ButtonEnum);
+    fn stick_update(&mut self, axis: &AxisEnum);
+    fn update(&mut self, event: &GamepadEvent);
+}
+
+impl GamepadStateExt for GamepadState {
     fn stick_update(&mut self, axis: &AxisEnum) {
         match axis {
             AxisEnum::LeftStickX(value) => self.left_stick.update_x(*value),
@@ -38,9 +54,6 @@ impl GamepadStatePrivateExt for GamepadState {
     fn button_release(&mut self, button: &ButtonEnum) {
         self.buttons.release(button);
     }
-}
-
-impl GamepadStateExt for GamepadState {
     fn update(&mut self, event: &GamepadEvent) {
         // debug!("Gamepad event: {:?}", event);
         match event {
