@@ -56,6 +56,8 @@ pub enum ButtonEnum {
     RightStickPressed,
     #[strum(serialize = "UNK", message = "Unknown")]
     Unknown,
+    #[strum(serialize = "CMB1", message = "StartSelect")]
+    StartSelect,
 }
 
 impl From<gilrs::Button> for ButtonEnum {
