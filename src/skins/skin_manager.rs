@@ -67,7 +67,7 @@ impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinNavigator for AppSkinManage
     }
 }
 
-impl<SCS: SkinChangeSender, CS: Send + Sync + 'static> SkinViewer for AppSkinManager<SCS, CS> {
+impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinViewer for AppSkinManager<SCS, CI> {
     fn current_skin(&self) -> Option<&Skin> {
         let current_idx = self.idx.load(Ordering::SeqCst);
         self.skins.get(current_idx)
@@ -76,7 +76,7 @@ impl<SCS: SkinChangeSender, CS: Send + Sync + 'static> SkinViewer for AppSkinMan
 
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct SkinManagerBuilder<SCS, CI = ()> {
+pub struct SkinManagerBuilder<SCS, CI> {
     skin_change_tx: SCS,
     config: CI,
 }
