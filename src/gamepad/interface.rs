@@ -5,7 +5,7 @@ use crate::{
     gamepad::{buttons::Buttons, sticks::Stick},
 };
 
-pub trait CommandReceiver: Send + Sync {
+pub trait CommandReceiver: Send + Sync + 'static {
     fn receive_command(&mut self, command: AppCommandEnum);
 }
 

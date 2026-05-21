@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use tokio::sync::broadcast;
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 use tracing::{error, info};
@@ -36,13 +38,14 @@ impl AppManager {
         let ws_sender = AppWsSender::new(ws_tx.clone());
 
         let skin_manager = AppSkinManager::builder(ws_sender.clone()).build().await?;
-        let app = AppState::new(skin_manager, ws_sender.clone());
+        let skin_manager = Arc::new(skin_manager);
+        let app = AppState::new(Arc::clone(&skin_manager), ws_sender.clone());
         let gamepad_state = GamepadStore::new(ws_sender);
 
         let input_mapper = AppInputMapper::new(app);
         let input_listener = AppInputListener::build(input_mapper, gamepad_state);
         let input_worker = RawInputWorker::build(input_listener)?;
-        let server = ServerWorker::build(3000)?;
+        let server = ServerWorker::build(3000, skin_manager)?;
 
         // Run all workers
         server.run(&tracker, shutdown_token.clone());

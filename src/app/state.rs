@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use tracing::debug;
 
 use super::AppCommandEnum;
@@ -10,13 +12,13 @@ enum AppMode {
 }
 
 pub struct AppState<SN, ACS> {
-    skin_manager: SN,
+    skin_manager: Arc<SN>,
     current_mode: AppMode,
     command_tx: ACS,
 }
 
 impl<SN: SkinNavigator, ACS: AppCommandSender> AppState<SN, ACS> {
-    pub fn new(skin_manager: SN, command_tx: ACS) -> Self {
+    pub fn new(skin_manager: Arc<SN>, command_tx: ACS) -> Self {
         Self {
             skin_manager,
             current_mode: AppMode::Normal,

@@ -3,7 +3,7 @@ use crate::gamepad::{
     mapper::InputMapper,
 };
 
-pub trait InputListener: Send + Sync {
+pub trait InputListener: Send + Sync + 'static {
     fn handle_raw(&mut self, event: gilrs::Event);
     fn tick(&mut self);
     fn process(&mut self, events: Vec<GamepadEvent>);

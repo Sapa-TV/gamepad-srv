@@ -1,5 +1,4 @@
 use tokio::sync::broadcast::Sender;
-use tracing::debug;
 
 use crate::{
     app::AppCommandEnum,
@@ -19,7 +18,6 @@ impl AppWsSender {
     }
 
     fn send(&self, input: WsInput) {
-        debug!("Send data to WS worker: {:?}", input);
         self.ws_tx.send(input);
     }
 }

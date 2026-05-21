@@ -1,11 +1,11 @@
 use serde::Serialize;
 
-pub trait SkinNavigator: Send + Sync {
-    fn next_skin(&mut self);
-    fn prev_skin(&mut self);
+pub trait SkinNavigator: Send + Sync + 'static {
+    fn next_skin(&self);
+    fn prev_skin(&self);
 }
 
-pub trait SkinViewer: Send + Sync {
+pub trait SkinViewer: Send + Sync + 'static {
     fn current_skin(&self) -> Option<&Skin>;
 }
 

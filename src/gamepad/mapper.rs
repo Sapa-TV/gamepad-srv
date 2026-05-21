@@ -3,7 +3,7 @@ use crate::{
     gamepad::{CommandReceiver, buttons::ButtonEnum, event::GamepadEvent},
 };
 
-pub trait InputMapper: Send + Sync {
+pub trait InputMapper: Send + Sync + 'static {
     fn map(&mut self, input: &GamepadEvent) -> AppCommandEnum;
 }
 
