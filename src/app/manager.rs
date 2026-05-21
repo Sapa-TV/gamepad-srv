@@ -3,7 +3,7 @@ use tracing::{error, info};
 
 use crate::{
     error::AppResult,
-    gamepad::{AppInputListener, RawInputWorker},
+    gamepad::{AppInputListener, AppInputMapper, RawInputWorker},
 };
 
 #[non_exhaustive]
@@ -24,7 +24,8 @@ impl AppManager {
         let tracker = TaskTracker::new();
 
         // TODO: start app manager
-        let input_converter = AppInputListener::build();
+        let input_mapper = AppInputMapper::new();
+        let input_converter = AppInputListener::build(input_mapper);
         let input_worker = RawInputWorker::build(input_converter)?;
 
         // Run all workers

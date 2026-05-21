@@ -2,7 +2,7 @@
 #![feature(sync_nonpoison)]
 #![feature(bool_to_result)]
 
-use crate::{app::manager::AppManager, error::AppResult};
+use crate::{app::AppManager, error::AppResult};
 
 mod app;
 // mod config;
