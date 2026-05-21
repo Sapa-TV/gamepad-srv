@@ -3,7 +3,7 @@
 use crate::{app::AppManager, error::AppResult};
 
 mod app;
-// mod config;
+mod config;
 mod error;
 mod gamepad;
 mod server;

@@ -1,9 +1,10 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::fs;
-use tracing::{error, info};
+use tracing::info;
 
 use super::{Skin, SkinNavigator, SkinViewer};
 use crate::{
+    config::ConfigInterface,
     error::{AppError, AppResult},
     server::SkinChangeSender,
 };
@@ -17,15 +18,19 @@ pub enum Direction {
 
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct AppSkinManager<SCS> {
+pub struct AppSkinManager<SCS, CS = ()> {
     skins: Vec<Skin>,
     idx: AtomicUsize,
-    skin_shange_tx: SCS,
+    skin_change_tx: SCS,
+    config: CS,
 }
 
-impl<SCS: SkinChangeSender> AppSkinManager<SCS> {
-    pub fn builder(skin_shange_tx: SCS) -> SkinManagerBuilder<SCS> {
-        SkinManagerBuilder { skin_shange_tx }
+impl<SCS: SkinChangeSender, CS: ConfigInterface> AppSkinManager<SCS, CS> {
+    pub fn builder(skin_change_tx: SCS, config: CS) -> SkinManagerBuilder<SCS, CS> {
+        SkinManagerBuilder {
+            skin_change_tx,
+            config,
+        }
     }
 
     fn cycle_skin(&self, direction: Direction) {
@@ -44,14 +49,15 @@ impl<SCS: SkinChangeSender> AppSkinManager<SCS> {
 
         let current_skin = self.current_skin();
         if let Some(current_skin) = current_skin {
-            self.skin_shange_tx.send_skin_change(current_skin.clone());
+            self.skin_change_tx.send_skin_change(current_skin.clone());
+            self.config.save_skin(&current_skin.path);
         } else {
             info!("No skins found");
         }
     }
 }
 
-impl<SCS: SkinChangeSender> SkinNavigator for AppSkinManager<SCS> {
+impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinNavigator for AppSkinManager<SCS, CI> {
     fn next_skin(&self) {
         self.cycle_skin(Direction::Next);
     }
@@ -61,7 +67,7 @@ impl<SCS: SkinChangeSender> SkinNavigator for AppSkinManager<SCS> {
     }
 }
 
-impl<SCS: SkinChangeSender> SkinViewer for AppSkinManager<SCS> {
+impl<SCS: SkinChangeSender, CS: Send + Sync + 'static> SkinViewer for AppSkinManager<SCS, CS> {
     fn current_skin(&self) -> Option<&Skin> {
         let current_idx = self.idx.load(Ordering::SeqCst);
         self.skins.get(current_idx)
@@ -70,11 +76,12 @@ impl<SCS: SkinChangeSender> SkinViewer for AppSkinManager<SCS> {
 
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct SkinManagerBuilder<SCS> {
-    skin_shange_tx: SCS,
+pub struct SkinManagerBuilder<SCS, CI = ()> {
+    skin_change_tx: SCS,
+    config: CI,
 }
 
-impl<SCS: SkinChangeSender> SkinManagerBuilder<SCS> {
+impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinManagerBuilder<SCS, CI> {
     async fn load_skins() -> AppResult<Vec<Skin>> {
         let mut skin_list = Vec::new();
         let mut entries = fs::read_dir(SKIN_FOLDER)
@@ -91,13 +98,22 @@ impl<SCS: SkinChangeSender> SkinManagerBuilder<SCS> {
         Ok(skin_list)
     }
 
-    pub async fn build(self) -> AppResult<AppSkinManager<SCS>> {
-        let skin_list = Self::load_skins().await?;
-        let skin_shange_tx = self.skin_shange_tx;
+    fn find_skin_idx(skins: &[Skin], path: &str) -> usize {
+        skins.iter().position(|s| s.path == path).unwrap_or(0)
+    }
+
+    pub async fn build(self) -> AppResult<AppSkinManager<SCS, CI>> {
+        let default_skin = self.config.current_skin();
+        let skins = Self::load_skins().await?;
+        let idx = Self::find_skin_idx(&skins, &default_skin);
+        self.config
+            .save_skin(skins.get(idx).map(|skin| skin.path.as_str()).unwrap_or(""));
+
         Ok(AppSkinManager {
-            skins: skin_list,
-            idx: AtomicUsize::new(0),
-            skin_shange_tx,
+            skins,
+            idx: AtomicUsize::new(idx),
+            skin_change_tx: self.skin_change_tx,
+            config: self.config,
         })
     }
 }
