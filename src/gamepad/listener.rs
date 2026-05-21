@@ -1,18 +1,19 @@
-use crate::gamepad::{ButtonDataState, GamepadEvent, mapper::InputMapper};
+use crate::gamepad::{ButtonDataState, GamepadEvent, mapper::InputMapper, state::GamepadState};
 
 pub trait InputListener: Send + Sync {
     fn handle_raw(&mut self, event: gilrs::Event);
     fn tick(&mut self);
-    fn process(&self, events: Vec<GamepadEvent>);
+    fn process(&mut self, events: Vec<GamepadEvent>);
 }
 
 #[non_exhaustive]
-pub struct AppInputListener<M: InputMapper> {
+pub struct AppInputListener<M: InputMapper, S: GamepadState> {
     mapper: M,
+    state: S,
     buttons: ButtonDataState,
 }
 
-impl<M: InputMapper> InputListener for AppInputListener<M> {
+impl<M: InputMapper, S: GamepadState> InputListener for AppInputListener<M, S> {
     fn handle_raw(&mut self, raw_event: gilrs::Event) {
         let gamepad_event: GamepadEvent = raw_event.into();
         if gamepad_event == GamepadEvent::Ignored {
@@ -27,17 +28,19 @@ impl<M: InputMapper> InputListener for AppInputListener<M> {
         self.process(processed);
     }
 
-    fn process(&self, events: Vec<GamepadEvent>) {
+    fn process(&mut self, events: Vec<GamepadEvent>) {
         for input in events {
             self.mapper.map(&input);
+            self.state.update(&input);
         }
     }
 }
 
-impl<M: InputMapper> AppInputListener<M> {
-    pub fn build(mapper: M) -> Self {
+impl<M: InputMapper, S: GamepadState> AppInputListener<M, S> {
+    pub fn build(mapper: M, state: S) -> Self {
         Self {
             mapper,
+            state,
             buttons: ButtonDataState::new(),
         }
     }
