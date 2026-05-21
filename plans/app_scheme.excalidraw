@@ -842,7 +842,7 @@
     {
       "id": "OyozrCJAygYHFMEemnUFq",
       "type": "rectangle",
-      "x": 49.315470154210516,
+      "x": 52.315470154210516,
       "y": 88.81890489729079,
       "width": 243.31942927812088,
       "height": 110,
@@ -861,8 +861,8 @@
         "type": 3
       },
       "seed": 557427931,
-      "version": 704,
-      "versionNonce": 723771952,
+      "version": 708,
+      "versionNonce": 1883372894,
       "isDeleted": false,
       "boundElements": [
         {
@@ -878,14 +878,14 @@
           "type": "arrow"
         }
       ],
-      "updated": 1779332252905,
+      "updated": 1779369030384,
       "link": null,
       "locked": false
     },
     {
       "id": "qtQP1Nk6C5QzUDaTSBOEn",
       "type": "text",
-      "x": 73.0952409456147,
+      "x": 76.0952409456147,
       "y": 93.81890489729079,
       "width": 195.7598876953125,
       "height": 100,
@@ -902,30 +902,30 @@
       "index": "b16",
       "roundness": null,
       "seed": 1959090555,
-      "version": 796,
-      "versionNonce": 717757488,
+      "version": 806,
+      "versionNonce": 1537069342,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779332252905,
+      "updated": 1779369030384,
       "link": null,
       "locked": false,
-      "text": "Gamepad State\n- get ButtonEvents\n- update State\n- send state to WS",
+      "text": "Gamepad Store\n- get ButtonEvents\n- update State\n- send state to WS",
       "fontSize": 20,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "OyozrCJAygYHFMEemnUFq",
-      "originalText": "Gamepad State\n- get ButtonEvents\n- update State\n- send state to WS",
+      "originalText": "Gamepad Store\n- get ButtonEvents\n- update State\n- send state to WS",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "wfOaAaPeLDpvD_Kl-r-55",
       "type": "arrow",
-      "x": -154.99152175476945,
-      "y": 15.271264366927227,
-      "width": 199.66239798460202,
-      "height": 129.6413189964077,
+      "x": -156.15782258601033,
+      "y": 13.823478776534444,
+      "width": 204.27343643051822,
+      "height": 131.56596596725555,
       "angle": 0,
       "strokeColor": "#2f9e44",
       "backgroundColor": "#ced4da",
@@ -941,11 +941,11 @@
         "type": 2
       },
       "seed": 1146167381,
-      "version": 407,
-      "versionNonce": 169424080,
+      "version": 409,
+      "versionNonce": 845434398,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779332258694,
+      "updated": 1779369023599,
       "link": null,
       "locked": false,
       "points": [
@@ -954,12 +954,12 @@
           0
         ],
         [
-          72.05676140593857,
-          89.44754051396521
+          73.22306223717945,
+          90.89532610435799
         ],
         [
-          199.66239798460202,
-          129.6413189964077
+          204.27343643051822,
+          131.56596596725555
         ]
       ],
       "startBinding": {
@@ -981,10 +981,10 @@
     {
       "id": "0pf34b5L5QfRI1t1nzYgf",
       "type": "arrow",
-      "x": 292.6348994323314,
-      "y": 149.67366430762112,
-      "width": 640.8103500966756,
-      "height": 173.3539835020542,
+      "x": 296.54457854385964,
+      "y": 149.75948496670546,
+      "width": 641.7847020899912,
+      "height": 177.41165038209826,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "#ced4da",
@@ -1000,11 +1000,11 @@
         "type": 2
       },
       "seed": 355716987,
-      "version": 838,
-      "versionNonce": 1934054255,
+      "version": 840,
+      "versionNonce": 53533278,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779362147725,
+      "updated": 1779369023600,
       "link": null,
       "locked": false,
       "points": [
@@ -1013,12 +1013,12 @@
           0
         ],
         [
-          432.1519578228776,
-          23.613491849320184
+          428.24227871134934,
+          23.52767119023585
         ],
         [
-          640.8103500966756,
-          -149.74049165273402
+          641.7847020899912,
+          -153.8839791918624
         ]
       ],
       "startBinding": {
@@ -2114,7 +2114,7 @@
       "version": 51,
       "versionNonce": 2125526351,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1779362162546,
       "link": null,
       "locked": false,

@@ -88,7 +88,10 @@ impl ButtonDataState {
                     }
                 }
             }
-            _ => {}
+            GamepadEvent::Ignored => {}
+            event => {
+                result.push(event);
+            }
         }
 
         result

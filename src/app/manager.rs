@@ -11,7 +11,7 @@ use crate::{
         gamepad_store::GamepadStore, input_worker::RawInputWorker, listener::AppInputListener,
         mapper::AppInputMapper,
     },
-    server::{WsInput, worker::ServerWorker, ws_sender::AppWsSender},
+    server::{ServerState, WsInput, worker::ServerWorker, ws_sender::AppWsSender},
     skins::skin_manager::AppSkinManager,
 };
 
@@ -32,7 +32,7 @@ impl AppManager {
         let shutdown_token = CancellationToken::new();
         let tracker = TaskTracker::new();
 
-        let (ws_tx, ws_rx) = broadcast::channel::<WsInput>(20);
+        let (ws_tx, _) = broadcast::channel::<WsInput>(20);
 
         // TODO: start app manager
         let ws_sender = AppWsSender::new(ws_tx.clone());
@@ -40,15 +40,17 @@ impl AppManager {
         let skin_manager = AppSkinManager::builder(ws_sender.clone()).build().await?;
         let skin_manager = Arc::new(skin_manager);
         let app = AppState::new(Arc::clone(&skin_manager), ws_sender.clone());
-        let gamepad_state = GamepadStore::new(ws_sender);
+        let gamepad_store = GamepadStore::new(ws_sender);
 
         let input_mapper = AppInputMapper::new(app);
-        let input_listener = AppInputListener::build(input_mapper, gamepad_state);
+        let input_listener = AppInputListener::build(input_mapper, gamepad_store);
         let input_worker = RawInputWorker::build(input_listener)?;
         let server = ServerWorker::build(3000, skin_manager)?;
 
+        let server_state = ServerState::new(ws_tx, shutdown_token.clone());
+
         // Run all workers
-        server.run(&tracker, shutdown_token.clone());
+        server.run(&tracker, shutdown_token.clone(), server_state);
         input_worker.run(&tracker, shutdown_token.clone());
         self.run_ctrl_c_worker(&tracker, shutdown_token);
 
