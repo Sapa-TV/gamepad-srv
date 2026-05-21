@@ -1,3 +1,8 @@
+// TODO: need refactoring
+// combo need to be struct - separate ButtonEnum, vec of triggers
+// use ArrayVec instead of Vec
+// combinations need to be changeable
+
 use std::time::Instant;
 use strum::IntoEnumIterator;
 
