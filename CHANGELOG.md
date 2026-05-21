@@ -2,6 +2,45 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.4.0](https://github.com/Sapa-TV/gamepad-srv/compare/8eda9b0deaf008e862856701eb2d510b55454f1a..0.4.0) - 2026-05-21
+#### Features
+- add ws flow: worker, upgrade, update frontend - ([dda86c6](https://github.com/Sapa-TV/gamepad-srv/commit/dda86c6b4846d6104c764e2d224364780a828989)) - Th0rN13
+- add current skin handler, refactoring - ([d603438](https://github.com/Sapa-TV/gamepad-srv/commit/d6034385641a1163acb5ef14f6e030d2ca527239)) - Th0rN13
+- add gamepad state sender - ([3b9ea64](https://github.com/Sapa-TV/gamepad-srv/commit/3b9ea64623fa4cd7289a3b5b4dbb283888ba8948)) - Th0rN13
+- add ws sender, refactor - ([6a75751](https://github.com/Sapa-TV/gamepad-srv/commit/6a75751bbe7d7220c92eb92bb95657cde19fe79d)) - Th0rN13
+- add skin manager, update interfaces - ([f54c5e0](https://github.com/Sapa-TV/gamepad-srv/commit/f54c5e0549966d116dba733d82d4a53cfc07cbf8)) - Th0rN13
+- add axum server - ([f5194ad](https://github.com/Sapa-TV/gamepad-srv/commit/f5194ad220b49e75842fef2ee8a38d5ab5b261f4)) - Th0rN13
+- add gamepad state - ([44baed3](https://github.com/Sapa-TV/gamepad-srv/commit/44baed35f325d8f4c3e74ed1ea2b6ba658143eac)) - Th0rN13
+- add input mapper - ([d3b96a0](https://github.com/Sapa-TV/gamepad-srv/commit/d3b96a0fdc646a4584dc6de253e79fcd2a88b58c)) - Th0rN13
+- hold buttons, combo processing - ([af2b0a7](https://github.com/Sapa-TV/gamepad-srv/commit/af2b0a7b33009aca2db6de1ede56e590618f8213)) - Th0rN13
+- start implement listener - ([4dada07](https://github.com/Sapa-TV/gamepad-srv/commit/4dada0775c048417c7eed0da054f7448d4156af1)) - Th0rN13
+- add raw input worker, empty input listener - ([8f48975](https://github.com/Sapa-TV/gamepad-srv/commit/8f489753b30f3d97969f454a5f570c21554ce601)) - Th0rN13
+- start another implementation - ([8f38670](https://github.com/Sapa-TV/gamepad-srv/commit/8f386709fc920bbc925cbfd12c1a627418eb4e7f)) - Th0rN13
+#### Bug Fixes
+- update config flow, remove old files - ([8140651](https://github.com/Sapa-TV/gamepad-srv/commit/81406514f957d84e3743f2cb8547f5a42883b052)) - Th0rN13
+- resolve warnings - ([369d921](https://github.com/Sapa-TV/gamepad-srv/commit/369d92162ea1b7cc0735b243e4ffd804c677e17e)) - Th0rN13
+#### Documentation
+- update scheme plan - ([dc04879](https://github.com/Sapa-TV/gamepad-srv/commit/dc04879c30af44dcb376b3ca7ade13d151b88d97)) - Th0rN13
+- update scheme plan - ([3872799](https://github.com/Sapa-TV/gamepad-srv/commit/3872799872de2600cc770dfc8e8ac7b59f7c02e1)) - Th0rN13
+- update scheme plan - ([e6a1047](https://github.com/Sapa-TV/gamepad-srv/commit/e6a1047996456c23b890d5f863e0965759dd4d81)) - Th0rN13
+- update todos and remove old plans - ([6a16409](https://github.com/Sapa-TV/gamepad-srv/commit/6a16409f1aa9edcda8e2176ee48c6836120d7149)) - Th0rN13
+- update scheme plan - ([769e586](https://github.com/Sapa-TV/gamepad-srv/commit/769e586d589b2643d2be516091b2c9dd3404af5d)) - Th0rN13
+- reset files, update scheme plan - ([3f2b044](https://github.com/Sapa-TV/gamepad-srv/commit/3f2b044bde3b8b305ff35867fced949f1535ba3b)) - Th0rN13
+- add button names single source of truth - ([c8cb542](https://github.com/Sapa-TV/gamepad-srv/commit/c8cb542366a14b53a3a9fe852735f867a6442c9f)) - Th0rN13
+- add refactoring plan - ([8eda9b0](https://github.com/Sapa-TV/gamepad-srv/commit/8eda9b0deaf008e862856701eb2d510b55454f1a)) - Th0rN13
+#### Refactoring
+- remove unused, update serialize - ([04832a6](https://github.com/Sapa-TV/gamepad-srv/commit/04832a6b553f55a6f8c629be8f1747d65caae031)) - Th0rN13
+- validation use button names - ([302bbe5](https://github.com/Sapa-TV/gamepad-srv/commit/302bbe5646b298dba2a07da2120cfb5557e70918)) - Th0rN13
+- use strum message - ([d8c1d15](https://github.com/Sapa-TV/gamepad-srv/commit/d8c1d1520f2e5629162be348dc4b1a8565c1279d)) - Th0rN13
+- update gamepad input etc - ([a6e3405](https://github.com/Sapa-TV/gamepad-srv/commit/a6e34053a6c4dcf36683f33b9f6bad15bd907332)) - Th0rN13
+- remove unused index - ([6aa3c71](https://github.com/Sapa-TV/gamepad-srv/commit/6aa3c710ded1b6a58b78482cacce1bd3c346f1c9)) - Th0rN13
+- use match instead of unwrap - ([08665b0](https://github.com/Sapa-TV/gamepad-srv/commit/08665b0e21516a464a71af5faf35e7a809ed6af1)) - Th0rN13
+- add constants - ([71cbf0a](https://github.com/Sapa-TV/gamepad-srv/commit/71cbf0a683d5b41330f5020a81b63322f4a8ce0a)) - Th0rN13
+- separate domain and infra - ([a487c89](https://github.com/Sapa-TV/gamepad-srv/commit/a487c8966f2568415419caa2cc33cd26045b3e7e)) - Th0rN13
+- create gamepad input - ([e98308e](https://github.com/Sapa-TV/gamepad-srv/commit/e98308ee16d55c3f796b52184e6e10105b572044)) - Th0rN13
+
+- - -
+
 ## [0.3.3](https://github.com/Sapa-TV/gamepad-srv/compare/abec5dbc53ceff5757b46ecedc6dff5bc2769951..0.3.3) - 2026-05-14
 #### Bug Fixes
 - resolve skin switch state machine issue - ([da17834](https://github.com/Sapa-TV/gamepad-srv/commit/da17834c155e7ed30560d9538e4f5709801b85dd)) - Th0rN13
