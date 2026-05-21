@@ -8,7 +8,7 @@ mod app;
 // mod config;
 mod error;
 mod gamepad;
-// mod server;
+mod server;
 // mod skin_manager;
 
 #[tokio::main(flavor = "current_thread")]
