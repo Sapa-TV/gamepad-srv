@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.4.1](https://github.com/Sapa-TV/gamepad-srv/compare/cf2a2bfa51fc93e4314b8cf22140de0058400912..0.4.1) - 2026-05-21
+#### Bug Fixes
+- bump version - ([bab5434](https://github.com/Sapa-TV/gamepad-srv/commit/bab54347c4f9802c850e5c3cd7b1732e5fdbc6af)) - Th0rN13
+
+- - -
+
 ## [0.4.0](https://github.com/Sapa-TV/gamepad-srv/compare/8eda9b0deaf008e862856701eb2d510b55454f1a..0.4.0) - 2026-05-21
 #### Features
 - add ws flow: worker, upgrade, update frontend - ([dda86c6](https://github.com/Sapa-TV/gamepad-srv/commit/dda86c6b4846d6104c764e2d224364780a828989)) - Th0rN13
