@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
+
 use tokio::fs;
 use tracing::info;
 
@@ -18,7 +20,7 @@ pub enum Direction {
 #[derive(Debug)]
 pub struct AppSkinManager<SCS> {
     skins: Vec<Skin>,
-    idx: usize,
+    idx: AtomicUsize,
     skin_shange_tx: SCS,
 }
 
@@ -27,17 +29,20 @@ impl<SCS: SkinChangeSender> AppSkinManager<SCS> {
         SkinManagerBuilder { skin_shange_tx }
     }
 
-    fn cycle_skin(&mut self, direction: Direction) {
+    fn cycle_skin(&self, direction: Direction) {
         let skin_list_len = self.skins.len();
-        match skin_list_len {
-            0 => return,
-            len => {
-                self.idx = match direction {
-                    Direction::Next => (self.idx + 1) % len,
-                    Direction::Prev => (self.idx + len - 1) % len,
-                };
-            }
+        if skin_list_len == 0 {
+            return;
         }
+        self.idx
+            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |current_idx| {
+                let next_idx = match direction {
+                    Direction::Next => (current_idx + 1) % skin_list_len,
+                    Direction::Prev => (current_idx + skin_list_len - 1) % skin_list_len,
+                };
+                Some(next_idx)
+            });
+
         let current_skin = self.current_skin();
         if let Some(current_skin) = current_skin {
             self.skin_shange_tx.send_skin_change(current_skin.clone());
@@ -48,18 +53,19 @@ impl<SCS: SkinChangeSender> AppSkinManager<SCS> {
 }
 
 impl<SCS: SkinChangeSender> SkinNavigator for AppSkinManager<SCS> {
-    fn next_skin(&mut self) {
+    fn next_skin(&self) {
         self.cycle_skin(Direction::Next);
     }
 
-    fn prev_skin(&mut self) {
+    fn prev_skin(&self) {
         self.cycle_skin(Direction::Prev);
     }
 }
 
 impl<SCS: SkinChangeSender> SkinViewer for AppSkinManager<SCS> {
     fn current_skin(&self) -> Option<&Skin> {
-        self.skins.get(self.idx)
+        let current_idx = self.idx.load(Ordering::SeqCst);
+        self.skins.get(current_idx)
     }
 }
 
@@ -91,7 +97,7 @@ impl<SCS: SkinChangeSender> SkinManagerBuilder<SCS> {
         let skin_shange_tx = self.skin_shange_tx;
         Ok(AppSkinManager {
             skins: skin_list,
-            idx: 0,
+            idx: AtomicUsize::new(0),
             skin_shange_tx,
         })
     }

@@ -25,14 +25,14 @@ impl From<Skin> for WsInput {
     }
 }
 
-pub trait AppCommandSender: Send + Sync {
+pub trait AppCommandSender: Send + Sync + 'static {
     fn send_command(&self, command: AppCommandEnum);
 }
 
-pub trait GamepadStateSender: Send + Sync {
+pub trait GamepadStateSender: Send + Sync + 'static {
     fn send_gamepad_state(&self, state: GamepadState);
 }
 
-pub trait SkinChangeSender: Send + Sync {
+pub trait SkinChangeSender: Send + Sync + 'static {
     fn send_skin_change(&self, skin: Skin);
 }

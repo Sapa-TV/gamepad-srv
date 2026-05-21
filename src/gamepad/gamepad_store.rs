@@ -3,7 +3,7 @@ use crate::{
     server::GamepadStateSender,
 };
 
-pub trait GamepadStoreExt: Send + Sync {
+pub trait GamepadStoreExt: Send + Sync + 'static {
     fn update(&mut self, event: &GamepadEvent);
 }
 
