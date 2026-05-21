@@ -1,4 +1,5 @@
 use serde::Serialize;
+use tracing::debug;
 
 use crate::gamepad::{
     buttons::{ButtonEnum, Buttons},
@@ -6,9 +7,13 @@ use crate::gamepad::{
     sticks::{AxisEnum, Stick},
 };
 
+pub trait GamepadState: Send + Sync {
+    fn update(&mut self, event: &GamepadEvent);
+}
+
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, Serialize)]
-pub struct GamepadState {
+pub struct AppGamepadState {
     #[serde(rename = "ls")]
     pub left_stick: Stick,
     #[serde(rename = "rs")]
@@ -17,7 +22,7 @@ pub struct GamepadState {
     pub buttons: Buttons,
 }
 
-impl GamepadState {
+impl AppGamepadState {
     pub fn new() -> Self {
         Self {
             left_stick: Stick::new(),
@@ -26,7 +31,7 @@ impl GamepadState {
         }
     }
 
-    pub fn stick_update(&mut self, axis: &AxisEnum) {
+    fn stick_update(&mut self, axis: &AxisEnum) {
         match axis {
             AxisEnum::LeftStickX(value) => self.left_stick.update_x(*value),
             AxisEnum::LeftStickY(value) => self.left_stick.update_y(*value),
@@ -36,15 +41,18 @@ impl GamepadState {
         }
     }
 
-    pub fn button_press(&mut self, button: &ButtonEnum) {
+    fn button_press(&mut self, button: &ButtonEnum) {
         self.buttons.press(button);
     }
 
-    pub fn button_release(&mut self, button: &ButtonEnum) {
+    fn button_release(&mut self, button: &ButtonEnum) {
         self.buttons.release(button);
     }
+}
 
-    pub fn update(&mut self, event: &GamepadEvent) {
+impl GamepadState for AppGamepadState {
+    fn update(&mut self, event: &GamepadEvent) {
+        debug!("Gamepad event: {:?}", event);
         match event {
             GamepadEvent::ButtonPressed(button) => self.button_press(button),
             GamepadEvent::ButtonReleased(button) => self.button_release(button),
