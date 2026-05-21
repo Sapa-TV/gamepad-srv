@@ -14,7 +14,6 @@ pub struct AppInputListener {
 
 impl InputListener for AppInputListener {
     fn handle_raw(&mut self, raw_event: gilrs::Event) {
-        // TODO: Implement application input converter
         let gamepad_event: GamepadEvent = raw_event.into();
         if gamepad_event == GamepadEvent::Ignored {
             return;
