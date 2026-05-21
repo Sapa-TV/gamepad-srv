@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum AppActionEnum {
+pub enum AppCommandEnum {
     None,
     EnterSkinSelectMode,
     LeaveSkinSelectMode,

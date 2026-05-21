@@ -9,7 +9,7 @@ mod app;
 mod error;
 mod gamepad;
 mod server;
-// mod skin_manager;
+mod skins;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> AppResult<()> {

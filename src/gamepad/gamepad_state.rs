@@ -52,7 +52,7 @@ impl AppGamepadState {
 
 impl GamepadState for AppGamepadState {
     fn update(&mut self, event: &GamepadEvent) {
-        debug!("Gamepad event: {:?}", event);
+        // debug!("Gamepad event: {:?}", event);
         match event {
             GamepadEvent::ButtonPressed(button) => self.button_press(button),
             GamepadEvent::ButtonReleased(button) => self.button_release(button),
