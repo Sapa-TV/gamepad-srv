@@ -16,12 +16,19 @@ impl InputListener for AppInputListener {
     fn handle_raw(&mut self, raw_event: gilrs::Event) {
         // TODO: Implement application input converter
         let gamepad_event: GamepadEvent = raw_event.into();
+        if gamepad_event == GamepadEvent::Ignored {
+            return;
+        }
+        let processed = self.buttons.update(&gamepad_event);
         debug!("Raw event: {:?}", gamepad_event);
-        self.buttons.update(&gamepad_event);
+        debug!("Processed events: {:?}", processed);
     }
 
     fn tick(&mut self) {
-        debug!("Listener tick");
+        let events = self.buttons.tick();
+        for event in events {
+            debug!("Event: {:?}", event);
+        }
     }
 }
 
