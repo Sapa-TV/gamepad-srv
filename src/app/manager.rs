@@ -2,9 +2,11 @@ use tokio_util::{sync::CancellationToken, task::TaskTracker};
 use tracing::{error, info};
 
 use crate::{
+    app::AppState,
     error::AppResult,
     gamepad::{AppGamepadState, AppInputListener, AppInputMapper, RawInputWorker},
     server::ServerWorker,
+    skins::AppSkinManager,
 };
 
 #[non_exhaustive]
@@ -25,8 +27,10 @@ impl AppManager {
         let tracker = TaskTracker::new();
 
         // TODO: start app manager
+        let skin_manager = AppSkinManager::builder().build().await?;
+        let app = AppState::new(skin_manager);
         let gamepad_state = AppGamepadState::new();
-        let input_mapper = AppInputMapper::new();
+        let input_mapper = AppInputMapper::new(app);
         let input_listener = AppInputListener::build(input_mapper, gamepad_state);
         let input_worker = RawInputWorker::build(input_listener)?;
         let server = ServerWorker::build(3000)?;

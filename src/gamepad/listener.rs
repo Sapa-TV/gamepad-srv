@@ -1,4 +1,6 @@
-use crate::gamepad::{ButtonDataState, GamepadEvent, mapper::InputMapper, state::GamepadState};
+use crate::gamepad::{
+    ButtonDataState, GamepadEvent, gamepad_state::GamepadState, mapper::InputMapper,
+};
 
 pub trait InputListener: Send + Sync {
     fn handle_raw(&mut self, event: gilrs::Event);
