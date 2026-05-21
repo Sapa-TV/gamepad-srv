@@ -6,6 +6,7 @@ use tracing::{error, info};
 
 use crate::{
     app::AppState,
+    config::Config,
     error::AppResult,
     gamepad::{
         gamepad_store::GamepadStore, input_worker::RawInputWorker, listener::AppInputListener,
@@ -16,14 +17,17 @@ use crate::{
 };
 
 #[non_exhaustive]
-pub struct AppManager {}
+pub struct AppManager {
+    config: Config,
+}
 
 impl AppManager {
     pub async fn build() -> AppResult<Self> {
         info!("[App] Init requirements");
-        // TODO: build app manager
 
-        Ok(Self {})
+        Ok(Self {
+            config: Config::load(),
+        })
     }
 
     pub async fn run(self) -> AppResult<()> {
@@ -34,10 +38,12 @@ impl AppManager {
 
         let (ws_tx, _) = broadcast::channel::<WsInput>(20);
 
-        // TODO: start app manager
         let ws_sender = AppWsSender::new(ws_tx.clone());
+        let port = self.config.port;
 
-        let skin_manager = AppSkinManager::builder(ws_sender.clone()).build().await?;
+        let skin_manager = AppSkinManager::builder(ws_sender.clone(), self.config)
+            .build()
+            .await?;
         let skin_manager = Arc::new(skin_manager);
         let app = AppState::new(Arc::clone(&skin_manager), ws_sender.clone());
         let gamepad_store = GamepadStore::new(ws_sender);
@@ -45,14 +51,14 @@ impl AppManager {
         let input_mapper = AppInputMapper::new(app);
         let input_listener = AppInputListener::build(input_mapper, gamepad_store);
         let input_worker = RawInputWorker::build(input_listener)?;
-        let server = ServerWorker::build(3000, skin_manager)?;
+        let server = ServerWorker::build(port, skin_manager)?;
 
         let server_state = ServerState::new(ws_tx, shutdown_token.clone());
 
         // Run all workers
         server.run(&tracker, shutdown_token.clone(), server_state);
         input_worker.run(&tracker, shutdown_token.clone());
-        self.run_ctrl_c_worker(&tracker, shutdown_token);
+        Self::run_ctrl_c_worker(&tracker, shutdown_token);
 
         info!("[App] All tasks started");
         tracker.close();
@@ -63,7 +69,7 @@ impl AppManager {
         Ok(())
     }
 
-    fn run_ctrl_c_worker(&self, tracker: &TaskTracker, shutdown_token: CancellationToken) {
+    fn run_ctrl_c_worker(tracker: &TaskTracker, shutdown_token: CancellationToken) {
         tracker.spawn(async move {
             if let Err(err) = tokio::signal::ctrl_c().await {
                 error!("Ctrl+C signal error: {}", err);
