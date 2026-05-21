@@ -1,5 +1,3 @@
-#![feature(nonpoison_mutex)]
-#![feature(sync_nonpoison)]
 #![feature(bool_to_result)]
 
 use crate::{app::AppManager, error::AppResult};
@@ -15,6 +13,7 @@ mod skins;
 async fn main() -> AppResult<()> {
     enable_ansi_support::enable_ansi_support().ok();
 
+    #[allow(unused_mut)]
     let mut debug_directive: Option<&str> = None;
     // debug_directive = Some("info,gamepad_srv::app::command_worker=debug");
 

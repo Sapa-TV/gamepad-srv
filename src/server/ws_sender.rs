@@ -1,5 +1,5 @@
 use tokio::sync::broadcast::Sender;
-use tracing::debug;
+use tracing::error;
 
 use crate::{
     app::AppCommandEnum,
@@ -19,7 +19,9 @@ impl AppWsSender {
     }
 
     fn send(&self, input: WsInput) {
-        self.ws_tx.send(input);
+        if let Err(err) = self.ws_tx.send(input) {
+            error!("Error sending ws input: {err}");
+        }
     }
 }
 
