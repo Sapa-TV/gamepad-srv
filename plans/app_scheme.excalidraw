@@ -25,8 +25,8 @@
         "type": 3
       },
       "seed": 563213461,
-      "version": 664,
-      "versionNonce": 1337287888,
+      "version": 665,
+      "versionNonce": 372003024,
       "isDeleted": false,
       "boundElements": [
         {
@@ -40,9 +40,13 @@
         {
           "id": "_lY5xKif9VHwR2jqwh39L",
           "type": "arrow"
+        },
+        {
+          "id": "wfOaAaPeLDpvD_Kl-r-55",
+          "type": "arrow"
         }
       ],
-      "updated": 1779330887729,
+      "updated": 1779332245745,
       "link": null,
       "locked": false
     },
@@ -838,7 +842,7 @@
     {
       "id": "OyozrCJAygYHFMEemnUFq",
       "type": "rectangle",
-      "x": 51.315470154210516,
+      "x": 49.315470154210516,
       "y": 88.81890489729079,
       "width": 243.31942927812088,
       "height": 110,
@@ -857,8 +861,8 @@
         "type": 3
       },
       "seed": 557427931,
-      "version": 685,
-      "versionNonce": 914451328,
+      "version": 704,
+      "versionNonce": 723771952,
       "isDeleted": false,
       "boundElements": [
         {
@@ -874,14 +878,14 @@
           "type": "arrow"
         }
       ],
-      "updated": 1779286104958,
+      "updated": 1779332252905,
       "link": null,
       "locked": false
     },
     {
       "id": "qtQP1Nk6C5QzUDaTSBOEn",
       "type": "text",
-      "x": 75.0952409456147,
+      "x": 73.0952409456147,
       "y": 93.81890489729079,
       "width": 195.7598876953125,
       "height": 100,
@@ -898,11 +902,11 @@
       "index": "b16",
       "roundness": null,
       "seed": 1959090555,
-      "version": 777,
-      "versionNonce": 1246231424,
+      "version": 796,
+      "versionNonce": 717757488,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779286104958,
+      "updated": 1779332252905,
       "link": null,
       "locked": false,
       "text": "Gamepad State\n- get ButtonEvents\n- update State\n- send state to WS",
@@ -918,10 +922,10 @@
     {
       "id": "wfOaAaPeLDpvD_Kl-r-55",
       "type": "arrow",
-      "x": 173.90084931013257,
-      "y": -5.2462135223595965,
-      "width": 0.843840535073241,
-      "height": 88.06511841965039,
+      "x": -154.99152175476945,
+      "y": 15.271264366927227,
+      "width": 199.66239798460202,
+      "height": 129.6413189964077,
       "angle": 0,
       "strokeColor": "#2f9e44",
       "backgroundColor": "#ced4da",
@@ -937,11 +941,11 @@
         "type": 2
       },
       "seed": 1146167381,
-      "version": 246,
-      "versionNonce": 2064018560,
+      "version": 407,
+      "versionNonce": 169424080,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779286105143,
+      "updated": 1779332258694,
       "link": null,
       "locked": false,
       "points": [
@@ -950,19 +954,23 @@
           0
         ],
         [
-          -0.843840535073241,
-          88.06511841965039
+          72.05676140593857,
+          89.44754051396521
+        ],
+        [
+          199.66239798460202,
+          129.6413189964077
         ]
       ],
-      "startBinding": null,
+      "startBinding": {
+        "elementId": "CvVjrJ4NEEYeHVPxajoI1",
+        "focus": 0.3785579132059843,
+        "gap": 3.4091760454938083
+      },
       "endBinding": {
-        "mode": "orbit",
         "elementId": "OyozrCJAygYHFMEemnUFq",
-        "fixedPoint": [
-          0.5001,
-          0
-        ],
-        "focus": 0
+        "focus": -0.4380321697105851,
+        "gap": 4.6445939243779435
       },
       "startArrowhead": null,
       "endArrowhead": "arrow",
@@ -973,10 +981,10 @@
     {
       "id": "0pf34b5L5QfRI1t1nzYgf",
       "type": "arrow",
-      "x": 300.6348994323314,
-      "y": 144.19158057941019,
-      "width": 614.2402038828035,
-      "height": 167.9075295671034,
+      "x": 292.6348994323314,
+      "y": 149.67366430762115,
+      "width": 596.4171424955834,
+      "height": 188.24673465690242,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "#ced4da",
@@ -992,11 +1000,11 @@
         "type": 2
       },
       "seed": 355716987,
-      "version": 679,
-      "versionNonce": 423293973,
+      "version": 698,
+      "versionNonce": 1496502320,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779288909355,
+      "updated": 1779332252906,
       "link": null,
       "locked": false,
       "points": [
@@ -1005,12 +1013,12 @@
           0
         ],
         [
-          482.67954439788036,
-          29.095575577531122
+          490.67954439788036,
+          23.613491849320155
         ],
         [
-          614.2402038828035,
-          -138.8119539895723
+          596.4171424955834,
+          -164.63324280758226
         ]
       ],
       "startBinding": {
