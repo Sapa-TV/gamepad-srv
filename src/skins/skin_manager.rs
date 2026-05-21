@@ -1,7 +1,6 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
-
 use tokio::fs;
-use tracing::info;
+use tracing::{error, info};
 
 use super::{Skin, SkinNavigator, SkinViewer};
 use crate::{
@@ -35,12 +34,12 @@ impl<SCS: SkinChangeSender> AppSkinManager<SCS> {
             return;
         }
         self.idx
-            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |current_idx| {
+            .update(Ordering::SeqCst, Ordering::SeqCst, |current_idx| {
                 let next_idx = match direction {
                     Direction::Next => (current_idx + 1) % skin_list_len,
                     Direction::Prev => (current_idx + skin_list_len - 1) % skin_list_len,
                 };
-                Some(next_idx)
+                next_idx
             });
 
         let current_skin = self.current_skin();
