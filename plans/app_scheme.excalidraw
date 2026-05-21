@@ -229,7 +229,7 @@
     {
       "id": "-o-AvPkr-wKJbmsHuWOha",
       "type": "rectangle",
-      "x": 413.1408035401896,
+      "x": 409.1408035401896,
       "y": -128.59281663101643,
       "width": 327.2406436959586,
       "height": 135,
@@ -248,8 +248,8 @@
         "type": 3
       },
       "seed": 2055653083,
-      "version": 767,
-      "versionNonce": 191245872,
+      "version": 775,
+      "versionNonce": 983409861,
       "isDeleted": false,
       "boundElements": [
         {
@@ -277,14 +277,14 @@
           "type": "arrow"
         }
       ],
-      "updated": 1779333857325,
+      "updated": 1779357297229,
       "link": null,
       "locked": false
     },
     {
       "id": "Zpw2W4wnf-S0LV7CDA5X5",
       "type": "text",
-      "x": 429.34123403074705,
+      "x": 425.34123403074705,
       "y": -123.59281663101643,
       "width": 294.83978271484375,
       "height": 125,
@@ -301,11 +301,11 @@
       "index": "b0n",
       "roundness": null,
       "seed": 425669499,
-      "version": 833,
-      "versionNonce": 1105759280,
+      "version": 841,
+      "versionNonce": 1064748069,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779333840528,
+      "updated": 1779357297229,
       "link": null,
       "locked": false,
       "text": "Main Logic\n- get AppEvents\n- filter Events by state\n- do logic depends on events\n- send to WS app mode switch",
@@ -322,9 +322,9 @@
       "id": "z7xC0FEHaJyiFHcdGmkNF",
       "type": "arrow",
       "x": 295.5937240451256,
-      "y": -66.65048175437268,
-      "width": 117.54707949506394,
-      "height": 2.282833218324555,
+      "y": -66.47041104018643,
+      "width": 113.54707949506394,
+      "height": 2.205745805810423,
       "angle": 0,
       "strokeColor": "#2f9e44",
       "backgroundColor": "transparent",
@@ -340,11 +340,11 @@
         "type": 2
       },
       "seed": 74901525,
-      "version": 348,
-      "versionNonce": 392660528,
+      "version": 356,
+      "versionNonce": 1052047237,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779333840528,
+      "updated": 1779357297229,
       "link": null,
       "locked": false,
       "points": [
@@ -353,8 +353,8 @@
           0
         ],
         [
-          117.54707949506394,
-          2.282833218324555
+          113.54707949506394,
+          2.205745805810423
         ]
       ],
       "startBinding": {
@@ -468,9 +468,9 @@
     {
       "id": "y0fgoda_anxPiIV8kdlgx",
       "type": "arrow",
-      "x": 532.1727218636721,
+      "x": 530.0622339192813,
       "y": -132.63681229280937,
-      "width": 46.18301298118604,
+      "width": 48.293500925576836,
       "height": 111.36798951856841,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -487,11 +487,11 @@
         "type": 2
       },
       "seed": 520781173,
-      "version": 573,
-      "versionNonce": 238148357,
+      "version": 581,
+      "versionNonce": 1385545445,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779335300627,
+      "updated": 1779357297230,
       "link": null,
       "locked": false,
       "points": [
@@ -500,11 +500,11 @@
           0
         ],
         [
-          2.7681826274628065,
+          4.878670571853604,
           -58.22324824035016
         ],
         [
-          46.18301298118604,
+          48.293500925576836,
           -111.36798951856841
         ]
       ],
@@ -1107,10 +1107,10 @@
     {
       "id": "AUUH3nDbu-7WgEIxIjTls",
       "type": "arrow",
-      "x": 740.3814472361482,
-      "y": -64.91053879443712,
-      "width": 72.37808880027,
-      "height": 1.5892175312077086,
+      "x": 736.3814472361481,
+      "y": -64.61549132420481,
+      "width": 76.4877091672605,
+      "height": 1.640018886314067,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "#ced4da",
@@ -1126,11 +1126,11 @@
         "type": 2
       },
       "seed": 1047184251,
-      "version": 428,
-      "versionNonce": 1082112560,
+      "version": 436,
+      "versionNonce": 1906743877,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779333840528,
+      "updated": 1779357297230,
       "link": null,
       "locked": false,
       "points": [
@@ -1139,8 +1139,8 @@
           0
         ],
         [
-          72.37808880027,
-          -1.5892175312077086
+          76.4877091672605,
+          -1.640018886314067
         ]
       ],
       "startBinding": {
@@ -1782,10 +1782,10 @@
     {
       "id": "Nj3hd68tkSwCtPUcncGiQ",
       "type": "arrow",
-      "x": 177.06523965116912,
-      "y": -519.2811951191076,
-      "width": 284,
-      "height": 386,
+      "x": 173.96482653516279,
+      "y": -524.8176471119762,
+      "width": 286.9580606759926,
+      "height": 394.37677492768614,
       "angle": 0,
       "strokeColor": "#f08c00",
       "backgroundColor": "transparent",
@@ -1801,11 +1801,11 @@
         "type": 2
       },
       "seed": 344835120,
-      "version": 52,
-      "versionNonce": 1823538736,
+      "version": 60,
+      "versionNonce": 1690634661,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1779333858893,
+      "updated": 1779357297230,
       "link": null,
       "locked": false,
       "points": [
@@ -1814,12 +1814,12 @@
           0
         ],
         [
-          112,
-          200
+          115.10041311600634,
+          205.5364519928686
         ],
         [
-          284,
-          386
+          286.9580606759926,
+          394.37677492768614
         ]
       ],
       "lastCommittedPoint": null,

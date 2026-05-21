@@ -4,7 +4,7 @@ use strum::{EnumMessage, IntoEnumIterator};
 
 use crate::{
     error::{AppError, AppResult},
-    gamepad::ButtonEnum,
+    gamepad::buttons::ButtonEnum,
 };
 
 #[derive(Deserialize)]

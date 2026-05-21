@@ -1,8 +1,6 @@
-use tracing::debug;
-
 use crate::{
     app::AppCommandEnum,
-    gamepad::{ButtonEnum, CommandReceiver, GamepadEvent},
+    gamepad::{CommandReceiver, buttons::ButtonEnum, event::GamepadEvent},
 };
 
 pub trait InputMapper: Send + Sync {

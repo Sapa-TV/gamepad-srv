@@ -1,12 +1,16 @@
+use tokio::sync::broadcast;
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 use tracing::{error, info};
 
 use crate::{
     app::AppState,
     error::AppResult,
-    gamepad::{AppGamepadState, AppInputListener, AppInputMapper, RawInputWorker},
-    server::ServerWorker,
-    skins::AppSkinManager,
+    gamepad::{
+        GamepadState, input_worker::RawInputWorker, listener::AppInputListener,
+        mapper::AppInputMapper,
+    },
+    server::{WsInput, worker::ServerWorker, ws_sender::AppWsSender},
+    skins::skin_manager::AppSkinManager,
 };
 
 #[non_exhaustive]
@@ -26,10 +30,14 @@ impl AppManager {
         let shutdown_token = CancellationToken::new();
         let tracker = TaskTracker::new();
 
+        let (ws_tx, ws_rx) = broadcast::channel::<WsInput>(20);
+
         // TODO: start app manager
+        let ws_sender = AppWsSender::new(ws_tx);
+
         let skin_manager = AppSkinManager::builder().build().await?;
-        let app = AppState::new(skin_manager);
-        let gamepad_state = AppGamepadState::new();
+        let app = AppState::new(skin_manager, ws_sender);
+        let gamepad_state = GamepadState::default();
         let input_mapper = AppInputMapper::new(app);
         let input_listener = AppInputListener::build(input_mapper, gamepad_state);
         let input_worker = RawInputWorker::build(input_listener)?;
