@@ -63,33 +63,37 @@ function updateStatus(connected) {
 }
 
 async function loadSkin(skinPath) {
-  const response = await fetch(`${skinPath}/skin.json`);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const skin = await response.json();
+  try {
+    const response = await fetch(`${skinPath}/skin.json`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const skin = await response.json();
 
-  if (skin.body) {
-    const bg = document.querySelector('img[data-name="body"]');
-    bg.src = `${skinPath}/${skin.body.image}`;
-    bg.style.top = `${skin.body.top}px`;
-    bg.style.left = `${skin.body.left}px`;
-  }
-
-  if (skin.indicator) {
-    indicatorElem.src = `${skinPath}/${skin.indicator.image}`;
-    indicatorElem.style.top = `${skin.indicator.top}px`;
-    indicatorElem.style.left = `${skin.indicator.left}px`;
-  }
-
-  for (const btn of skin.buttons) {
-    const elem = document.querySelector(`img[data-name="${btn.name}"]`);
-    if (elem) {
-      elem.src = `${skinPath}/${btn.image}`;
-      elem.style.top = `${btn.top}px`;
-      elem.style.left = `${btn.left}px`;
+    if (skin.body) {
+      const bg = document.querySelector('[data-name="body"]');
+      bg.src = `${skinPath}/${skin.body.image}`;
+      bg.style.top = `${skin.body.top}px`;
+      bg.style.left = `${skin.body.left}px`;
     }
-  }
 
-  log('Skin loaded:', skin.name);
+    if (skin.indicator) {
+      indicatorElem.src = `${skinPath}/${skin.indicator.image}`;
+      indicatorElem.style.top = `${skin.indicator.top}px`;
+      indicatorElem.style.left = `${skin.indicator.left}px`;
+    }
+
+    for (const btn of skin.buttons) {
+      const elem = document.querySelector(`[data-name="${btn.name}"]`);
+      if (elem) {
+        elem.src = `${skinPath}/${btn.image}`;
+        elem.style.top = `${btn.top}px`;
+        elem.style.left = `${btn.left}px`;
+      }
+    }
+
+    log('Skin loaded:', skin.name);
+  } catch (err) {
+    console.error("Error loading skin:", err)
+  }
 }
 
 
@@ -128,12 +132,11 @@ function applyState(state) {
 }
 
 function applyCommand(data) {
-
   switch (data?.cmd) {
-    case "a":
+    case "e":
       gamepadElem.classList.add('skin_changing');
       break;
-    case "d":
+    case "l":
       gamepadElem.classList.remove('skin_changing');
       break;
     case "r":
@@ -142,24 +145,6 @@ function applyCommand(data) {
     default:
       break;
   }
-  // if (data.cmd`` === 'p') {
-  //   pressedButtons.add(ev.d);
-  //   applyButtonState(ev.d, true);
-  // } else if (ev.t === 'r') {
-  //   pressedButtons.delete(ev.d);
-  //   applyButtonState(ev.d, false);
-  // } else if (ev.t === 's') {
-  //   applySticks(ev.d);
-  // } else if (ev.t === 'sch') {
-  //   clearTimeout(skinSwitchTimeout);
-  //   gamepadElem.classList.toggle('skin_changing', ev.d);
-  // } else if (ev.t === 'sc') {
-  //   loadSkin(ev.d.path);
-  // } else if (ev.t === 'ssr') {
-  //   gamepadElem.classList.add('skin_changing');
-  //   skinSwitchTimeout = setTimeout(() => gamepadElem.classList.remove('skin_changing'), 1000);
-  // }
-
 }
 
 
@@ -177,10 +162,17 @@ function connect() {
     const data = JSON.parse(event.data);
     log("Received:", data);
 
-    if (data.cmd) {
-      applyCommand(data);
-    } else {
-      applyState(data);
+    switch (true) {
+      case data.cmd !== undefined:
+        applyCommand(data);
+        break;
+      case data.skin !== undefined:
+        log('skin');
+        loadSkin(data.skin?.path);
+        break;
+      default:
+        applyState(data);
+        break;
     }
   };
 

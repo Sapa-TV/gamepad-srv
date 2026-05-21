@@ -8,7 +8,9 @@ use tower_http::services::ServeDir;
 use tracing::info;
 
 use crate::error::{AppError, AppResult};
+use crate::server::ServerState;
 use crate::server::handlers::{index_handler, skin_handler};
+use crate::server::ws_upgrade::ws_upgrade_handler;
 use crate::skins::SkinViewer;
 
 #[non_exhaustive]
@@ -40,6 +42,7 @@ impl<SV: SkinViewer> ServerWorker<SV> {
         self,
         tracker: &TaskTracker,
         shutdown_token: CancellationToken,
+        state: ServerState,
     ) -> JoinHandle<AppResult<()>> {
         let addr = self.addr;
         let local_ip = self.local_ip;
@@ -53,10 +56,14 @@ impl<SV: SkinViewer> ServerWorker<SV> {
                 .route("/skin", get(skin_handler))
                 .with_state(skin_viewer);
 
+            let ws_router = Router::new()
+                .route("/ws", get(ws_upgrade_handler))
+                .with_state(state);
+
             let app = Router::new()
                 .route("/", get(index_handler))
                 .merge(skin_router)
-                // .merge(ws_router)
+                .merge(ws_router)
                 .fallback_service(ServeDir::new("assets"));
 
             info!("Server starting on:");
