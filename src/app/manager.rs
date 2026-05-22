@@ -8,12 +8,9 @@ use crate::{
     app::AppState,
     config::Config,
     error::AppResult,
-    gamepad::{
-        gamepad_store::GamepadStore, input_worker::RawInputWorker, listener::AppInputListener,
-        mapper::AppInputMapper,
-    },
-    server::{ServerState, WsInput, worker::ServerWorker, ws_sender::AppWsSender},
-    skins::skin_manager::AppSkinManager,
+    gamepad::{GamepadStore, InputListener, InputMapper, RawInputWorker},
+    server::{ServerState, ServerWorker, WsInput, WsSender},
+    skins::SkinManager,
 };
 
 #[non_exhaustive]
@@ -38,18 +35,18 @@ impl AppManager {
 
         let (ws_tx, _) = broadcast::channel::<WsInput>(20);
 
-        let ws_sender = AppWsSender::new(ws_tx.clone());
+        let ws_sender = WsSender::new(ws_tx.clone());
         let port = self.config.port;
 
-        let skin_manager = AppSkinManager::builder(ws_sender.clone(), self.config)
+        let skin_manager = SkinManager::builder(ws_sender.clone(), self.config)
             .build()
             .await?;
         let skin_manager = Arc::new(skin_manager);
         let app = AppState::new(Arc::clone(&skin_manager), ws_sender.clone());
         let gamepad_store = GamepadStore::new(ws_sender);
 
-        let input_mapper = AppInputMapper::new(app);
-        let input_listener = AppInputListener::build(input_mapper, gamepad_store);
+        let input_mapper = InputMapper::new(app);
+        let input_listener = InputListener::build(input_mapper, gamepad_store);
         let input_worker = RawInputWorker::build(input_listener)?;
         let server = ServerWorker::build(port, skin_manager)?;
 

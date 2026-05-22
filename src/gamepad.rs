@@ -1,11 +1,15 @@
 mod button_data;
-pub mod buttons;
+mod buttons;
 mod event;
-pub mod gamepad_store;
-pub mod input_worker;
+mod gamepad_store;
+mod input_worker;
 mod interface;
-pub mod listener;
-pub mod mapper;
+mod listener;
+mod mapper;
 mod sticks;
 
+pub use gamepad_store::GamepadStore;
+pub use input_worker::RawInputWorker;
 pub use interface::*;
+pub use listener::InputListener;
+pub use mapper::InputMapper;

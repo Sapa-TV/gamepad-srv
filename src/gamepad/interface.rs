@@ -1,9 +1,8 @@
+use crate::app::AppCommandEnum;
 use serde::Serialize;
 
-use crate::{
-    app::AppCommandEnum,
-    gamepad::{buttons::Buttons, sticks::Stick},
-};
+pub use super::buttons::ButtonEnum;
+use super::{buttons::Buttons, sticks::Stick};
 
 pub trait CommandReceiver: Send + Sync + 'static {
     fn receive_command(&mut self, command: AppCommandEnum);

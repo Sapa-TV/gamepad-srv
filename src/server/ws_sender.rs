@@ -9,11 +9,11 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct AppWsSender {
+pub struct WsSender {
     ws_tx: Sender<WsInput>,
 }
 
-impl AppWsSender {
+impl WsSender {
     pub fn new(ws_tx: Sender<WsInput>) -> Self {
         Self { ws_tx }
     }
@@ -25,19 +25,19 @@ impl AppWsSender {
     }
 }
 
-impl AppCommandSender for AppWsSender {
+impl AppCommandSender for WsSender {
     fn send_command(&self, command: AppCommandEnum) {
         self.send(command.into());
     }
 }
 
-impl GamepadStateSender for AppWsSender {
+impl GamepadStateSender for WsSender {
     fn send_gamepad_state(&self, state: GamepadState) {
         self.send(state.into());
     }
 }
 
-impl SkinChangeSender for AppWsSender {
+impl SkinChangeSender for WsSender {
     fn send_skin_change(&self, skin: Skin) {
         self.send(skin.into());
     }

@@ -1,6 +1,7 @@
 mod interface;
 mod skin;
-pub mod skin_manager;
+mod skin_manager;
 mod validate;
 
 pub use interface::*;
+pub use skin_manager::SkinManager;

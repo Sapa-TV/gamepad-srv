@@ -18,14 +18,14 @@ pub enum Direction {
 
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct AppSkinManager<SCS, CS = ()> {
+pub struct SkinManager<SCS, CS = ()> {
     skins: Vec<Skin>,
     idx: AtomicUsize,
     skin_change_tx: SCS,
     config: CS,
 }
 
-impl<SCS: SkinChangeSender, CS: ConfigInterface> AppSkinManager<SCS, CS> {
+impl<SCS: SkinChangeSender, CS: ConfigInterface> SkinManager<SCS, CS> {
     pub fn builder(skin_change_tx: SCS, config: CS) -> SkinManagerBuilder<SCS, CS> {
         SkinManagerBuilder {
             skin_change_tx,
@@ -57,7 +57,7 @@ impl<SCS: SkinChangeSender, CS: ConfigInterface> AppSkinManager<SCS, CS> {
     }
 }
 
-impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinNavigator for AppSkinManager<SCS, CI> {
+impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinNavigator for SkinManager<SCS, CI> {
     fn next_skin(&self) {
         self.cycle_skin(Direction::Next);
     }
@@ -67,7 +67,7 @@ impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinNavigator for AppSkinManage
     }
 }
 
-impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinViewer for AppSkinManager<SCS, CI> {
+impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinViewer for SkinManager<SCS, CI> {
     fn current_skin(&self) -> Option<&Skin> {
         let current_idx = self.idx.load(Ordering::SeqCst);
         self.skins.get(current_idx)
@@ -102,14 +102,14 @@ impl<SCS: SkinChangeSender, CI: ConfigInterface> SkinManagerBuilder<SCS, CI> {
         skins.iter().position(|s| s.path == path).unwrap_or(0)
     }
 
-    pub async fn build(self) -> AppResult<AppSkinManager<SCS, CI>> {
+    pub async fn build(self) -> AppResult<SkinManager<SCS, CI>> {
         let default_skin = self.config.current_skin();
         let skins = Self::load_skins().await?;
         let idx = Self::find_skin_idx(&skins, &default_skin);
         self.config
             .save_skin(skins.get(idx).map(|skin| skin.path.as_str()).unwrap_or(""));
 
-        Ok(AppSkinManager {
+        Ok(SkinManager {
             skins,
             idx: AtomicUsize::new(idx),
             skin_change_tx: self.skin_change_tx,

@@ -4,18 +4,18 @@ use tokio::{task::JoinHandle, time::interval};
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 use tracing::info;
 
-use super::listener::InputListener;
+use super::listener::InputListenerExt;
 use crate::error::AppResult;
 
-pub struct RawInputWorker<L: InputListener> {
+pub struct RawInputWorker<L: InputListenerExt> {
     gilrs: Gilrs,
     listener: L,
 }
 
-impl<L: InputListener> RawInputWorker<L> {
+impl<L: InputListenerExt> RawInputWorker<L> {
     pub fn build(listener: L) -> AppResult<Self>
     where
-        L: InputListener + 'static,
+        L: InputListenerExt + 'static,
     {
         let gilrs = Gilrs::new()?;
         Ok(Self { gilrs, listener })
@@ -23,7 +23,7 @@ impl<L: InputListener> RawInputWorker<L> {
 
     pub fn run(self, tracker: &TaskTracker, shutdown_token: CancellationToken) -> JoinHandle<()>
     where
-        L: InputListener + 'static,
+        L: InputListenerExt + 'static,
     {
         let mut gilrs = self.gilrs;
         let mut listener = self.listener;

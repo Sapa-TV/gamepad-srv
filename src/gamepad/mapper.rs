@@ -3,15 +3,15 @@ use crate::{
     gamepad::{CommandReceiver, buttons::ButtonEnum, event::GamepadEvent},
 };
 
-pub trait InputMapper: Send + Sync + 'static {
+pub trait InputMapperExt: Send + Sync + 'static {
     fn map(&mut self, input: &GamepadEvent) -> AppCommandEnum;
 }
 
-pub struct AppInputMapper<CR: CommandReceiver> {
+pub struct InputMapper<CR: CommandReceiver> {
     command_receiver: CR,
 }
 
-impl<CR: CommandReceiver> InputMapper for AppInputMapper<CR> {
+impl<CR: CommandReceiver> InputMapperExt for InputMapper<CR> {
     fn map(&mut self, input: &GamepadEvent) -> AppCommandEnum {
         let result = match input {
             GamepadEvent::ButtonHold(ButtonEnum::StartSelect) => {
@@ -33,7 +33,7 @@ impl<CR: CommandReceiver> InputMapper for AppInputMapper<CR> {
     }
 }
 
-impl<CR: CommandReceiver> AppInputMapper<CR> {
+impl<CR: CommandReceiver> InputMapper<CR> {
     pub fn new(command_receiver: CR) -> Self {
         Self { command_receiver }
     }
